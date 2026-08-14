@@ -1,0 +1,9 @@
+{
+  "id": "multimodal-wiki-query",
+  "name": "Multimodal Wiki Query",
+  "version": "0.2.0",
+  "minAppVersion": "1.5.0",
+  "description": "在 Obsidian 中查询本地多模态 LLM Wiki。",
+  "author": "Multimodal Wiki Team",
+  "isDesktopOnly": true
+}

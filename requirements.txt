@@ -1,0 +1,2 @@
+# Baseline 模式只使用 Python 标准库；API 模式使用 certifi 提供可信 CA。
+certifi>=2024.2.2
