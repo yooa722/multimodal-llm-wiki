@@ -1,104 +1,104 @@
-# 多模态 LLM Wiki
+# OpenCode × 多模态 LLM Wiki
 
-本项目实现一套以 Wiki 为知识组织骨架、以原始多模态 Evidence 为事实依据的 LLM Wiki 系统。系统接收符合 `mmwiki-0.1` 协议的 Source Package，将文字、完整表格、图片、图表和公式组织为可浏览、可追溯、可增量维护的 Markdown Wiki；查询时先利用 Wiki 定位知识，再回读原始 Evidence，由视觉语言模型生成带引用的中文回答。Wiki 可由 Obsidian 或其他兼容客户端浏览，核心管线不依赖特定交互界面。
+本项目实现一套以 **OpenCode 为交互入口、以 LLM Wiki 为知识骨架、以原始多模态 Evidence 为事实依据**的可追溯知识系统。
 
-本项目不负责直接解析 PDF，也不把向量检索等同于 Wiki。文档解析模块负责生成标准 Source Package；本项目从 Source Package 开始，负责协议校验、来源归档、Wiki 构建、知识导航、Evidence 检索、原始证据回读和图文问答。
+系统接收文档解析模块输出的 `mmwiki-0.1` Source Package，先构建可浏览、可链接、可维护的文本 LLM Wiki，再在同一来源版本上增量加入完整表格、公式、原图、视觉向量和视觉语言模型能力。用户在 OpenCode 中通过项目级 Skill 和类型化工具完成构建检查、Wiki 导航、图文问答与证据回跳。
+
+> OpenCode 是操作台，不是知识库；Wiki 页面负责组织知识，原始 Evidence 负责证明答案，检索与模型只负责定位和理解。
 
 ## 核心能力
 
-- 校验 `mmwiki-0.1` Source Package，并阻止绝对路径和 `../` 路径逃逸。
-- 按内容版本保存不可变来源副本；相同内容重复摄入时返回 `unchanged`。
-- 生成多模态来源页、Evidence 地图、概念页、实体页和分析页。
-- 使用统一 Evidence ID 关联来源、版本、Item、表格、公式和视觉资源。
-- 支持 `lexical`、`hybrid` 和 `multimodal` 三档检索模式。
-- 检索命中后回读原始文字、完整表格、LaTeX 和图片，而不是仅依赖 Caption 或 Chunk 摘要。
-- 使用视觉语言模型生成带 Evidence 引用的中文回答，并在证据不足时拒答。
-- 提供稳定的本地 HTTP API；Obsidian 插件作为可选客户端适配器，其他客户端可复用同一接口。
-- 提供评测、回归测试、Wiki Lint、图谱健康检查和查询 Trace。
+- **OpenCode 原生联动**：提供项目级 Skill、中文斜杠命令和类型化 `wiki_*` 工具。
+- **Wiki-first 查询**：先定位持久 Wiki 页面，再下钻到 Chunk、Item、表格、公式和图片 Evidence。
+- **两阶段构建**：先形成文本 Wiki 基座，再增量加入多模态表示，不重建不受影响的文本向量。
+- **三种检索模式**：支持 `lexical`、`hybrid` 和 `multimodal`，默认优先使用成本更低的 Hybrid。
+- **原始证据回读**：表格问题读取完整 `rows/cells/html`，视觉问题回读命中的原图，不用 Caption 冒充原始事实。
+- **可追溯回答**：回答保留 Wiki 页面、Evidence ID、来源版本、原图/表格、模型、延迟和回退状态。
+- **稳定展示**：Wiki 链接和图片通过本机 HTTP 服务打开；数学公式自动规范化为 OpenCode KaTeX 支持的格式。
+- **增量与治理**：支持内容指纹、幂等摄入、页面版本、WikiLink 图谱、维护检查和证据不足拒答。
 
-## 系统架构
+## OpenCode 与多模态 Wiki 如何联动
+
+```mermaid
+flowchart LR
+    U["用户"] --> O["OpenCode Desktop"]
+    O --> C["/wiki-* 中文命令"]
+    C --> S["multimodal-wiki Skill"]
+    S --> T["类型化 wiki_* 工具"]
+    T --> P["Python Wiki Pipeline"]
+
+    P --> W["Wiki 页面导航<br/>Page BM25 + Page Embedding"]
+    W --> E["Evidence 检索<br/>Chunk / Item / Asset"]
+    E --> R["原始证据回读<br/>文字 / 完整表格 / 公式 / 原图"]
+    R --> V["视觉语言模型"]
+    V --> A["最终 Markdown<br/>结论 + Wiki 定位 + Evidence + 运行信息"]
+    A --> O
+
+    P -. "仅监听 127.0.0.1" .-> H["Wiki 页面与原图展示服务"]
+    A --> H
+```
+
+联动链路有三项关键约束：
+
+1. OpenCode 只负责理解意图和调用工具，不直接替代 Wiki 管线。
+2. `wiki_query` 使用结构化参数传递完整问题，不把用户问题拼接成 Shell 命令。
+3. OpenCode 原样展示工具生成的最终 Markdown，不二次压缩答案、链接、表格或原图。
+
+## Wiki 构建路线
 
 ```mermaid
 flowchart TD
-    A["mmwiki-0.1 Source Package<br/>manifest / items / chunks / assets"] --> B["协议校验与版本判断"]
-    B --> C["runtime/raw/<br/>不可变来源副本"]
-    C --> D["多模态分析<br/>文字 + 完整表格 + 原始图片"]
-    D --> E["Wiki 页面编译"]
-    E --> F1["来源页"]
-    E --> F2["Evidence 地图"]
-    E --> F3["概念 / 实体 / 分析页"]
-    F1 --> G["Wiki 导航"]
-    F2 --> G
-    F3 --> G
-    G --> H["Lexical / Hybrid / Multimodal 检索"]
-    H --> I["Item、表格、公式和原图回读"]
-    I --> J["视觉语言模型图文问答"]
-    J --> K["中文回答 + Evidence 引用"]
+    A["文档解析模块"] --> B["mmwiki-0.1 Source Package"]
+    B --> C["协议校验与不可变 Raw 归档"]
+    C --> D["文本阶段<br/>正文 / OCR / Caption / 文本代理"]
+    D --> E["文本 LLM Wiki<br/>来源页 / 概念页 / 实体页 / 分析页"]
+    E --> F["Wiki 页面索引 + Evidence 文本索引"]
+
+    C --> G["多模态增量阶段"]
+    F --> G
+    G --> H["完整表格 / LaTeX / 原图 / 视觉向量"]
+    H --> I["只更新受影响 Wiki 页面和视觉索引"]
 ```
 
-系统遵循以下原则：
+文本阶段和多模态阶段使用相同的 `source_id + source_version + item_id`。多模态信息是对文本 Wiki 的增量增强，不会建立一套脱离 Wiki 的平行知识库。
 
-1. **Wiki 是知识组织骨架。**页面、目录、WikiLink、版本、图谱和日志负责组织长期知识。
-2. **Evidence 是事实依据。**页面结论和回答必须能够回到具体来源版本、Item、表格、公式或原图。
-3. **检索和模型是辅助组件。**向量库、Reranker 和视觉模型服务于 Wiki 构建与查询，不能覆盖原始事实。
-
-## Source Package 协议
-
-本项目的输入必须符合 `mmwiki-0.1` 协议。典型目录如下：
+## 代码结构
 
 ```text
-<package>/
-├── manifest.json
-├── items.jsonl
-├── chunks.jsonl
-├── assets.json
-├── assets/
-└── raw/
-```
-
-主要文件职责如下：
-
-| 文件 | 职责 |
-|---|---|
-| `manifest.json` | 记录 Package、文档、解析器、产物路径和交接字段 |
-| `items.jsonl` | 保存原始事实，包括正文、完整表格、公式、页码和资源引用 |
-| `chunks.jsonl` | 保存用于关键词和向量检索的文本代理，以及 Item/Asset 引用 |
-| `assets.json` | 保存视觉资源索引、媒体类型、摘要和相对路径 |
-| `assets/` | 保存原始图片、图表、表格截图和公式截图 |
-
-Chunk 只负责召回。表格精确数值必须从 `items.jsonl` 中的完整表格结构读取；图片问题必须在需要时回读 `assets/` 中的原图。
-
-## 目录结构
-
-```text
-multimodal-llm-wiki/
-├── app.py                    # 命令行入口
-├── mmwiki/                   # 核心 Wiki、检索、模型和 API 实现
-│   ├── api.py
-│   ├── contracts.py
-│   ├── models.py
-│   ├── pipeline.py
-│   ├── provider.py
-│   ├── retrieval.py
-│   └── search.py
+.
+├── app.py                         # 统一 CLI 入口
+├── mmwiki/
+│   ├── contracts.py               # mmwiki-0.1 协议校验与路径安全
+│   ├── models.py                  # Source、Item、Chunk、Asset 数据模型
+│   ├── pipeline.py                # 构建、增量更新、查询与 Wiki 治理
+│   ├── provider.py                # 文本/视觉模型调用与回答规范化
+│   ├── retrieval.py               # Wiki 页面导航与 Evidence 检索编排
+│   ├── search.py                  # BM25、向量融合、Rerank 与增量索引
+│   ├── api.py                     # 本地 HTTP API
+│   └── web.py                     # Wiki 页面、WikiLink 和原图展示
 ├── config/
-│   └── schema.md             # Wiki 页面 Schema 和治理规则
-├── obsidian-plugin/          # 可选的 Obsidian 本地查询适配器
-├── evaluation/               # 检索与问答评测用例
-├── tests/                    # 回归测试
-├── tools/                    # 通用转换、评测和检查工具
-├── .env.example              # 环境变量模板
-├── requirements.txt
-└── README.md
+│   ├── purpose.md                 # Wiki 目标、范围和成功标准
+│   └── schema.md                  # 页面类型、元数据和治理规则
+├── .opencode/
+│   ├── skills/multimodal-wiki/    # OpenCode 项目级 Skill
+│   ├── commands/                  # /wiki-* 中文命令
+│   └── tools/wiki.ts              # 类型化 OpenCode 工具
+├── evaluation/                    # 检索与问答评测集
+├── tools/                         # 演示、评测、迁移与增量基准工具
+├── tests/                         # 核心回归测试
+├── OPENCODE_START_HERE.md         # OpenCode 桌面版快速使用说明
+├── opencode.json                  # OpenCode 模型和权限配置
+├── obsidian-plugin/               # 旧版可选浏览适配器，不参与主演示链路
+└── .env.example                   # Wiki 管线模型配置模板
 ```
 
-运行过程中会自动生成 `runtime/`，其中包含不可变来源副本、Wiki Vault、查询记录和检索索引。该目录可能包含原始文档和派生数据，默认不纳入 Git。
+`runtime/`、`reports/`、`docs/`、原始文档和本机凭据不属于可提交的核心代码，默认不会进入 Git。
 
 ## 环境要求
 
 - Python 3.11 或更高版本
-- Obsidian 1.5 或更高版本（仅使用 Obsidian 插件时需要）
-- 可选：兼容 OpenAI API 协议的文本模型、视觉模型、Embedding 和 Reranker 服务
+- OpenCode Desktop 或 OpenCode CLI
+- 可选：兼容 OpenAI API 协议的文本、视觉、Embedding 和 Reranker 服务
 
 安装 Python 依赖：
 
@@ -108,19 +108,19 @@ source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
-## 环境变量
+## 模型配置
 
-复制环境变量模板：
+复制配置模板：
 
 ```bash
 cp .env.example .env
 ```
 
-在 `.env` 中配置模型服务。不得把真实 API Key 提交到 Git。
+在本机 `.env` 中配置：
 
 ```dotenv
-MMWIKI_API_BASE_URL=https://your-workspace.example.com/compatible-mode/v1
-MMWIKI_API_KEY=
+MMWIKI_API_BASE_URL=https://your-endpoint.example.com/compatible-mode/v1
+MMWIKI_API_KEY=your-api-key
 
 MMWIKI_BUILD_MODEL=qwen3.7-plus
 MMWIKI_VISION_MODEL=qwen3-vl-plus
@@ -128,154 +128,158 @@ MMWIKI_TEXT_EMBEDDING_MODEL=qwen3.7-text-embedding
 MMWIKI_TEXT_RERANK_MODEL=qwen3-rerank
 MMWIKI_VL_EMBEDDING_MODEL=qwen3-vl-embedding
 MMWIKI_VL_RERANK_MODEL=qwen3-vl-rerank
-
-MMWIKI_EMBEDDING_DIMENSION=1024
-MMWIKI_TIMEOUT=60
-MMWIKI_MAX_IMAGES=4
-MMWIKI_MAX_OUTPUT_TOKENS=3000
 ```
 
-模型职责如下：
-
-| 环节 | 默认模型 | 职责 |
+| 环节 | 默认模型 | 作用 |
 |---|---|---|
-| Wiki 多模态分析 | `qwen3-vl-plus` | 理解文字、完整表格和原图，生成论点与页面计划 |
-| Wiki 页面编译 | `qwen3.7-plus` | 把结构化分析结果编译为 Markdown 知识页 |
-| 文本向量召回 | `qwen3.7-text-embedding` | 生成 Chunk 和查询的文本向量 |
-| 文本重排 | `qwen3-rerank` | 对 Hybrid 文本候选重新排序 |
-| 多模态向量召回 | `qwen3-vl-embedding` | 为原图和关联文本生成融合向量 |
-| 多模态重排 | `qwen3-vl-rerank` | 直接重排文本与图片候选 |
-| 最终图文问答 | `qwen3-vl-plus` | 读取结构化 Evidence、完整表格和原图并生成带引用回答 |
+| OpenCode Agent | `qwen3-coder-plus` | 理解 Skill、选择工具并组织交互 |
+| 文本 Wiki 分析与编译 | `qwen3.7-plus` | 生成知识页、摘要和 WikiLink |
+| 多模态分析与问答 | `qwen3-vl-plus` | 读取图片、表格和关联文字 |
+| 页面/Evidence 文本向量 | `qwen3.7-text-embedding` | 语义定位 Wiki 页面和文本 Evidence |
+| 文本重排 | `qwen3-rerank` | 重排 Hybrid 候选 |
+| 视觉融合向量 | `qwen3-vl-embedding` | 建立图片与文本的联合表示 |
+| 多模态重排 | `qwen3-vl-rerank` | 重排需要视觉理解的候选 |
 
-## 快速开始
+`.env` 只供 Python Wiki 管线读取。OpenCode Agent 的账号凭据由 OpenCode 自身管理：首次使用时在 OpenCode 中执行 `/connect` 并连接 `bailian` Provider。凭据不应写入 `opencode.json`、Skill 或 Git。
 
-### 1. 校验 Source Package
+## 输入协议
+
+项目不直接解析 PDF，而是接收文档解析模块生成的 Source Package：
+
+```text
+<package>/
+├── manifest.json
+├── items.jsonl
+├── chunks.jsonl
+├── assets.json
+└── assets/
+    └── ...
+```
+
+关键语义：
+
+| 文件 | 职责 |
+|---|---|
+| `manifest.json` | 声明 `mmwiki-0.1`、来源、解析器和产物路径 |
+| `items.jsonl` | 保存原文、完整表格、公式、页码、资源引用和 provenance |
+| `chunks.jsonl` | 保存检索单元，但不取代 Item 或原始资产 |
+| `assets.json` | 保存资源路径、媒体类型和 SHA-256 |
+| `assets/` | 保存图片、图表、表格截图和公式截图 |
+
+Source Package 中的绝对路径、`../` 路径逃逸、悬空 Item/Asset 引用和错误 SHA-256 会被拒绝。
+
+## 从 Source Package 构建 Wiki
+
+先校验输入：
 
 ```bash
 python3 app.py validate /absolute/path/to/package
 ```
 
-校验内容包括 Manifest、Item、Chunk、Asset、引用完整性和路径安全性。
-
-### 2. 构建 Wiki
-
-不调用外部模型的基线构建：
-
-```bash
-python3 app.py ingest /absolute/path/to/package --provider baseline
-```
-
-调用模型完成多模态 Wiki 构建：
-
-```bash
-python3 app.py ingest /absolute/path/to/package --provider api
-```
-
-对视觉资源较多的长文档执行逐页全量构建：
+构建文本 LLM Wiki 基座：
 
 ```bash
 python3 app.py ingest /absolute/path/to/package \
   --provider api \
-  --full-scale
-```
-
-相同内容重复摄入时不会重复构建。如需显式重建，增加 `--force`。
-
-### 3. 构建检索索引
-
-构建文本与多模态索引：
-
-```bash
-python3 app.py build-index
-```
-
-只构建文本索引：
-
-```bash
+  --stage text
 python3 app.py build-index --text-only
 ```
 
-增量更新指定来源：
+在同一来源版本上增量加入多模态能力：
 
 ```bash
-python3 app.py build-index --source-id <source-id>
+python3 app.py ingest /absolute/path/to/package \
+  --provider api \
+  --stage multimodal
+python3 app.py build-index --source-id <package-id>
 ```
 
-### 4. 执行 Evidence 检索
+需要逐页读取全部视觉资源时，可在多模态阶段增加 `--full-scale`。同一内容重复摄入应返回 `unchanged`，不会重复调用模型。
+
+如果现有 Evidence 索引完整、只缺少独立 Wiki 页面向量，执行：
 
 ```bash
-python3 app.py search "问题内容" \
-  --retrieval-mode hybrid \
-  --top-k 5
+python3 app.py build-wiki-index
 ```
 
-### 5. 执行带引用的图文问答
+## 在 OpenCode 中使用
 
-```bash
-python3 app.py query "问题内容" \
-  --retrieval-mode hybrid \
-  --top-k 5
+1. 使用 OpenCode Desktop 打开本仓库根目录。
+2. 首次使用时输入 `/connect`，为 `bailian` Provider 配置个人 API Key。
+3. 完全退出并重新打开一次 OpenCode，使 `.opencode/tools/wiki.ts` 生效。
+4. 在对话框输入：
+
+   ```text
+   /wiki-start
+   ```
+
+5. 按以下顺序检查和演示：
+
+| 命令 | 作用 | 是否调用在线问答模型 |
+|---|---|---|
+| `/wiki-start` | 解释 OpenCode、Wiki 和 Evidence 的关系 | 否 |
+| `/wiki-check` | 检查数据、索引、模型和本地展示服务 | 否 |
+| `/wiki-demo` | 展示 Wiki 构建链路和原始多模态 Evidence | 否 |
+| `/wiki-compare` | 展示文本基线与多模态增量指标 | 否 |
+| `/wiki-table` | 演示完整表格回读 | 是 |
+| `/wiki-image` | 演示原图理解 | 是 |
+| `/wiki-refuse` | 演示证据不足拒答 | 是 |
+| `/wiki-ask <问题>` | 自由查询并自动选择检索模式 | 是 |
+
+自由问题示例：
+
+```text
+/wiki-ask 请结合原图解释 Figure 4 的数据流，并给出 Evidence ID。
 ```
 
-需要直接理解颜色、布局、曲线或图片内容时使用：
+正式回答固定包含：
 
-```bash
-python3 app.py query "问题内容" \
-  --retrieval-mode multimodal \
-  --top-k 5
-```
+1. **结论**：直接回答，或明确说明证据不足。
+2. **Wiki 定位**：展示用于确定知识位置的页面。
+3. **原始 Evidence**：展示 Evidence ID、完整表格或命中的原图。
+4. **运行信息**：展示检索模式、模型、回退、延迟和 Token。
+
+更详细的桌面版操作说明见 [OPENCODE_START_HERE.md](OPENCODE_START_HERE.md)。
 
 ## 检索模式
 
-| 模式 | 组成 | 适用场景 |
+| 模式 | 组成 | 推荐场景 |
 |---|---|---|
-| `lexical` | Wiki 导航、BM25、中文二元组、编号和模态加权 | 本地基线和外部检索服务不可用时的兜底 |
-| `hybrid` | Lexical、文本向量、RRF 和文本重排 | 默认模式；适合同义表达、跨语言和文本/表格问题 |
-| `multimodal` | Hybrid、图片融合向量和视觉重排 | 颜色、布局、形状、曲线和图片内容问题 |
+| `lexical` | Page BM25、WikiLink 权威度和 Evidence BM25 | 离线兜底、编号和精确关键词 |
+| `hybrid` | Wiki 页面语义导航、文本向量、RRF 和文本 Rerank | 默认模式；文字、事实、表格语义和跨语言问题 |
+| `multimodal` | Hybrid、视觉融合向量和视觉 Rerank | 颜色、布局、箭头、曲线、形状和像素细节 |
 
-Hybrid 检索阶段不直接读取图片像素，但最终问答可以回读命中 Evidence 关联的原图。Multimodal 从召回和重排阶段开始直接使用图片。
+Hybrid 在检索阶段不读取图片像素，但最终回答仍可回读命中 Evidence 关联的原图。Multimodal 从召回和重排阶段开始使用视觉信息，因此成本和延迟通常更高。
 
-## 本地 API
+## CLI 与本地 API
 
-启动本地服务：
+常用 CLI：
 
 ```bash
-python3 app.py api
+python3 app.py search "问题" --retrieval-mode hybrid --top-k 5
+python3 app.py query "问题" --retrieval-mode hybrid --provider api
+python3 app.py query "视觉问题" --retrieval-mode multimodal --provider api
+python3 app.py lint
 ```
 
-服务默认监听 `127.0.0.1:19828`。
+启动本机 API：
 
-| 方法 | 路径 | 说明 |
+```bash
+python3 app.py api --host 127.0.0.1 --port 19828
+```
+
+| 方法 | 路径 | 用途 |
 |---|---|---|
-| `GET` | `/api/v1/health` | 查询模型和检索索引状态 |
-| `GET` | `/api/v1/sources` | 获取已摄入来源及可用模态 |
-| `POST` | `/api/v1/search` | 执行 Wiki 导航和 Evidence 检索 |
-| `POST` | `/api/v1/query` | 执行检索、证据回读和图文问答 |
+| `GET` | `/api/v1/health` | 模型与索引状态 |
+| `GET` | `/api/v1/sources` | 已摄入来源 |
+| `GET` | `/wiki/view?path=wiki/...md` | 渲染 Wiki 页面和 WikiLink |
+| `GET` | `/api/v1/media/assets/...` | 返回原始视觉 Evidence |
+| `POST` | `/api/v1/search` | Wiki 导航与 Evidence 检索 |
+| `POST` | `/api/v1/query` | 带引用的图文问答 |
 
-HTTP API 默认仅监听本机回环地址。除非已部署独立的鉴权和网络隔离措施，否则不得将服务直接暴露到公网。
+默认只允许监听 `127.0.0.1`。没有独立鉴权和网络隔离时，不要暴露到公网。
 
-## Obsidian 插件（可选）
-
-1. 启动本地 API：
-
-   ```bash
-   python3 app.py api
-   ```
-
-2. 将 `obsidian-plugin/` 中的文件复制到 Vault：
-
-   ```text
-   <vault>/.obsidian/plugins/multimodal-wiki-query/
-   ```
-
-3. 在 Obsidian 的“第三方插件”设置中启用 `Multimodal Wiki Query`。
-4. 打开查询面板，选择检索模式并提交问题。
-
-插件只调用本地 API，不读取 `.env`，也不会把查询答案自动写入稳定知识页。
-
-核心 Wiki、检索和问答能力均由 Python 管线与本地 HTTP API 提供，不依赖 Obsidian。后续接入 OpenCode 或其他客户端时，应优先复用 `/api/v1/search` 和 `/api/v1/query`，仅新增客户端适配层。
-
-## 质量检查与测试
+## 测试与评测
 
 运行全部回归测试：
 
@@ -283,52 +287,44 @@ HTTP API 默认仅监听本机回环地址。除非已部署独立的鉴权和�
 python3 -m unittest discover -s tests -v
 ```
 
-检查 Wiki 页面、Evidence、资源、图谱和来源版本：
+检查 Wiki 页面、来源版本、Evidence、图谱和维护状态：
 
 ```bash
 python3 app.py lint
 ```
 
-校验评测集：
+校验并运行评测：
 
 ```bash
 python3 tools/validate_evaluation_suite.py evaluation/multimodal_wiki_40.jsonl
-```
-
-运行检索评测：
-
-```bash
 python3 tools/evaluate_retrieval.py \
   --suite evaluation/multimodal_wiki_40.jsonl \
   --retrieval-mode hybrid
 ```
 
-运行在线图文问答评测：
+运行文本 Wiki → 多模态增量的工程基准：
 
 ```bash
-python3 tools/evaluate_online.py \
-  --suite evaluation/multimodal_wiki_40.jsonl \
-  --retrieval-mode multimodal
+python3 tools/benchmark_staged_pipeline.py --offline
 ```
 
-评测输出默认写入 `reports/`。该目录用于本地实验结果，不纳入 Git。
+离线确定性基准用于验证阶段耗时、向量复用和增量正确性，不代表在线模型问答质量。
 
-## 数据与安全约束
+## 数据与安全
 
-- API Key 只能保存在 `.env` 或进程环境变量中。
-- `runtime/raw/<package-id>/<version>/` 为不可变来源副本，不应手工覆盖。
-- 稳定知识页必须记录 `source_ids`、`source_versions` 和 `evidence_ids`。
-- Query 不自动写入知识页；需要沉淀为知识时必须重新经过 Evidence 校验的构建流程。
-- Source Package 中的绝对路径和 `../` 路径会被拒绝。
-- 原始文档、运行数据、查询历史和向量索引默认不提交到 Git。
-- 使用外部模型处理敏感文档前，必须取得相应的数据外发授权。
+- API Key 只能放在 `.env`、系统环境变量或 OpenCode 凭据存储中。
+- `runtime/raw/<package-id>/<version>/` 是不可变来源副本。
+- 所有稳定知识页必须记录 `source_ids`、`source_versions` 和 `evidence_ids`。
+- Query 只追加日志，不自动把回答写入稳定知识页。
+- 外部模型可能接收候选文字、表格或图片；敏感数据必须先取得外发授权。
+- Git 默认排除 `.env`、`runtime/`、`reports/`、`docs/`、原始文档和本地展示工程。
 
-## 协作规范
+## 协作与提交
 
-建议从 `main` 创建独立功能分支：
+建议从 `main` 创建功能分支：
 
 ```bash
-git checkout -b feature/<功能名称>
+git checkout -b feature/<name>
 ```
 
 提交前必须运行：
@@ -336,6 +332,7 @@ git checkout -b feature/<功能名称>
 ```bash
 python3 -m unittest discover -s tests -v
 python3 app.py lint
+git diff --check
 ```
 
-通过 Pull Request 合并到 `main`。修改 Source Package 输入协议时，必须同步更新本 README、Schema 和相关测试。
+修改 `mmwiki-0.1` 输入协议时，必须同步更新协议说明、README 和测试；修改 OpenCode 工具后，需要完全重启 OpenCode Desktop 验证命令加载。

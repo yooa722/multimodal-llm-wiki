@@ -1,0 +1,51 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bailian/qwen3-coder-plus",
+  "permission": {
+    "skill": {
+      "multimodal-wiki": "allow"
+    },
+    "bash": {
+      "*": "ask",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh preflight": "allow",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh start": "allow",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh status": "allow",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh tour": "allow",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh compare": "allow",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh questions": "allow",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh table": "allow",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh visual": "allow",
+      "bash .opencode/skills/multimodal-wiki/scripts/demo.sh refuse": "allow",
+      "python3 tools/demo_preflight.py": "allow",
+      "python3 tools/opencode_demo.py start": "allow",
+      "python3 tools/opencode_demo.py status": "allow",
+      "python3 tools/opencode_demo.py tour": "allow",
+      "python3 tools/opencode_demo.py compare": "allow",
+      "python3 tools/opencode_demo.py questions": "allow",
+      "python3 tools/opencode_demo.py live --case table": "allow",
+      "python3 tools/opencode_demo.py live --case visual": "allow",
+      "python3 tools/opencode_demo.py live --case refuse": "allow",
+      "python3 app.py lint": "allow"
+    }
+  },
+  "provider": {
+    "bailian": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Alibaba Cloud Model Studio",
+      "options": {
+        "baseURL": "https://ws-yuukvqk9e0e392m3.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+      },
+      "models": {
+        "qwen3-coder-plus": {
+          "name": "Qwen3 Coder Plus"
+        },
+        "qwen3.7-plus": {
+          "name": "Qwen3.7 Plus"
+        },
+        "qwen3-vl-plus": {
+          "name": "Qwen3 VL Plus"
+        }
+      }
+    }
+  }
+}

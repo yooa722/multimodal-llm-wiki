@@ -7,8 +7,10 @@ from pathlib import Path
 
 from mmwiki.retrieval import (
     HybridRetriever,
+    LEGACY_RETRIEVAL_INDEX_VERSION,
     RETRIEVAL_INDEX_VERSION,
     RetrievalIndex,
+    _source_fingerprints,
     cosine_similarity,
 )
 from mmwiki.search import Retriever, navigate_wiki, reference_labels, tokens
@@ -165,6 +167,7 @@ class HybridRetrieverTests(unittest.TestCase):
                 {
                     "schema_version": RETRIEVAL_INDEX_VERSION,
                     "sources": {"source-a": "version-a"},
+                    "source_fingerprints": _source_fingerprints(self.state),
                     "text": {
                         "model": "fake-text-embedding",
                         "records": [
@@ -210,10 +213,51 @@ class HybridRetrieverTests(unittest.TestCase):
         )
         self.assertTrue(status["text_ready"])
         self.assertTrue(status["visual_ready"])
+        self.assertTrue(status["wiki_semantic_ready"])
         self.assertEqual(status["text_records"], 2)
         self.assertEqual(status["visual_records"], 1)
+        self.assertEqual(status["wiki_records"], 1)
+
+    def test_wiki_page_backfill_preserves_existing_evidence_vectors(self) -> None:
+        index = RetrievalIndex(self.index_path, self.vault)
+        index.build(self.state, FakeRetrievalProvider(), include_visual=True)
+        value = json.loads(self.index_path.read_text(encoding="utf-8"))
+        expected_text = value["text"]["records"]
+        expected_visual = value["visual"]["records"]
+        value.pop("wiki")
+        self.index_path.write_text(json.dumps(value), encoding="utf-8")
+
+        status = index.build_wiki_pages(self.state, FakeRetrievalProvider())
+        rebuilt = json.loads(self.index_path.read_text(encoding="utf-8"))
+
+        self.assertTrue(status["wiki_semantic_ready"])
+        self.assertEqual(status["index_scope"], "wiki_pages_only")
+        self.assertEqual(status["new_wiki_records"], 1)
+        self.assertEqual(status["preserved_text_records"], 2)
+        self.assertEqual(status["preserved_visual_records"], 1)
+        self.assertEqual(rebuilt["text"]["records"], expected_text)
+        self.assertEqual(rebuilt["visual"]["records"], expected_visual)
+
+    def test_legacy_index_migration_preserves_vectors_without_api_calls(self) -> None:
+        value = json.loads(self.index_path.read_text(encoding="utf-8"))
+        value["schema_version"] = LEGACY_RETRIEVAL_INDEX_VERSION
+        value.pop("source_fingerprints", None)
+        self.index_path.write_text(json.dumps(value), encoding="utf-8")
+
+        status = RetrievalIndex(self.index_path, self.vault).migrate_legacy(
+            self.state, FakeRetrievalProvider()
+        )
+
+        self.assertEqual(status["status"], "migrated")
+        self.assertTrue(status["fresh"])
+        self.assertEqual(status["external_api_calls"], 0)
+        self.assertEqual(status["preserved_text_records"], 2)
+        self.assertEqual(status["preserved_visual_records"], 1)
 
     def test_index_incrementally_adds_only_selected_source(self) -> None:
+        RetrievalIndex(self.index_path, self.vault).build(
+            self.state, FakeRetrievalProvider(), include_visual=True
+        )
         state = json.loads(json.dumps(self.state))
         state["sources"]["source-b"] = {
             "title": "New source",
@@ -250,8 +294,44 @@ class HybridRetrieverTests(unittest.TestCase):
             {record["source_id"] for record in value["text"]["records"]},
             {"source-a", "source-b"},
         )
+        self.assertEqual(status["reused_text_records"], 2)
+        self.assertEqual(status["new_text_records"], 1)
+        self.assertEqual(status["reused_visual_records"], 1)
+        self.assertEqual(status["new_visual_records"], 0)
+
+    def test_multimodal_upgrade_reuses_text_base_vectors(self) -> None:
+        text_state = json.loads(json.dumps(self.state))
+        source = text_state["sources"]["source-a"]
+        source["representation"] = "text"
+        source["chunks"] = [source["chunks"][0]]
+        source["assets"] = {}
+        index = RetrievalIndex(self.index_path, self.vault)
+
+        text_status = index.build(
+            text_state, FakeRetrievalProvider(), include_visual=False
+        )
+        self.assertEqual(text_status["new_text_records"], 1)
+        self.assertEqual(text_status["visual_records"], 0)
+
+        rich_state = json.loads(json.dumps(self.state))
+        rich_state["sources"]["source-a"]["representation"] = "text+multimodal"
+        rich_status = index.build(
+            rich_state,
+            FakeRetrievalProvider(),
+            include_visual=True,
+            source_ids={"source-a"},
+        )
+
+        self.assertTrue(rich_status["fresh"])
+        self.assertEqual(rich_status["reused_text_records"], 1)
+        self.assertEqual(rich_status["new_text_records"], 1)
+        self.assertEqual(rich_status["reused_visual_records"], 0)
+        self.assertEqual(rich_status["new_visual_records"], 1)
 
     def test_incremental_index_rejects_stale_retained_source(self) -> None:
+        RetrievalIndex(self.index_path, self.vault).build(
+            self.state, FakeRetrievalProvider(), include_visual=True
+        )
         state = json.loads(json.dumps(self.state))
         state["sources"]["source-a"]["source_version"] = "changed-version"
         state["sources"]["source-b"] = {
@@ -286,6 +366,33 @@ class HybridRetrieverTests(unittest.TestCase):
         )
 
         self.assertEqual([value["source_id"] for value in ranked], ["source-a", "source-b"])
+
+    def test_semantic_wiki_navigation_ranks_pages_before_sources(self) -> None:
+        pages = HybridRetriever._rank_wiki_pages(
+            [1.0, 0.0],
+            [
+                {
+                    "path": "wiki/concepts/edge.md",
+                    "title": "Edge",
+                    "summary": "",
+                    "kind": "concept",
+                    "source_ids": ["source-a"],
+                    "vector": [1.0, 0.0],
+                },
+                {
+                    "path": "wiki/concepts/other.md",
+                    "title": "Other",
+                    "summary": "",
+                    "kind": "concept",
+                    "source_ids": ["source-b"],
+                    "vector": [0.0, 1.0],
+                },
+            ],
+            None,
+        )
+
+        self.assertEqual(pages[0]["path"], "wiki/concepts/edge.md")
+        self.assertEqual(pages[0]["navigation_stage"], "wiki-page-embedding")
 
     def test_hybrid_search_uses_text_embedding_and_rerank(self) -> None:
         hits, trace = HybridRetriever(
@@ -341,6 +448,7 @@ class HybridRetrieverTests(unittest.TestCase):
         }
         source["chunks"][1]["asset_ids"].append("asset-2")
         index = json.loads(self.index_path.read_text(encoding="utf-8"))
+        index["source_fingerprints"] = _source_fingerprints(self.state)
         index["visual"]["records"] = [
             {
                 "source_id": "source-a",

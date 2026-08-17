@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 import urllib.error
 import urllib.request
@@ -22,7 +23,8 @@ def main() -> int:
         PROJECT_ROOT / "runtime/vault/Home.md",
         PROJECT_ROOT / "runtime/vault/wiki/index.md",
         PROJECT_ROOT / "runtime/vault/wiki/overview.md",
-        PROJECT_ROOT / "runtime/vault/.obsidian/plugins/multimodal-wiki-query/main.js",
+        PROJECT_ROOT / ".opencode/skills/multimodal-wiki/SKILL.md",
+        PROJECT_ROOT / "opencode.json",
     ]
     missing = [str(path.relative_to(PROJECT_ROOT)) for path in required if not path.is_file()]
     health: dict[str, object]
@@ -33,15 +35,33 @@ def main() -> int:
         health = {"status": "offline", "hint": "运行 python3 app.py api"}
     state = pipeline._load_state()
     retrieval = pipeline.retrieval_status()
+    opencode_cli = shutil.which("opencode") or str(
+        Path.home() / ".opencode/bin/opencode"
+    )
+    opencode_ready = Path(opencode_cli).is_file()
+    enhanced_retrieval_ready = (
+        retrieval["text_ready"] and retrieval["visual_ready"]
+    )
     result = {
-        "ready": lint["status"] == "passed" and provider.configured and not missing,
+        "ready": (
+            lint["status"] == "passed"
+            and provider.configured
+            and enhanced_retrieval_ready
+            and opencode_ready
+            and not missing
+        ),
         "sources": len(state.get("sources", {})),
         "wiki_pages": len(state.get("pages", {})),
         "vision_model": provider.model or None,
         "provider_configured": provider.configured,
-        "enhanced_retrieval_ready": (
-            retrieval["text_ready"] and retrieval["visual_ready"]
-        ),
+        "enhanced_retrieval_ready": enhanced_retrieval_ready,
+        "opencode": {
+            "cli": opencode_cli,
+            "cli_ready": opencode_ready,
+            "desktop_app": str(Path("/Applications/OpenCode.app")),
+            "desktop_ready": Path("/Applications/OpenCode.app").is_dir(),
+            "skill": ".opencode/skills/multimodal-wiki/SKILL.md",
+        },
         "retrieval": retrieval,
         "api": health,
         "lint": lint,

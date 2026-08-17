@@ -9,6 +9,17 @@ from mmwiki.pipeline import NON_WIKI_VAULT_DOCUMENTS, WikiPipeline
 
 
 class VaultLayoutTests(unittest.TestCase):
+    def test_layout_bootstraps_wiki_purpose_schema_and_maintenance(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = WikiPipeline(Path(directory))
+
+            self.assertTrue(pipeline.purpose_path.is_file())
+            self.assertTrue(pipeline.schema_path.is_file())
+            self.assertTrue(pipeline.maintenance_path.is_file())
+            home = (pipeline.vault / "Home.md").read_text(encoding="utf-8")
+            self.assertIn("[[wiki/maintenance|Wiki Maintenance]]", home)
+            self.assertIn("[[wiki-purpose|Wiki Purpose]]", home)
+
     def test_process_documents_are_removed_from_vault(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -231,6 +242,7 @@ class VaultLayoutTests(unittest.TestCase):
 
             result = pipeline.refresh_wiki_pages()
             content = page_path.read_text(encoding="utf-8")
+            refreshed_page = pipeline._load_state()["pages"]["wiki/concepts/page-a.md"]
 
             self.assertEqual(result["external_api_calls"], 0)
             self.assertEqual(content.count("\n---\n"), 1)
@@ -238,6 +250,9 @@ class VaultLayoutTests(unittest.TestCase):
             self.assertIn("`source-a@v1#figure-1`", content)
             self.assertIn("![[assets/source-a/figure.png]]", content)
             self.assertIn("mmwiki:multimodal-evidence:start", content)
+            self.assertEqual(refreshed_page["representation_layers"], ["text", "multimodal"])
+            self.assertEqual(refreshed_page["last_ingest_stage"], "multimodal")
+            self.assertEqual(refreshed_page["revision"], 1)
 
     def test_curate_removes_active_vault_data_but_preserves_raw(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

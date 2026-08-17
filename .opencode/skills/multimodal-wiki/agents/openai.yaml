@@ -1,0 +1,4 @@
+interface:
+  display_name: "多模态 LLM Wiki"
+  short_description: "用中文构建、查询并演示可追溯的多模态 Wiki"
+  default_prompt: "Use $multimodal-wiki to give me the Chinese beginner walkthrough and show how Wiki pages lead to original multimodal Evidence."

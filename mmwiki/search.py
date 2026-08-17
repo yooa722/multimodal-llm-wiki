@@ -86,8 +86,15 @@ def navigate_wiki(
     source_ids: set[str] | None = None,
     limit: int = 8,
 ) -> list[dict[str, Any]]:
-    """Rank real Wiki pages as a soft navigation layer before Evidence retrieval."""
-    query_tokens = tokens(query)
+    """Rank real Wiki pages before Evidence retrieval.
+
+    Wiki pages are the navigation substrate, so this deliberately ranks page
+    titles, summaries and bodies as documents instead of treating them as a
+    tiny bonus on top of chunk retrieval.  Link authority is only a tie-breaker:
+    a popular page must still match the user's question.
+    """
+    query_token_list = token_list(query)
+    query_tokens = set(query_token_list)
     query_labels = reference_labels(query)
     pages: list[dict[str, Any]] = []
     for source_id, source in state.get("sources", {}).items():
@@ -127,7 +134,7 @@ def navigate_wiki(
             }
         )
 
-    ranked: list[dict[str, Any]] = []
+    documents: list[dict[str, Any]] = []
     vault_root = vault.resolve()
     for page in pages:
         relative = page["path"]
@@ -135,15 +142,89 @@ def navigate_wiki(
         if not relative or vault_root not in target.parents or not target.is_file():
             continue
         content = target.read_text(encoding="utf-8")[:100000]
-        title_overlap = len(query_tokens & tokens(page["title"]))
-        summary_overlap = len(query_tokens & tokens(page["summary"]))
-        body_overlap = len(query_tokens & tokens(content))
-        score = float(title_overlap * 3 + summary_overlap * 2 + body_overlap)
-        if query_labels & reference_labels("\n".join([page["title"], content])):
-            score += 6
-        if score < 1:
+        title_tokens = token_list(page["title"])
+        summary_tokens = token_list(page["summary"])
+        body_tokens = token_list(content)
+        # Field weighting preserves the familiar Wiki behaviour: page titles
+        # and concise summaries dominate long generated bodies.
+        weighted_tokens = title_tokens * 4 + summary_tokens * 2 + body_tokens
+        documents.append(
+            {
+                **page,
+                "content": content,
+                "tokens": weighted_tokens,
+                "token_set": set(weighted_tokens),
+            }
+        )
+
+    if not documents or not query_tokens:
+        return []
+
+    aliases: dict[str, str] = {}
+    for page in documents:
+        path = page["path"].removesuffix(".md")
+        for alias in (path, Path(path).name, page["title"]):
+            aliases.setdefault(str(alias).casefold(), page["path"])
+    inbound = Counter({page["path"]: 0 for page in documents})
+    link_pattern = re.compile(r"(?<!!)\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
+    for page in documents:
+        linked: set[str] = set()
+        for raw_link in link_pattern.findall(page["content"]):
+            resolved = aliases.get(raw_link.strip().removesuffix(".md").casefold())
+            if resolved and resolved != page["path"]:
+                linked.add(resolved)
+        inbound.update(linked)
+
+    document_count = len(documents)
+    average_length = sum(len(page["tokens"]) for page in documents) / document_count
+    document_frequency = {
+        token: sum(token in page["token_set"] for page in documents)
+        for token in query_tokens
+    }
+    ranked: list[dict[str, Any]] = []
+    for page in documents:
+        counts = Counter(page["tokens"])
+        lexical_score = 0.0
+        for token in query_tokens:
+            frequency = counts[token]
+            if not frequency:
+                continue
+            frequency_in_docs = document_frequency[token]
+            inverse_document_frequency = math.log(
+                1
+                + (document_count - frequency_in_docs + 0.5)
+                / (frequency_in_docs + 0.5)
+            )
+            normalization = frequency + 1.2 * (
+                1 - 0.75 + 0.75 * len(page["tokens"]) / max(average_length, 1.0)
+            )
+            lexical_score += inverse_document_frequency * (
+                frequency * (1.2 + 1) / normalization
+            )
+        label_score = (
+            6.0
+            if query_labels
+            & reference_labels("\n".join([page["title"], page["content"]]))
+            else 0.0
+        )
+        authority_score = math.log1p(inbound[page["path"]]) * 0.15
+        score = lexical_score + label_score + authority_score
+        if lexical_score + label_score <= 0:
             continue
-        ranked.append({**page, "score": round(score, 6)})
+        ranked.append(
+            {
+                **{key: value for key, value in page.items() if key not in {"content", "tokens", "token_set"}},
+                "score": round(score, 6),
+                "navigation_stage": "wiki-page-bm25",
+                "matched_terms": sorted(query_tokens & page["token_set"]),
+                "inbound_links": int(inbound[page["path"]]),
+                "score_breakdown": {
+                    "page_bm25": round(lexical_score, 6),
+                    "reference_label": round(label_score, 6),
+                    "link_authority": round(authority_score, 6),
+                },
+            }
+        )
     ranked.sort(
         key=lambda value: (
             -value["score"],

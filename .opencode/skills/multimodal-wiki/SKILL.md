@@ -1,0 +1,105 @@
+---
+name: multimodal-wiki
+description: Operate and explain this project's traceable multimodal LLM Wiki in OpenCode. Use for the Chinese beginner walkthrough, staged text-to-multimodal builds, Wiki navigation, cited text/table/image question answering, evidence inspection, baseline comparison, readiness checks, and live demonstrations based on mmwiki-0.1 Source Packages.
+---
+
+# Multimodal LLM Wiki
+
+Work from the repository root. Treat OpenCode as the interaction layer, Wiki pages as the knowledge backbone, and raw Evidence as the factual source. Respond in Chinese unless the user asks otherwise.
+
+Before architecture work, distinguish the layers: `wiki-purpose.md` defines why the Wiki exists, `schema.md` defines page rules, stable Markdown pages hold compiled knowledge, page-level BM25/embeddings locate knowledge, and Chunk/Item/Asset Evidence proves the answer. Never collapse these into one generic RAG step.
+
+## Beginner-first rule
+
+When the user is unfamiliar with OpenCode, do not begin with raw JSON, Python commands, or API concepts. Run:
+
+```bash
+python3 tools/opencode_demo.py start
+```
+
+Then explain only these project commands: `/wiki-start`, `/wiki-demo`, `/wiki-table`, `/wiki-image`, and `/wiki-ask <问题>`. State explicitly that OpenCode is the operation console, not the Wiki storage or a Wikipedia-like website.
+
+## Choose the workflow
+
+- Prefer the typed OpenCode tools `wiki_start`, `wiki_status`, `wiki_tour`, `wiki_compare`, and `wiki_query` when available. They pass user questions as process arguments without shell interpolation. Use the Python or shell commands below only as fallbacks.
+- For a first visit, run `bash .opencode/skills/multimodal-wiki/scripts/demo.sh start`.
+- For a human-readable readiness check, run `bash .opencode/skills/multimodal-wiki/scripts/demo.sh status`.
+- For the full read-only walkthrough, run `bash .opencode/skills/multimodal-wiki/scripts/demo.sh tour`.
+- For a new Source Package, follow the staged build below. Do not use a one-shot build when collecting comparison metrics.
+- For a question, use `hybrid` by default. Use `multimodal` only when pixels, layout, color, arrows, curves, or other visual details matter.
+- For benchmark or architecture explanations, read `references/architecture.md` first.
+
+## Build in two stages
+
+1. Validate the immutable parser handoff:
+
+   ```bash
+   python3 app.py validate /absolute/path/to/package
+   ```
+
+2. Build the text LLM Wiki baseline. It may use OCR, captions, and linearized text proxies, but must not read image pixels or structured table cells:
+
+   ```bash
+   python3 app.py ingest /absolute/path/to/package --provider api --stage text
+   python3 app.py build-index --text-only
+   ```
+
+3. Add first-class table, equation, and image Evidence without rebuilding the immutable source or existing text vectors:
+
+   ```bash
+   python3 app.py ingest /absolute/path/to/package --provider api --stage multimodal
+   python3 app.py build-index --source-id <package-id>
+   ```
+
+4. Report the stage metrics returned by the commands: elapsed time, API calls, token usage, page impact scope, active item/chunk/asset counts, and reused/new Wiki-page, Evidence-text and visual index records.
+
+If a valid Evidence index already exists and only the independent page-level index is missing or stale, run `python3 app.py build-wiki-index`. This command must preserve all existing text and visual Evidence vectors and embed only changed Wiki pages.
+
+Use `--full-scale` only on the multimodal stage when every page image must be analyzed. Repeating the same source version should return `unchanged` with zero model calls.
+
+## Query with evidence
+
+In OpenCode, call the typed `wiki_query` tool with `question`, `mode`, and `provider`. Never concatenate a user question into a shell command.
+
+The typed tool returns presentation-ready final Markdown. After it succeeds, output that return value verbatim. Do not summarize, rewrite, reorder, translate, or reconstruct it. Never drop its Wiki HTTP links, Evidence IDs, evidence excerpts, complete tables, image links/previews, or runtime table. This passthrough rule applies to every question type, not only demo cases.
+
+Run directly through the CLI:
+
+```bash
+python3 app.py query "<question>" --retrieval-mode hybrid --top-k 5
+python3 app.py query "<visual question>" --retrieval-mode multimodal --top-k 5
+```
+
+Or start the localhost API for an interactive OpenCode demo:
+
+```bash
+bash .opencode/skills/multimodal-wiki/scripts/demo.sh serve
+```
+
+Always show the answer, Evidence IDs, source version, retrieval mode, model, latency, and whether fallback occurred. Never turn a query answer into a stable Wiki page automatically.
+
+The query order is fixed: rank persistent Wiki pages first (`page_bm25` and, when built, `page_embedding`), derive the relevant source scope, then retrieve Chunk/Item Evidence. A high-scoring Wiki page is orientation, not proof; the final answer must still cite raw Evidence.
+
+Use this fixed presentation order for every answer:
+
+1. **结论** — answer or explicit insufficient-evidence refusal.
+2. **Wiki 定位** — the stable/source/evidence-map pages used for orientation.
+3. **原始 Evidence** — Evidence IDs plus complete table rows/cells or original image links/previews.
+4. **运行信息** — requested/actual retrieval mode, model, fallback, latency, and token usage.
+
+Do not present a caption as if it were the original image, or linearized text as if it were the complete table. For visual questions, preserve the exact matched image instead of substituting another asset from the same item.
+
+Answer depth must follow the user's task rather than a fixed length: keep a direct fact concise, but preserve ordered steps, comparison dimensions, requested list items, calculation conditions, and visible diagram relations when the question asks for them.
+
+Preserve the localhost HTTP links returned by the typed tools. Do not replace them with absolute filesystem Markdown links: OpenCode Desktop may treat local paths as web URLs and fail to open them. For an image, show both the inline HTTP preview and the browser link returned by the tool. The tool may start the `127.0.0.1:19828` display service automatically; never bind it to a public interface.
+
+## Verify before handoff
+
+```bash
+python3 -m unittest discover -s tests -v
+python3 app.py lint
+python3 tools/opencode_demo.py status
+```
+
+Do not print, copy, or commit `.env` or API keys. Do not mutate Source Package items, tables, images, or provenance. Keep `runtime/raw/<package-id>/<version>/` immutable and reject path traversal.
+Read `runtime/vault/wiki/maintenance.md` after lint. Treat stale source versions, broken links and orphan pages as maintenance findings; do not silently rewrite pages during Query.

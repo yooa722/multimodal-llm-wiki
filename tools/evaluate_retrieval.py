@@ -93,6 +93,123 @@ def grouped_metrics(rows: list[dict[str, Any]], field: str) -> dict[str, dict[st
     return result
 
 
+def evaluate_pipeline(
+    pipeline: WikiPipeline,
+    cases: list[dict[str, Any]],
+    *,
+    top_k: int = 5,
+    wiki_source_k: int = 3,
+    wiki_page_k: int = 5,
+    scope: str = "corpus",
+    retrieval_mode: str = "lexical",
+) -> dict[str, Any]:
+    """Evaluate one already-built Wiki so staged benchmarks can reuse this logic."""
+    rows: list[dict[str, Any]] = []
+    for case in cases:
+        if not case["evidence_item_ids"]:
+            continue
+        started = time.perf_counter()
+        search_result = pipeline.search_with_trace(
+            case["question"],
+            top_k,
+            {case["source_id"]} if scope == "source" else None,
+            retrieval_mode,
+        )
+        hits = search_result["hits"]
+        latency = (time.perf_counter() - started) * 1000
+        retrieved = [
+            f"{hit['source_id']}#{item}"
+            for hit in hits
+            for item in hit["item_ids"]
+        ]
+        rank = first_relevant_rank(hits, case)
+        navigation_rank = first_navigation_rank(
+            search_result["retrieval"], case["source_id"]
+        )
+        wiki_page_rank = first_wiki_page_rank(search_result["retrieval"], case)
+        fell_back = search_result["retrieval"].get("mode") != retrieval_mode
+        rows.append(
+            {
+                "id": case["id"],
+                "source_id": case["source_id"],
+                "modality": case["modality"],
+                "difficulty": case.get("difficulty", "unknown"),
+                "hit": rank is not None,
+                "first_relevant_rank": rank,
+                "first_wiki_navigation_rank": navigation_rank,
+                "wiki_page_gold_available": bool(case.get("wiki_page_paths")),
+                "first_wiki_page_rank": wiki_page_rank,
+                "fell_back": fell_back,
+                "latency_ms": round(latency, 3),
+                "retrieved_item_ids": retrieved,
+                "retrieval": search_result["retrieval"],
+            }
+        )
+    if not rows:
+        raise ValueError("评测集中没有可评价的 evidence_item_ids")
+
+    latencies = [row["latency_ms"] for row in rows]
+    ranks = [row["first_relevant_rank"] for row in rows if row["first_relevant_rank"]]
+    navigation_hits = [
+        row
+        for row in rows
+        if row["first_wiki_navigation_rank"]
+        and row["first_wiki_navigation_rank"] <= wiki_source_k
+    ]
+    wiki_page_rows = [row for row in rows if row["wiki_page_gold_available"]]
+    wiki_page_ranks = [
+        row["first_wiki_page_rank"]
+        for row in wiki_page_rows
+        if row["first_wiki_page_rank"]
+        and row["first_wiki_page_rank"] <= wiki_page_k
+    ]
+    fallback_count = sum(row["fell_back"] for row in rows)
+    return {
+        "top_k": top_k,
+        "evaluation_scope": scope,
+        "retrieval_mode": retrieval_mode,
+        "cases": len(rows),
+        "metrics": {
+            "recall_at_k": round(sum(row["hit"] for row in rows) / len(rows), 4),
+            "mrr": round(sum(1 / rank for rank in ranks) / len(rows), 4),
+            "top1_accuracy": round(
+                sum(row["first_relevant_rank"] == 1 for row in rows) / len(rows), 4
+            ),
+            "ndcg_at_k": round(
+                sum(1 / math.log2(rank + 1) for rank in ranks) / len(rows), 4
+            ),
+            "wiki_source_recall_at_k": round(len(navigation_hits) / len(rows), 4),
+            "wiki_source_k": wiki_source_k,
+            "wiki_page_gold_cases": len(wiki_page_rows),
+            "wiki_page_recall_at_k": (
+                round(len(wiki_page_ranks) / len(wiki_page_rows), 4)
+                if wiki_page_rows
+                else None
+            ),
+            "wiki_page_mrr": (
+                round(
+                    sum(1 / rank for rank in wiki_page_ranks) / len(wiki_page_rows),
+                    4,
+                )
+                if wiki_page_rows
+                else None
+            ),
+            "wiki_page_k": wiki_page_k,
+            "fallback_count": fallback_count,
+            "fallback_rate": round(fallback_count / len(rows), 4),
+            "latency_ms_mean": round(statistics.mean(latencies), 3),
+            "latency_ms_p95": round(
+                sorted(latencies)[max(0, math.ceil(len(latencies) * 0.95) - 1)], 3
+            ),
+        },
+        "metrics_by_modality": grouped_metrics(rows, "modality"),
+        "metrics_by_difficulty": grouped_metrics(rows, "difficulty"),
+        "metrics_by_source": grouped_metrics(rows, "source_id"),
+        "valid_for_requested_mode": fallback_count == 0,
+        "results": rows,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="评测多模态 Wiki 证据检索")
     parser.add_argument("--suite", type=Path, default=Path("evaluation/demo_qa.jsonl"))
@@ -114,108 +231,35 @@ def main() -> int:
         action="store_true",
         help="允许请求模式回退；默认回退会使评测返回失败，防止误标指标",
     )
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=PROJECT_ROOT,
+        help="待评测项目根目录；默认使用当前仓库",
+    )
     args = parser.parse_args()
-    pipeline = WikiPipeline(PROJECT_ROOT)
+    pipeline = WikiPipeline(args.root)
     cases = load_jsonl(args.suite)
-    rows: list[dict[str, Any]] = []
-    for case in cases:
-        if not case["evidence_item_ids"]:
-            continue
-        started = time.perf_counter()
-        result = pipeline.search_with_trace(
-            case["question"],
-            args.top_k,
-            {case["source_id"]} if args.scope == "source" else None,
-            args.retrieval_mode,
-        )
-        hits = result["hits"]
-        latency = (time.perf_counter() - started) * 1000
-        retrieved = [
-            f"{hit['source_id']}#{item}"
-            for hit in hits
-            for item in hit["item_ids"]
-        ]
-        rank = first_relevant_rank(hits, case)
-        navigation_rank = first_navigation_rank(result["retrieval"], case["source_id"])
-        wiki_page_rank = first_wiki_page_rank(result["retrieval"], case)
-        fell_back = result["retrieval"].get("mode") != args.retrieval_mode
-        rows.append(
-            {
-                "id": case["id"],
-                "source_id": case["source_id"],
-                "modality": case["modality"],
-                "difficulty": case.get("difficulty", "unknown"),
-                "hit": rank is not None,
-                "first_relevant_rank": rank,
-                "first_wiki_navigation_rank": navigation_rank,
-                "wiki_page_gold_available": bool(case.get("wiki_page_paths")),
-                "first_wiki_page_rank": wiki_page_rank,
-                "fell_back": fell_back,
-                "latency_ms": round(latency, 3),
-                "retrieved_item_ids": retrieved,
-                "retrieval": result["retrieval"],
-            }
-        )
-    latencies = [row["latency_ms"] for row in rows]
-    ranks = [row["first_relevant_rank"] for row in rows if row["first_relevant_rank"]]
-    navigation_hits = [
-        row
-        for row in rows
-        if row["first_wiki_navigation_rank"]
-        and row["first_wiki_navigation_rank"] <= args.wiki_source_k
-    ]
-    wiki_page_rows = [row for row in rows if row["wiki_page_gold_available"]]
-    wiki_page_ranks = [
-        row["first_wiki_page_rank"]
-        for row in wiki_page_rows
-        if row["first_wiki_page_rank"]
-        and row["first_wiki_page_rank"] <= args.wiki_page_k
-    ]
-    fallback_count = sum(row["fell_back"] for row in rows)
+    result = evaluate_pipeline(
+        pipeline,
+        cases,
+        top_k=args.top_k,
+        wiki_source_k=args.wiki_source_k,
+        wiki_page_k=args.wiki_page_k,
+        scope=args.scope,
+        retrieval_mode=args.retrieval_mode,
+    )
     result = {
         "suite": str(args.suite),
-        "top_k": args.top_k,
-        "evaluation_scope": args.scope,
-        "retrieval_mode": args.retrieval_mode,
-        "cases": len(rows),
-        "metrics": {
-            "recall_at_k": round(sum(row["hit"] for row in rows) / len(rows), 4),
-            "mrr": round(sum(1 / rank for rank in ranks) / len(rows), 4),
-            "top1_accuracy": round(
-                sum(row["first_relevant_rank"] == 1 for row in rows) / len(rows), 4
-            ),
-            "ndcg_at_k": round(
-                sum(1 / math.log2(rank + 1) for rank in ranks) / len(rows), 4
-            ),
-            "wiki_source_recall_at_k": round(len(navigation_hits) / len(rows), 4),
-            "wiki_source_k": args.wiki_source_k,
-            "wiki_page_gold_cases": len(wiki_page_rows),
-            "wiki_page_recall_at_k": round(
-                len(wiki_page_ranks) / len(wiki_page_rows), 4
-            ) if wiki_page_rows else None,
-            "wiki_page_mrr": round(
-                sum(1 / rank for rank in wiki_page_ranks) / len(wiki_page_rows), 4
-            ) if wiki_page_rows else None,
-            "wiki_page_k": args.wiki_page_k,
-            "fallback_count": fallback_count,
-            "fallback_rate": round(fallback_count / len(rows), 4),
-            "latency_ms_mean": round(statistics.mean(latencies), 3),
-            "latency_ms_p95": round(
-                sorted(latencies)[max(0, math.ceil(len(latencies) * 0.95) - 1)], 3
-            ),
-        },
-        "metrics_by_modality": grouped_metrics(rows, "modality"),
-        "metrics_by_difficulty": grouped_metrics(rows, "difficulty"),
-        "metrics_by_source": grouped_metrics(rows, "source_id"),
-        "valid_for_requested_mode": fallback_count == 0,
-        "results": rows,
+        **result,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result["metrics"], ensure_ascii=False, indent=2))
+    fallback_count = result["metrics"]["fallback_count"]
     if fallback_count and not args.allow_fallback:
         print(
-            f"评测无效：{fallback_count}/{len(rows)} 题回退，未执行请求的 {args.retrieval_mode} 模式",
+            f"评测无效：{fallback_count}/{result['cases']} 题回退，未执行请求的 {args.retrieval_mode} 模式",
             file=sys.stderr,
         )
         return 2

@@ -52,6 +52,7 @@ NON_WIKI_VAULT_DOCUMENTS = (
 
 VISUAL_ITEM_TYPES = {"image", "figure", "chart"}
 RICH_EVIDENCE_ITEM_TYPES = VISUAL_ITEM_TYPES | {"table", "equation"}
+INGEST_STAGES = ("all", "text", "multimodal")
 MANAGED_EVIDENCE_START = "<!-- mmwiki:multimodal-evidence:start -->"
 MANAGED_EVIDENCE_END = "<!-- mmwiki:multimodal-evidence:end -->"
 WIKILINK_PATTERN = re.compile(r"(?<!!)\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
@@ -98,6 +99,76 @@ def _bounded_env_int(name: str, default: int, lower: int, upper: int) -> int:
     except ValueError:
         value = default
     return max(lower, min(value, upper))
+
+
+def _merge_usage(*records: dict[str, Any] | list[dict[str, Any]]) -> dict[str, int]:
+    """Merge numeric provider usage without assuming one vendor's token keys."""
+    totals: dict[str, int] = {}
+    pending: list[Any] = list(records)
+    while pending:
+        value = pending.pop()
+        if isinstance(value, list):
+            pending.extend(value)
+            continue
+        if not isinstance(value, dict):
+            continue
+        for key, item in value.items():
+            if isinstance(item, bool):
+                continue
+            if isinstance(item, (int, float)):
+                totals[str(key)] = totals.get(str(key), 0) + int(item)
+            elif isinstance(item, (dict, list)):
+                pending.append(item)
+    return totals
+
+
+def _directory_bytes(path: Path) -> int:
+    if not path.is_dir():
+        return 0
+    return sum(
+        target.stat().st_size
+        for target in path.rglob("*")
+        if target.is_file()
+    )
+
+
+def _is_multimodal_item(item: Item) -> bool:
+    return bool(
+        item.item_type in RICH_EVIDENCE_ITEM_TYPES
+        or item.table
+        or item.equation
+        or item.asset_ids
+    )
+
+
+def _text_projection_item(item: Item) -> dict[str, Any]:
+    """Keep a text proxy while withholding first-class table/image/equation data."""
+    value = item.to_dict()
+    metadata = dict(value.get("metadata") or {})
+    metadata.update(
+        {
+            "representation": "text-proxy",
+            "source_item_type": item.item_type,
+        }
+    )
+    value.update(
+        {
+            "item_type": "text" if _is_multimodal_item(item) else item.item_type,
+            "table": None,
+            "equation": None,
+            "asset_ids": [],
+            "semantic": {},
+            "metadata": metadata,
+        }
+    )
+    return value
+
+
+def _text_projection_chunk(chunk: Any) -> dict[str, Any]:
+    value = chunk.to_dict()
+    value["modalities"] = ["text"]
+    value["asset_ids"] = []
+    return value
 
 
 def _table_markdown(table: dict[str, Any] | None, limit: int = 12000) -> str:
@@ -159,12 +230,14 @@ class WikiPipeline:
         self.build_cache_root = self.runtime / "build-cache"
         self.asset_root = self.vault / "assets"
         self.wiki_root = self.vault / "wiki"
+        self.purpose_path = self.vault / "wiki-purpose.md"
         self.schema_path = self.vault / "schema.md"
         self.index_path = self.wiki_root / "index.md"
         self.overview_path = self.wiki_root / "overview.md"
         self.log_path = self.wiki_root / "log.md"
         self.graph_path = self.wiki_root / "graph.json"
         self.graph_report_path = self.wiki_root / "graph-health.md"
+        self.maintenance_path = self.wiki_root / "maintenance.md"
         self.ensure_layout()
 
     def ensure_layout(self) -> None:
@@ -182,19 +255,39 @@ class WikiPipeline:
             path.mkdir(parents=True, exist_ok=True)
         if not self.state_path.is_file():
             self._save_state(
-                {"schema_version": "0.3", "sources": {}, "pages": {}, "queries": []}
+                {"schema_version": "0.4", "sources": {}, "pages": {}, "queries": []}
             )
+        if not self.purpose_path.is_file():
+            purpose_template = self.root / "config" / "purpose.md"
+            if purpose_template.is_file():
+                shutil.copy2(purpose_template, self.purpose_path)
+            else:
+                self.purpose_path.write_text(
+                    "# Wiki Purpose\n\n持久编译来源知识，并保持事实可追溯。\n",
+                    encoding="utf-8",
+                )
         if not self.schema_path.is_file():
             template = self.root / "config" / "schema.md"
             if template.is_file():
                 shutil.copy2(template, self.schema_path)
+            else:
+                self.schema_path.write_text(
+                    "# Wiki Schema\n\n来源只读；知识页必须记录来源和 Evidence。\n",
+                    encoding="utf-8",
+                )
         if not self.log_path.is_file():
             self.log_path.write_text("# Wiki Log\n\n", encoding="utf-8")
-        self._install_obsidian_plugin()
+        if os.environ.get("MMWIKI_INSTALL_OBSIDIAN_PLUGIN", "").strip().casefold() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }:
+            self._install_obsidian_plugin()
         self._remove_non_wiki_vault_documents()
         state = self._load_state()
-        state["schema_version"] = "0.3"
-        changed = False
+        changed = state.get("schema_version") != "0.4"
+        state["schema_version"] = "0.4"
         for source_id, source in state.get("sources", {}).items():
             evidence_map_path = f"wiki/evidence/{slugify(str(source_id))}-multimodal.md"
             if source.get("evidence_map_path") != evidence_map_path:
@@ -203,6 +296,19 @@ class WikiPipeline:
         if changed:
             self._save_state(state)
         self._write_navigation(state)
+
+    def _wiki_instructions(self) -> str:
+        purpose = (
+            self.purpose_path.read_text(encoding="utf-8")
+            if self.purpose_path.is_file()
+            else ""
+        )
+        schema = (
+            self.schema_path.read_text(encoding="utf-8")
+            if self.schema_path.is_file()
+            else ""
+        )
+        return f"# Wiki Purpose\n\n{purpose}\n\n# Wiki Schema\n\n{schema}".strip()
 
     def _log(self, operation: str, detail: str) -> None:
         stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -266,12 +372,18 @@ class WikiPipeline:
     def validate(self, package_path: str | Path) -> dict[str, Any]:
         return validate_package(package_path)
 
-    def _copy_assets(self, package: Package) -> dict[str, dict[str, Any]]:
+    def _copy_assets(
+        self,
+        package: Package,
+        asset_ids: set[str] | None = None,
+    ) -> dict[str, dict[str, Any]]:
         result: dict[str, dict[str, Any]] = {}
         package_root = Path(package.package_path)
         target_root = self.asset_root / slugify(package.package_id)
         target_root.mkdir(parents=True, exist_ok=True)
         for asset in package.assets.values():
+            if asset_ids is not None and asset.asset_id not in asset_ids:
+                continue
             source = (package_root / asset.path).resolve()
             suffix = source.suffix.lower()
             target = target_root / f"{slugify(asset.asset_id)}{suffix}"
@@ -313,8 +425,25 @@ class WikiPipeline:
         lines.extend([f"Evidence ID: `{evidence_id}`", ""])
         return "\n".join(lines)
 
-    def _baseline_page(self, package: Package, assets: dict[str, dict[str, Any]]) -> str:
-        modalities = sorted({item.item_type for item in package.items})
+    def _baseline_page(
+        self,
+        package: Package,
+        assets: dict[str, dict[str, Any]],
+        item_ids: set[str] | None = None,
+        text_only: bool = False,
+    ) -> str:
+        items = [
+            item
+            for item in package.items
+            if item_ids is None or item.item_id in item_ids
+        ]
+        active_item_ids = {item.item_id for item in items}
+        chunks = [
+            chunk
+            for chunk in package.chunks
+            if active_item_ids.intersection(chunk.item_ids)
+        ]
+        modalities = ["text"] if text_only else sorted({item.item_type for item in items})
         frontmatter = (
             "---\n"
             f"package_id: {yaml_string(package.package_id)}\n"
@@ -323,40 +452,79 @@ class WikiPipeline:
             f"modalities: {json.dumps(modalities, ensure_ascii=False)}\n"
             "---\n"
         )
-        blocks = [self._render_item(package, item, assets) for item in package.items]
+        if text_only:
+            blocks = []
+            for item in items:
+                evidence_id = self._item_evidence_id(package, item.item_id)
+                text = item.raw_text or item.caption or item.search_text
+                source_type = item.item_type
+                label = "text" if not _is_multimodal_item(item) else f"text-proxy({source_type})"
+                lines = [
+                    f'<a id="{slugify(item.item_id)}"></a>',
+                    f"### {item.item_id}",
+                    "",
+                    " · ".join(
+                        value
+                        for value in (
+                            label,
+                            f"第 {item.page_start} 页" if item.page_start is not None else "",
+                        )
+                        if value
+                    ),
+                    "",
+                ]
+                if text:
+                    lines.extend([text, ""])
+                lines.extend([f"Evidence ID: `{evidence_id}`", ""])
+                blocks.append("\n".join(lines))
+        else:
+            blocks = [self._render_item(package, item, assets) for item in items]
         return (
             f"{frontmatter}\n# {package.title}\n\n"
             f"- Package：`{package.package_id}`\n"
             f"- Parser：`{package.parser_name} {package.parser_version}`\n"
-            f"- Items：{len(package.items)}\n"
-            f"- Chunks：{len(package.chunks)}\n"
-            f"- Assets：{len(package.assets)}\n\n"
+            f"- Items：{len(items)}\n"
+            f"- Chunks：{len(chunks)}\n"
+            f"- Assets：{len(assets)}\n\n"
             "## 原始事实\n\n" + "\n".join(blocks)
         )
 
-    def _builder_evidence(self, package: Package) -> list[dict[str, Any]]:
+    def _builder_evidence(
+        self,
+        package: Package,
+        item_ids: set[str] | None = None,
+        text_only: bool = False,
+    ) -> list[dict[str, Any]]:
         result: list[dict[str, Any]] = []
         for item in package.items:
-            if not item.searchable:
+            if not item.searchable or (
+                item_ids is not None and item.item_id not in item_ids
+            ):
                 continue
             content = item.raw_text or item.caption or item.search_text
-            if item.table:
+            if item.table and not text_only:
                 content += "\n" + _table_markdown(item.table, 5000)
             result.append(
                 {
                     "id": self._item_evidence_id(package, item.item_id),
-                    "type": item.item_type,
+                    "type": (
+                        "text-proxy"
+                        if text_only and _is_multimodal_item(item)
+                        else item.item_type
+                    ),
                     "section": item.breadcrumb,
                     "page": item.page_start,
                     "raw_text": item.raw_text[:6000],
                     "caption": item.caption[:2000],
                     "search_text": item.search_text[:6000],
-                    "semantic_description": str(
-                        item.semantic.get("description") or ""
-                    )[:3000],
+                    "semantic_description": (
+                        ""
+                        if text_only
+                        else str(item.semantic.get("description") or "")[:3000]
+                    ),
                     "text": content[:6000],
                     "bbox": item.bbox,
-                    "asset_ids": item.asset_ids,
+                    "asset_ids": [] if text_only else item.asset_ids,
                     "quality": item.quality,
                 }
             )
@@ -493,7 +661,9 @@ class WikiPipeline:
         batch_records: list[dict[str, Any]] = []
         total_candidates = 0
         total_analyzed = 0
-        catalog = self._wiki_catalog(state)
+        catalog = self._wiki_catalog(
+            state, package.package_id, stage="multimodal"
+        )
         cache_root = (
             self.build_cache_root
             / slugify(package.package_id)
@@ -540,6 +710,7 @@ class WikiPipeline:
                         catalog,
                         schema,
                         images,
+                        stage="multimodal",
                     )
             else:
                 analysis = analyzer.analyze_wiki(
@@ -548,6 +719,7 @@ class WikiPipeline:
                     catalog,
                     schema,
                     images,
+                    stage="multimodal",
                 )
             if not cached:
                 _atomic_write_text(
@@ -741,6 +913,7 @@ class WikiPipeline:
         source_path: str,
         state: dict[str, Any],
         package_assets: dict[str, dict[str, Any]],
+        stage: str = "curated",
     ) -> list[dict[str, Any]]:
         output: list[dict[str, Any]] = []
         allowed = {self._item_evidence_id(package, item.item_id) for item in package.items}
@@ -766,6 +939,25 @@ class WikiPipeline:
                 self._render_page_evidence(evidence_ids, evidence_records)
             )
             summary = str(page.get("summary") or "").strip()
+            previous_layers = [
+                str(value) for value in previous.get("representation_layers", [])
+            ]
+            representation_layers = list(
+                dict.fromkeys(
+                    [
+                        *previous_layers,
+                        "text",
+                        *(
+                            ("multimodal",)
+                            if stage == "multimodal"
+                            or set(evidence_modalities) & RICH_EVIDENCE_ITEM_TYPES
+                            else ()
+                        ),
+                    ]
+                )
+            )
+            revision = int(previous.get("revision") or 0) + 1
+            updated_at = utc_now()
             frontmatter = (
                 "---\n"
                 f"title: {yaml_string(title)}\n"
@@ -776,11 +968,14 @@ class WikiPipeline:
                 f"evidence_ids: {json.dumps(evidence_ids, ensure_ascii=False)}\n"
                 f"evidence_modalities: {json.dumps(evidence_modalities, ensure_ascii=False)}\n"
                 f"visual_evidence_ids: {json.dumps(visual_evidence_ids, ensure_ascii=False)}\n"
+                f"representation_layers: {json.dumps(representation_layers, ensure_ascii=False)}\n"
+                f"last_ingest_stage: {yaml_string(stage)}\n"
+                f"revision: {revision}\n"
                 f"builder_model: {yaml_string(str(plan.get('_model') or 'unknown'))}\n"
                 f"analysis_model: {yaml_string(str(plan.get('_analysis_model') or plan.get('_model') or 'unknown'))}\n"
                 f"prompt_version: {yaml_string(WIKI_PROMPT_VERSION)}\n"
                 f"lifecycle: {yaml_string(str(previous.get('lifecycle') or 'draft'))}\n"
-                f"updated_at: {yaml_string(utc_now())}\n"
+                f"updated_at: {yaml_string(updated_at)}\n"
                 "---\n"
             )
             _atomic_write_text(
@@ -798,7 +993,11 @@ class WikiPipeline:
                     "evidence_ids": evidence_ids,
                     "evidence_modalities": evidence_modalities,
                     "visual_evidence_ids": visual_evidence_ids,
+                    "representation_layers": representation_layers,
+                    "last_ingest_stage": stage,
+                    "revision": revision,
                     "lifecycle": str(previous.get("lifecycle") or "draft"),
+                    "updated_at": updated_at,
                 }
             )
         return output
@@ -847,6 +1046,18 @@ class WikiPipeline:
             )
             summary = str(page.get("summary") or "").strip()
             updated_at = str(page.get("updated_at") or utc_now())
+            representation_layers = [
+                str(value) for value in page.get("representation_layers", [])
+            ]
+            if not representation_layers:
+                representation_layers = ["text"]
+                if set(evidence_modalities) & RICH_EVIDENCE_ITEM_TYPES:
+                    representation_layers.append("multimodal")
+            last_ingest_stage = str(
+                page.get("last_ingest_stage")
+                or ("multimodal" if "multimodal" in representation_layers else "text")
+            )
+            revision = max(1, int(page.get("revision") or 1))
             frontmatter = (
                 "---\n"
                 f"title: {yaml_string(title)}\n"
@@ -857,6 +1068,9 @@ class WikiPipeline:
                 f"evidence_ids: {json.dumps(evidence_ids, ensure_ascii=False)}\n"
                 f"evidence_modalities: {json.dumps(evidence_modalities, ensure_ascii=False)}\n"
                 f"visual_evidence_ids: {json.dumps(visual_evidence_ids, ensure_ascii=False)}\n"
+                f"representation_layers: {json.dumps(representation_layers, ensure_ascii=False)}\n"
+                f"last_ingest_stage: {yaml_string(last_ingest_stage)}\n"
+                f"revision: {revision}\n"
                 f"builder_model: {yaml_string(', '.join(builder_models))}\n"
                 f"analysis_model: {yaml_string(', '.join(analysis_models))}\n"
                 'prompt_version: "preserved-content+multimodal-evidence-v1"\n'
@@ -873,6 +1087,9 @@ class WikiPipeline:
                     "summary": summary,
                     "evidence_modalities": evidence_modalities,
                     "visual_evidence_ids": visual_evidence_ids,
+                    "representation_layers": representation_layers,
+                    "last_ingest_stage": last_ingest_stage,
+                    "revision": revision,
                     "lifecycle": str(page.get("lifecycle") or "draft"),
                     "updated_at": updated_at,
                 }
@@ -1058,7 +1275,12 @@ class WikiPipeline:
             "external_api_calls": 0,
         }
 
-    def _wiki_catalog(self, state: dict[str, Any]) -> list[dict[str, Any]]:
+    def _wiki_catalog(
+        self,
+        state: dict[str, Any],
+        focus_source_id: str | None = None,
+        stage: str = "text",
+    ) -> list[dict[str, Any]]:
         return [
             {
                 "title": page["title"],
@@ -1067,6 +1289,12 @@ class WikiPipeline:
                 "kind": page.get("kind", "analysis"),
                 "evidence_modalities": page.get("evidence_modalities", []),
                 "source_count": len(page.get("source_ids", [])),
+                "update_eligible": bool(
+                    stage != "multimodal"
+                    or focus_source_id in set(map(str, page.get("source_ids", [])))
+                ),
+                "representation_layers": page.get("representation_layers", ["text"]),
+                "revision": int(page.get("revision") or 1),
             }
             for page in state.get("pages", {}).values()
         ]
@@ -1109,29 +1337,229 @@ class WikiPipeline:
         provider: str = "baseline",
         force: bool = False,
         full_scale: bool = False,
+        stage: str = "all",
     ) -> dict[str, Any]:
         if provider not in {"baseline", "api"}:
             raise PipelineError("provider 必须是 baseline 或 api")
-        if full_scale and provider != "api":
-            raise PipelineError("full_scale 只支持 api provider")
+        if stage not in INGEST_STAGES:
+            raise PipelineError(f"stage 必须是 {', '.join(INGEST_STAGES)}")
+        if full_scale and (provider != "api" or stage == "text"):
+            raise PipelineError("full_scale 只支持 api provider 的多模态阶段")
+
+        if stage == "all":
+            started = time.perf_counter()
+            text_result = self.ingest(
+                package_path,
+                provider=provider,
+                force=force,
+                full_scale=False,
+                stage="text",
+            )
+            multimodal_result = self.ingest(
+                package_path,
+                provider=provider,
+                force=force,
+                full_scale=full_scale,
+                stage="multimodal",
+            )
+            stage_results = {
+                "text": text_result,
+                "multimodal": multimodal_result,
+            }
+            metrics = [
+                value.get("build_metrics", {}) for value in stage_results.values()
+            ]
+            statuses = {str(value.get("status") or "") for value in stage_results.values()}
+            return {
+                "status": (
+                    "unchanged"
+                    if statuses <= {"unchanged", "not_applicable"}
+                    else "ingested"
+                ),
+                "package_id": str(
+                    text_result.get("package_id")
+                    or multimodal_result.get("package_id")
+                    or ""
+                ),
+                "stage": "all",
+                "stages": stage_results,
+                "build_metrics": {
+                    "elapsed_ms": round(
+                        (time.perf_counter() - started) * 1000, 3
+                    ),
+                    "api_calls": sum(
+                        int(value.get("api_calls") or 0) for value in metrics
+                    ),
+                    "token_usage": _merge_usage(
+                        *[
+                            value.get("token_usage", {})
+                            for value in metrics
+                            if isinstance(value, dict)
+                        ]
+                    ),
+                    "created_pages": sum(
+                        int(value.get("created_pages") or 0) for value in metrics
+                    ),
+                    "updated_pages": sum(
+                        int(value.get("updated_pages") or 0) for value in metrics
+                    ),
+                    "multimodal_items_added": sum(
+                        int(value.get("multimodal_items_added") or 0)
+                        for value in metrics
+                    ),
+                },
+            }
+
+        started = time.perf_counter()
+        load_started = time.perf_counter()
         package = load_package(package_path)
+        timings: dict[str, float] = {
+            "load_package_ms": round(
+                (time.perf_counter() - load_started) * 1000, 3
+            )
+        }
         state = self._load_state()
         state.setdefault("pages", {})
         current = state["sources"].get(package.package_id)
-        if (
-            not force
-            and current
-            and current.get("checksum") == package.checksum
-            and current.get("provider") == provider
-            and bool(current.get("full_scale")) == bool(full_scale)
-        ):
-            return {"status": "unchanged", "package_id": package.package_id}
+        same_version = bool(current and current.get("checksum") == package.checksum)
+        stages = dict(current.get("stages", {})) if same_version else {}
+        previous_stage = stages.get(stage, {})
+        if not force and previous_stage:
+            same_configuration = (
+                previous_stage.get("status") in {"completed", "not_applicable"}
+                and previous_stage.get("provider") == provider
+                and bool(previous_stage.get("full_scale")) == bool(full_scale)
+            )
+            if same_configuration:
+                return {
+                    "status": "unchanged",
+                    "package_id": package.package_id,
+                    "source_version": package.checksum[:12],
+                    "stage": stage,
+                    "build_metrics": {
+                        "elapsed_ms": round(
+                            (time.perf_counter() - started) * 1000, 3
+                        ),
+                        "api_calls": 0,
+                        "token_usage": {},
+                        "created_pages": 0,
+                        "updated_pages": 0,
+                        "multimodal_items_added": 0,
+                        "idempotent_reuse": True,
+                    },
+                }
+
+        # A fair text LLM Wiki baseline keeps textual proxies (OCR, captions and
+        # linearized chunk text) for every item, but withholds structured tables,
+        # equations, assets and visual semantics until the multimodal stage.
+        text_item_ids = {item.item_id for item in package.items}
+        multimodal_item_ids = {
+            item.item_id for item in package.items if _is_multimodal_item(item)
+        }
+        if stage == "multimodal":
+            legacy_text_ready = bool(
+                same_version and current and current.get("wiki_path")
+            )
+            text_ready = bool(
+                stages.get("text", {}).get("status") == "completed"
+                or legacy_text_ready
+            )
+            if not text_ready:
+                raise PipelineError(
+                    "多模态增强必须建立在相同版本的文本 LLM Wiki 基座之上；"
+                    "请先执行 --stage text"
+                )
+            if not multimodal_item_ids:
+                stages["multimodal"] = {
+                    "status": "not_applicable",
+                    "provider": provider,
+                    "full_scale": bool(full_scale),
+                    "completed_at": utc_now(),
+                    "evidence_items": 0,
+                }
+                current["stages"] = stages
+                self._save_state(state)
+                return {
+                    "status": "not_applicable",
+                    "package_id": package.package_id,
+                    "source_version": package.checksum[:12],
+                    "stage": stage,
+                    "reason": "该来源没有表格、图片、图表或公式证据",
+                    "build_metrics": {
+                        "elapsed_ms": round(
+                            (time.perf_counter() - started) * 1000, 3
+                        ),
+                        "api_calls": 0,
+                        "token_usage": {},
+                        "created_pages": 0,
+                        "updated_pages": 0,
+                        "multimodal_items_added": 0,
+                    },
+                }
+
+        stage_item_ids = text_item_ids if stage == "text" else multimodal_item_ids
+        active_item_ids = text_item_ids if stage == "text" else {
+            item.item_id for item in package.items
+        }
+        active_item_objects = [
+            item for item in package.items if item.item_id in active_item_ids
+        ]
+        active_chunk_objects = [
+            chunk
+            for chunk in package.chunks
+            if active_item_ids.intersection(chunk.item_ids)
+        ]
+        active_items = (
+            [_text_projection_item(item) for item in active_item_objects]
+            if stage == "text"
+            else [item.to_dict() for item in active_item_objects]
+        )
+        active_chunks = (
+            [_text_projection_chunk(chunk) for chunk in active_chunk_objects]
+            if stage == "text"
+            else [chunk.to_dict() for chunk in active_chunk_objects]
+        )
+        stage_asset_ids = {
+            asset_id
+            for item in package.items
+            if item.item_id in stage_item_ids
+            for asset_id in item.asset_ids
+        }
+
+        raw_started = time.perf_counter()
         raw_target = self.raw_root / slugify(package.package_id) / package.checksum[:12]
         if not raw_target.exists():
             shutil.copytree(package.package_path, raw_target)
-        assets = self._copy_assets(package)
+        timings["raw_copy_ms"] = round(
+            (time.perf_counter() - raw_started) * 1000, 3
+        )
+
+        asset_started = time.perf_counter()
+        assets = (
+            self._copy_assets(package, stage_asset_ids)
+            if stage == "multimodal"
+            else {}
+        )
+        timings["asset_copy_ms"] = round(
+            (time.perf_counter() - asset_started) * 1000, 3
+        )
+
+        if stage == "multimodal" and current:
+            assets = {**current.get("assets", {}), **assets}
         source_target = self.wiki_root / "sources" / f"{slugify(package.package_id)}.md"
-        _atomic_write_text(source_target, self._baseline_page(package, assets))
+        source_started = time.perf_counter()
+        _atomic_write_text(
+            source_target,
+            self._baseline_page(
+                package,
+                assets,
+                active_item_ids,
+                text_only=stage == "text",
+            ),
+        )
+        timings["source_page_ms"] = round(
+            (time.perf_counter() - source_started) * 1000, 3
+        )
         generated_pages: list[dict[str, Any]] = []
         model = "deterministic-baseline"
         analysis_model = "deterministic-baseline"
@@ -1142,11 +1570,27 @@ class WikiPipeline:
             "truncated": False,
             "used_actual_images": False,
         }
+        analysis_usage: dict[str, Any] | list[dict[str, Any]] = {}
+        compile_usage: dict[str, Any] = {}
+        api_calls = 0
+        existing_page_paths = set(state.get("pages", {}))
+        impact_candidates = sorted(
+            str(page.get("path") or path)
+            for path, page in state.get("pages", {}).items()
+            if package.package_id in set(map(str, page.get("source_ids", [])))
+        )
         if provider == "api":
             llm = OpenAICompatibleProvider(self.root, "build")
             vision_llm = OpenAICompatibleProvider(self.root, "vision")
-            evidence = self._builder_evidence(package)
-            schema = self.schema_path.read_text(encoding="utf-8")
+            evidence = self._builder_evidence(
+                package,
+                stage_item_ids,
+                text_only=stage == "text",
+            )
+            if not evidence:
+                raise PipelineError(f"{stage} 阶段没有可供 Wiki 编译的 Evidence")
+            schema = self._wiki_instructions()
+            analysis_started = time.perf_counter()
             if full_scale:
                 analysis, visual_analysis, analysis_model = (
                     self._analyze_wiki_full_scale(
@@ -1159,13 +1603,22 @@ class WikiPipeline:
                         vision_llm,
                     )
                 )
+                analysis_usage = analysis.get("batch_usage", [])
+                api_calls += sum(
+                    not bool(batch.get("cached"))
+                    for batch in visual_analysis.get("batches", [])
+                )
             else:
                 image_payloads, visual_analysis = self._builder_image_payloads(
-                    package, assets
+                    package,
+                    assets,
+                    evidence_ids={str(value["id"]) for value in evidence},
                 )
                 analyzer = (
                     vision_llm
-                    if image_payloads and vision_llm.configured
+                    if stage == "multimodal"
+                    and image_payloads
+                    and vision_llm.configured
                     else llm
                 )
                 analysis_images = image_payloads if analyzer is vision_llm else []
@@ -1173,29 +1626,101 @@ class WikiPipeline:
                 analysis = analyzer.analyze_wiki(
                     package.title,
                     evidence,
-                    self._wiki_catalog(state),
+                    self._wiki_catalog(state, package.package_id, stage=stage),
                     schema,
                     analysis_images,
+                    stage=stage,
                 )
                 analysis_model = analyzer.model
+                analysis_usage = analysis.get("_usage", {})
+                api_calls += 1
+            timings["analysis_ms"] = round(
+                (time.perf_counter() - analysis_started) * 1000, 3
+            )
+            compile_started = time.perf_counter()
             plan = llm.compile_wiki(
                 package.title,
                 analysis,
                 evidence,
                 self._existing_pages_for_actions(analysis, state),
                 schema,
+                stage=stage,
             )
+            compile_usage = plan.get("_usage", {})
+            api_calls += 1
             plan["_model"] = llm.model
             plan["_analysis_model"] = analysis_model
             model = llm.model
+            timings["compile_ms"] = round(
+                (time.perf_counter() - compile_started) * 1000, 3
+            )
+            write_started = time.perf_counter()
             generated_pages = self._write_generated_pages(
                 package,
                 plan,
                 source_target.relative_to(self.vault).as_posix(),
                 state,
                 assets,
+                stage=stage,
+            )
+            timings["write_pages_ms"] = round(
+                (time.perf_counter() - write_started) * 1000, 3
             )
         generated_paths = [page["path"] for page in generated_pages]
+        created_pages = sum(path not in existing_page_paths for path in generated_paths)
+        updated_pages = len(generated_paths) - created_pages
+        previous_generated_paths = (
+            list(current.get("generated_paths", []))
+            if stage == "multimodal" and current
+            else []
+        )
+        effective_generated_paths = list(
+            dict.fromkeys([*previous_generated_paths, *generated_paths])
+        )
+        if stage == "text":
+            stages.pop("multimodal", None)
+
+        build_metrics = {
+            "elapsed_ms": 0.0,
+            "timings": timings,
+            "api_calls": api_calls,
+            "token_usage": _merge_usage(analysis_usage, compile_usage),
+            "analysis_usage": analysis_usage,
+            "compile_usage": compile_usage,
+            "created_pages": created_pages,
+            "updated_pages": updated_pages,
+            "touched_pages": generated_paths,
+            "impact_scope": {
+                "candidate_pages": impact_candidates,
+                "candidate_page_count": len(impact_candidates),
+                "touched_pages": generated_paths,
+                "touched_page_count": len(generated_paths),
+                "preserved_page_count": len(existing_page_paths - set(generated_paths)),
+                "strategy": (
+                    "text-wiki-bootstrap"
+                    if stage == "text"
+                    else "source-linked-page-increment"
+                ),
+            },
+            "multimodal_items_added": (
+                len(multimodal_item_ids) if stage == "multimodal" else 0
+            ),
+            "active_items": len(active_items),
+            "active_chunks": len(active_chunks),
+            "active_assets": len(assets),
+            "idempotent_reuse": False,
+        }
+        stages[stage] = {
+            "status": "completed",
+            "provider": provider,
+            "model": model,
+            "analysis_model": analysis_model,
+            "full_scale": bool(full_scale),
+            "completed_at": utc_now(),
+            "evidence_items": len(stage_item_ids),
+            "generated_paths": generated_paths,
+            "build_metrics": build_metrics,
+        }
         source_record = {
             "package_id": package.package_id,
             "title": package.title,
@@ -1206,13 +1731,18 @@ class WikiPipeline:
             "analysis_model": analysis_model,
             "visual_analysis": visual_analysis,
             "full_scale": full_scale,
+            "representation": "text+multimodal" if stage == "multimodal" else "text",
+            "representation_layers": (
+                ["text", "multimodal"] if stage == "multimodal" else ["text"]
+            ),
+            "stages": stages,
             "wiki_path": source_target.relative_to(self.vault).as_posix(),
             "evidence_map_path": (
                 f"wiki/evidence/{slugify(package.package_id)}-multimodal.md"
             ),
-            "generated_paths": generated_paths,
-            "items": [item.to_dict() for item in package.items],
-            "chunks": [chunk.to_dict() for chunk in package.chunks],
+            "generated_paths": effective_generated_paths,
+            "items": active_items,
+            "chunks": active_chunks,
             "assets": assets,
             "ingested_at": utc_now(),
         }
@@ -1221,11 +1751,22 @@ class WikiPipeline:
             state["pages"][page["path"]] = page
         self._save_state(state)
         self._write_navigation(state)
-        self._log("ingest", f"{package.package_id} · {provider} · {model}")
+        build_metrics["elapsed_ms"] = round(
+            (time.perf_counter() - started) * 1000, 3
+        )
+        build_metrics["vault_bytes_after"] = _directory_bytes(self.vault)
+        stages[stage]["build_metrics"] = build_metrics
+        source_record["stages"] = stages
+        self._save_state(state)
+        self._log(
+            "ingest",
+            f"{package.package_id} · {stage} · {provider} · {model}",
+        )
         return {
             "status": "ingested",
             "package_id": package.package_id,
             "source_version": package.checksum[:12],
+            "stage": stage,
             "provider": provider,
             "model": model,
             "analysis_model": analysis_model,
@@ -1233,10 +1774,11 @@ class WikiPipeline:
             "full_scale": full_scale,
             "wiki_path": source_record["wiki_path"],
             "generated_pages": generated_paths,
+            "build_metrics": build_metrics,
             "counts": {
-                "items": len(package.items),
-                "chunks": len(package.chunks),
-                "assets": len(package.assets),
+                "items": len(active_items),
+                "chunks": len(active_chunks),
+                "assets": len(assets),
             },
         }
 
@@ -1368,7 +1910,7 @@ class WikiPipeline:
             _atomic_write_text(target, body)
 
     def _wiki_graph(self, state: dict[str, Any]) -> dict[str, Any]:
-        nodes: list[dict[str, str]] = []
+        nodes: list[dict[str, Any]] = []
         for source_id, source in state.get("sources", {}).items():
             nodes.append(
                 {
@@ -1424,10 +1966,24 @@ class WikiPipeline:
         inbound = {node["path"]: 0 for node in nodes}
         for _, target in edges:
             inbound[target] = inbound.get(target, 0) + 1
+        for node in nodes:
+            node["inbound_links"] = inbound.get(node["path"], 0)
         stable_paths = {
             str(page.get("path") or "") for page in state.get("pages", {}).values()
         }
         orphans = sorted(path for path in stable_paths if path and inbound.get(path, 0) == 0)
+        provenance_edges = [
+            {
+                "page": str(page.get("path") or path),
+                "source_id": str(source_id),
+                "evidence_ids": [
+                    str(value) for value in page.get("evidence_ids", [])
+                    if str(value).startswith(f"{source_id}@")
+                ],
+            }
+            for path, page in state.get("pages", {}).items()
+            for source_id in page.get("source_ids", [])
+        ]
         return {
             "nodes": nodes,
             "edges": [
@@ -1440,12 +1996,89 @@ class WikiPipeline:
                 "stable_pages": len(stable_paths),
                 "orphan_stable_pages": len(orphans),
                 "wanted_pages": len(wanted),
+                "provenance_edges": len(provenance_edges),
             },
+            "provenance_edges": provenance_edges,
+            "authority": dict(sorted(inbound.items())),
             "orphans": orphans,
             "wanted_pages": {
                 key: sorted(value) for key, value in sorted(wanted.items())
             },
             "duplicate_titles": duplicate_titles,
+        }
+
+    @staticmethod
+    def _stale_pages(state: dict[str, Any]) -> list[dict[str, Any]]:
+        current_versions = {
+            str(source_id): str(source.get("source_version") or "")
+            for source_id, source in state.get("sources", {}).items()
+        }
+        stale: list[dict[str, Any]] = []
+        for path, page in state.get("pages", {}).items():
+            recorded = set(map(str, page.get("source_versions", [])))
+            mismatches = [
+                {
+                    "source_id": str(source_id),
+                    "current_version": current_versions.get(str(source_id), ""),
+                }
+                for source_id in page.get("source_ids", [])
+                if current_versions.get(str(source_id), "") not in recorded
+            ]
+            if mismatches:
+                stale.append(
+                    {
+                        "path": str(page.get("path") or path),
+                        "title": str(page.get("title") or path),
+                        "mismatches": mismatches,
+                    }
+                )
+        return stale
+
+    def _write_maintenance(
+        self, state: dict[str, Any], graph: dict[str, Any]
+    ) -> dict[str, Any]:
+        coverage = self._wiki_coverage(state)
+        stale_pages = self._stale_pages(state)
+        review_pages = sorted(
+            str(page.get("path") or path)
+            for path, page in state.get("pages", {}).items()
+            if str(page.get("lifecycle") or "draft") in {"draft", "review_needed"}
+        )
+        status = "healthy" if not (
+            stale_pages
+            or graph["orphans"]
+            or graph["wanted_pages"]
+            or graph["duplicate_titles"]
+        ) else "attention_needed"
+        stale_lines = [
+            f"- [[{item['path'].removesuffix('.md')}|{item['title']}]] — "
+            + ", ".join(
+                f"{value['source_id']}→{value['current_version']}"
+                for value in item["mismatches"]
+            )
+            for item in stale_pages
+        ]
+        review_lines = [f"- [[{path.removesuffix('.md')}]]" for path in review_pages]
+        _atomic_write_text(
+            self.maintenance_path,
+            "# Wiki Maintenance\n\n"
+            "> 本页由 Pipeline 确定性生成，用于维护文本 Wiki 主干；不会自动改写知识页。\n\n"
+            f"- 状态：`{status}`\n"
+            f"- 来源覆盖：{coverage['stable_page_source_coverage']}/{coverage['stable_page_source_total']}\n"
+            f"- 版本过期页面：{len(stale_pages)}\n"
+            f"- 孤立稳定页：{len(graph['orphans'])}\n"
+            f"- 待创建/断链目标：{len(graph['wanted_pages'])}\n"
+            f"- 待人工复核页面：{len(review_pages)}\n\n"
+            "## 版本过期页面\n\n"
+            + ("\n".join(stale_lines) or "无")
+            + "\n\n## 待人工复核页面\n\n"
+            + ("\n".join(review_lines) or "无")
+            + "\n",
+        )
+        return {
+            "status": status,
+            "stale_pages": stale_pages,
+            "review_pages": review_pages,
         }
 
     def _write_graph_health(self, graph: dict[str, Any]) -> None:
@@ -1477,6 +2110,7 @@ class WikiPipeline:
         self._write_evidence_maps(state)
         graph = self._wiki_graph(state)
         self._write_graph_health(graph)
+        maintenance = self._write_maintenance(state, graph)
         source_lines = [
             f"- [[{source['wiki_path'].removesuffix('.md')}|{source['title']}]]"
             for source in state["sources"].values()
@@ -1509,7 +2143,9 @@ class WikiPipeline:
             "## 浏览入口\n\n"
             "- [[wiki/index|Wiki Index]]\n"
             "- [[wiki/overview|Wiki Overview]]\n"
-            "- [[wiki/graph-health|Wiki Graph Health]]\n\n"
+            "- [[wiki/graph-health|Wiki Graph Health]]\n"
+            "- [[wiki/maintenance|Wiki Maintenance]]\n"
+            "- [[wiki-purpose|Wiki Purpose]]\n\n"
             "## 来源数据\n\n"
             + ("\n".join(source_lines) or "暂无来源")
             + "\n\n## 多模态证据地图\n\n"
@@ -1552,6 +2188,8 @@ class WikiPipeline:
             f"图谱当前有 {graph['stats']['edges']} 条有效 WikiLink、"
             f"{graph['stats']['orphan_stable_pages']} 个孤立稳定页和 "
             f"{graph['stats']['wanted_pages']} 个待创建/断链目标。\n\n"
+            f"维护状态为 `{maintenance['status']}`，版本过期页面 "
+            f"{len(maintenance['stale_pages'])} 个。\n\n"
             + "\n\n".join(sections)
             + "\n",
         )
@@ -1596,6 +2234,11 @@ class WikiPipeline:
             "multimodal_configured": provider.multimodal_configured,
             "available_modes": list(RETRIEVAL_MODES),
             "wiki_navigation_ready": bool(state.get("sources")),
+            "wiki_page_navigation": {
+                "lexical": bool(state.get("sources")),
+                "semantic": bool(status.get("wiki_semantic_ready")),
+                "strategy": "Wiki page -> source/chunk Evidence -> answer",
+            },
             "wiki_coverage": self._wiki_coverage(state),
             "remote_content_processing": bool(
                 provider.text_configured or provider.multimodal_configured
@@ -1615,8 +2258,40 @@ class WikiPipeline:
         self._log(
             "retrieval-index",
             (
-                f"text={result['text_records']} · visual={result['visual_records']} · "
+                f"wiki={result['wiki_records']} · text={result['text_records']} · "
+                f"visual={result['visual_records']} · "
                 f"{result['text_model']} · {result['visual_model']}"
+            ),
+        )
+        return result
+
+    def build_wiki_page_index(self) -> dict[str, Any]:
+        """Build only Wiki-page vectors without touching existing Evidence vectors."""
+        state = self._load_state()
+        provider = BailianRetrievalProvider(self.root)
+        result = RetrievalIndex(
+            self.retrieval_index_path, self.vault
+        ).build_wiki_pages(state, provider)
+        self._log(
+            "wiki-page-index",
+            (
+                f"wiki={result['wiki_records']} · new={result['new_wiki_records']} · "
+                f"reused={result['reused_wiki_records']} · evidence_vectors=preserved"
+            ),
+        )
+        return result
+
+    def migrate_retrieval_index(self) -> dict[str, Any]:
+        state = self._load_state()
+        provider = BailianRetrievalProvider(self.root)
+        result = RetrievalIndex(
+            self.retrieval_index_path, self.vault
+        ).migrate_legacy(state, provider)
+        self._log(
+            "retrieval-index-migration",
+            (
+                f"status={result['status']} · text={result['text_records']} · "
+                f"visual={result['visual_records']} · external_api_calls=0"
             ),
         )
         return result
@@ -1682,6 +2357,7 @@ class WikiPipeline:
                 "models": {},
                 "fallback_reason": None,
                 "usage": {},
+                "wiki_navigation_strategy": "wiki-page-bm25->evidence",
             }
         else:
             provider = BailianRetrievalProvider(self.root)
@@ -1696,6 +2372,36 @@ class WikiPipeline:
                 retrieval_mode,
                 provider,
             )
+            semantic_pages = trace.get("wiki_semantic_navigation_pages", [])
+            if semantic_pages:
+                fused_navigation: dict[str, dict[str, Any]] = {}
+                for channel, pages in (
+                    ("page_bm25", wiki_navigation),
+                    ("page_embedding", semantic_pages),
+                ):
+                    for rank, page in enumerate(pages, 1):
+                        path = str(page.get("path") or "")
+                        if not path:
+                            continue
+                        record = fused_navigation.setdefault(
+                            path,
+                            {
+                                **page,
+                                "score": 0.0,
+                                "navigation_channels": [],
+                            },
+                        )
+                        record["score"] += 1.0 / (60 + rank)
+                        record["navigation_channels"].append(channel)
+                wiki_navigation = sorted(
+                    fused_navigation.values(),
+                    key=lambda value: (-float(value["score"]), value["path"]),
+                )[: max(top_k, 8)]
+                for page in wiki_navigation:
+                    page["score"] = round(float(page["score"]) * 1000, 6)
+                    page["navigation_channels"] = list(
+                        dict.fromkeys(page["navigation_channels"])
+                    )
         trace["wiki_navigation"] = wiki_navigation
         return {"hits": [hit.to_dict() for hit in hits], "retrieval": trace}
 
@@ -1956,6 +2662,11 @@ class WikiPipeline:
                 return None
             return target
 
+        if not self.purpose_path.is_file():
+            errors.append("Wiki Purpose 缺失：wiki-purpose.md")
+        if not self.schema_path.is_file():
+            errors.append("Wiki Schema 缺失：schema.md")
+
         for package_id, source in state.get("sources", {}).items():
             source_path = safe_vault_file(source.get("wiki_path"))
             if source_path is None or not source_path.is_file():
@@ -2023,6 +2734,11 @@ class WikiPipeline:
             )
         graph = self._wiki_graph(state)
         self._write_graph_health(graph)
+        maintenance = self._write_maintenance(state, graph)
+        if maintenance["stale_pages"]:
+            warnings.append(
+                f"存在 {len(maintenance['stale_pages'])} 个引用旧来源版本的知识页"
+            )
         if graph["orphans"]:
             warnings.append(
                 f"存在 {len(graph['orphans'])} 个孤立稳定知识页，请补充有意义的 WikiLink"
@@ -2046,6 +2762,12 @@ class WikiPipeline:
                 "wanted_pages": graph["wanted_pages"],
                 "duplicate_titles": graph["duplicate_titles"],
                 "full_report": self.graph_path.relative_to(self.vault).as_posix(),
+            },
+            "maintenance": {
+                "status": maintenance["status"],
+                "stale_pages": maintenance["stale_pages"],
+                "review_pages": maintenance["review_pages"],
+                "full_report": self.maintenance_path.relative_to(self.vault).as_posix(),
             },
             "warnings": warnings,
             "errors": errors,

@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import json
+import mimetypes
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlsplit
 
 from .pipeline import PipelineError, WikiPipeline
 from .provider import OpenAICompatibleProvider, ProviderError
+from .web import render_wiki_html, resolve_vault_path
 
 
 def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> None:
     pipeline = WikiPipeline(project_root)
+    vault_root = project_root / "runtime/vault"
 
     def online_status() -> dict[str, Any]:
         provider = OpenAICompatibleProvider(project_root, "vision")
@@ -40,12 +44,58 @@ def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> Non
             self.end_headers()
             self.wfile.write(payload)
 
+        def _send_bytes(self, status: int, payload: bytes, content_type: str) -> None:
+            self.send_response(status)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(payload)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            self.wfile.write(payload)
+
         def do_GET(self) -> None:  # noqa: N802
-            if self.path == "/api/v1/health":
+            request = urlsplit(self.path)
+            if request.path == "/api/v1/health":
                 value = online_status()
                 self._send(200 if value["configured"] else 503, value)
-            elif self.path == "/api/v1/sources":
+            elif request.path == "/api/v1/sources":
                 self._send(200, {"sources": pipeline.sources()})
+            elif request.path.startswith("/api/v1/media/"):
+                try:
+                    relative = request.path.removeprefix("/api/v1/media/")
+                    path = resolve_vault_path(
+                        vault_root,
+                        relative,
+                        required_prefix="assets",
+                        allowed_suffixes={".jpg", ".jpeg", ".png", ".gif", ".webp"},
+                    )
+                    content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+                    self._send_bytes(200, path.read_bytes(), content_type)
+                except (ValueError, FileNotFoundError, OSError) as exc:
+                    self._send(404, {"error": "media_not_found", "message": str(exc)})
+            elif request.path in {"/wiki/view", "/api/v1/wiki/raw"}:
+                try:
+                    values = parse_qs(request.query).get("path", [])
+                    relative = values[0] if values else ""
+                    path = resolve_vault_path(
+                        vault_root,
+                        relative,
+                        required_prefix="wiki",
+                        allowed_suffixes={".md"},
+                    )
+                    markdown = path.read_text(encoding="utf-8")
+                    if request.path == "/wiki/view":
+                        host = self.headers.get("Host", "127.0.0.1:19828")
+                        payload = render_wiki_html(markdown, relative, f"http://{host}")
+                        self._send_bytes(200, payload, "text/html; charset=utf-8")
+                    else:
+                        self._send_bytes(
+                            200,
+                            markdown.encode("utf-8"),
+                            "text/markdown; charset=utf-8",
+                        )
+                except (ValueError, FileNotFoundError, OSError, UnicodeDecodeError) as exc:
+                    self._send(404, {"error": "wiki_not_found", "message": str(exc)})
             else:
                 self._send(404, {"error": "not_found"})
 

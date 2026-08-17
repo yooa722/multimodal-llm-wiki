@@ -7,7 +7,7 @@ from pathlib import Path
 
 from mmwiki.api import serve
 from mmwiki.contracts import ContractError
-from mmwiki.pipeline import PipelineError, WikiPipeline
+from mmwiki.pipeline import INGEST_STAGES, PipelineError, WikiPipeline
 from mmwiki.provider import ProviderError
 from mmwiki.retrieval import RETRIEVAL_MODES
 
@@ -22,10 +22,16 @@ def parser() -> argparse.ArgumentParser:
     validate = commands.add_parser("validate", help="校验解析组 mmwiki-0.1 package")
     validate.add_argument("package", type=Path)
 
-    ingest = commands.add_parser("ingest", help="从 package 构建 Obsidian Wiki")
+    ingest = commands.add_parser("ingest", help="从 package 分阶段构建多模态 LLM Wiki")
     ingest.add_argument("package", type=Path)
     ingest.add_argument("--provider", choices=("baseline", "api"), default="baseline")
     ingest.add_argument("--force", action="store_true", help="显式重建相同版本")
+    ingest.add_argument(
+        "--stage",
+        choices=INGEST_STAGES,
+        default="all",
+        help="text 先构建文本 Wiki；multimodal 只增量加入表格、图片和公式；all 依次执行两阶段",
+    )
     ingest.add_argument(
         "--full-scale",
         action="store_true",
@@ -86,8 +92,16 @@ def parser() -> argparse.ArgumentParser:
         default=[],
         help="仅重建指定来源并与版本一致的现有索引安全合并，可重复使用",
     )
+    commands.add_parser(
+        "build-wiki-index",
+        help="只构建 Wiki 页面语义索引，保留现有文本与视觉 Evidence 向量",
+    )
+    commands.add_parser(
+        "migrate-index",
+        help="严格校验后把旧索引元数据本地升级到当前版本，不调用外部模型",
+    )
 
-    api = commands.add_parser("api", help="启动 Obsidian 查询 API")
+    api = commands.add_parser("api", help="启动供 OpenCode/其他客户端调用的本地查询 API")
     api.add_argument("--host", default="127.0.0.1")
     api.add_argument("--port", type=int, default=19828)
     return result
@@ -110,6 +124,7 @@ def main() -> int:
                     args.provider,
                     args.force,
                     args.full_scale,
+                    args.stage,
                 )
             )
         elif args.command == "search":
@@ -146,6 +161,10 @@ def main() -> int:
                     set(args.source_id) or None,
                 )
             )
+        elif args.command == "build-wiki-index":
+            output(pipeline.build_wiki_page_index())
+        elif args.command == "migrate-index":
+            output(pipeline.migrate_retrieval_index())
         elif args.command == "api":
             serve(ROOT, args.host, args.port)
         return 0
