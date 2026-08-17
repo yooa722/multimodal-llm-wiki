@@ -84,6 +84,7 @@ flowchart TD
 │   ├── commands/                  # /wiki-* 中文命令
 │   └── tools/wiki.ts              # 类型化 OpenCode 工具
 ├── evaluation/                    # 检索与问答评测集
+├── data/source_packages/          # 可复现当前 Wiki 的 5 份 mmwiki-0.1 数据包
 ├── tools/                         # 演示、评测、迁移与增量基准工具
 ├── tests/                         # 核心回归测试
 ├── OPENCODE_START_HERE.md         # OpenCode 桌面版快速使用说明
@@ -92,7 +93,7 @@ flowchart TD
 └── .env.example                   # Wiki 管线模型配置模板
 ```
 
-`runtime/`、`reports/`、`docs/`、原始文档和本机凭据不属于可提交的核心代码，默认不会进入 Git。
+`runtime/`、`reports/`、`docs/`、原始 PDF 和本机凭据不属于可提交的核心代码，默认不会进入 Git。仓库只保留经过标准化和安全审计的 Source Package，用于复现构建结果。
 
 ## 环境要求
 
@@ -167,6 +168,17 @@ MMWIKI_VL_RERANK_MODEL=qwen3-vl-rerank
 | `assets/` | 保存图片、图表、表格截图和公式截图 |
 
 Source Package 中的绝对路径、`../` 路径逃逸、悬空 Item/Asset 引用和错误 SHA-256 会被拒绝。
+
+## 仓库内置构建数据
+
+`data/source_packages/` 提供当前活跃 Wiki 使用的 5 份 Source Package，共包含 212 个 Item、182 个 Chunk 和 28 个视觉 Asset，覆盖中文/英文文本、复杂表格、公式、图片和图表。
+
+```bash
+python3 app.py validate \
+  data/source_packages/论文_002_cs_LG/1d9dabf3e92b
+```
+
+完整数据清单、版本和使用边界见 [data/README.md](data/README.md)。合同、简历和财报等已排除来源不随仓库上传。
 
 ## 从 Source Package 构建 Wiki
 

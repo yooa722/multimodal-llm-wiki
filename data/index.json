@@ -1,0 +1,57 @@
+{
+  "schema_version": "mmwiki-dataset-index-0.1",
+  "description": "Source Packages used by the OpenCode multimodal LLM Wiki demo",
+  "totals": {
+    "packages": 5,
+    "items": 212,
+    "chunks": 182,
+    "assets": 28
+  },
+  "packages": [
+    {
+      "package_id": "中文_006_chinese_mixed",
+      "source_version": "52790e363edc",
+      "checksum": "52790e363edc473afbbb54926621647df7ca09645a70dab6f769868c1fdeff0b",
+      "path": "source_packages/中文_006_chinese_mixed/52790e363edc",
+      "items": 13,
+      "chunks": 12,
+      "assets": 1
+    },
+    {
+      "package_id": "报纸_001_the_global_herald",
+      "source_version": "cc7688b9b6f5",
+      "checksum": "cc7688b9b6f5abb7448f319130be6376102359cef0e4eed4040a87831ef09f23",
+      "path": "source_packages/报纸_001_the_global_herald/cc7688b9b6f5",
+      "items": 42,
+      "chunks": 41,
+      "assets": 2
+    },
+    {
+      "package_id": "杂志_001_tech_frontier",
+      "source_version": "4fa795b8a87f",
+      "checksum": "4fa795b8a87f7f66d2b276859d097cd8d540126274e9c88aa6acbdda8e0ccf6b",
+      "path": "source_packages/杂志_001_tech_frontier/4fa795b8a87f",
+      "items": 34,
+      "chunks": 21,
+      "assets": 1
+    },
+    {
+      "package_id": "表格_018_irs_7004_extension_corp",
+      "source_version": "3cffac6e9f35",
+      "checksum": "3cffac6e9f35369ed9cf68837fcbc5c36fcf0b7393ce07090bf09ae7ab426cb7",
+      "path": "source_packages/表格_018_irs_7004_extension_corp/3cffac6e9f35",
+      "items": 5,
+      "chunks": 1,
+      "assets": 1
+    },
+    {
+      "package_id": "论文_002_cs_LG",
+      "source_version": "1d9dabf3e92b",
+      "checksum": "1d9dabf3e92b1c9074166d278f06fb9116fa664a4caefec1972eefd9a25829be",
+      "path": "source_packages/论文_002_cs_LG/1d9dabf3e92b",
+      "items": 118,
+      "chunks": 107,
+      "assets": 23
+    }
+  ]
+}

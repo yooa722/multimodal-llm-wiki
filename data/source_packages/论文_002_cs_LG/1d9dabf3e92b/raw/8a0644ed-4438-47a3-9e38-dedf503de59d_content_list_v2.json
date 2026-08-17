@@ -1,0 +1,2730 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "ReToken: One Token to Improve Vision–Language Models for Visual Retrieval"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                191,
+                121,
+                805,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Yao Xiao<sup>1</sup> Reuben Tan<sup>2</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                220,
+                464,
+                237
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Zhen Zhu<sup>1,3˚</sup> Yuqun Wu<sup>1</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                524,
+                220,
+                767,
+                237
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Jianfeng Gao<sup>2</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                318,
+                256,
+                423,
+                272
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Derek Hoiem<sup>1</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                573,
+                256,
+                676,
+                271
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>University of Illinois at Urbana-Champaign, <sup>2</sup>Microsoft Research, <sup>3</sup>Google DeepMind <sup>1</sup>{yaox11, dhoiem}@illinois.edu"
+                    }
+                ]
+            },
+            "bbox": [
+                209,
+                272,
+                787,
+                303
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                460,
+                337,
+                537,
+                354
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Long visual context poses a challenge for vision-language models: performance degrades as the number of distractors grows, and processing all tokens at once is computationally infeasible under GPU memory constraints. We present RETOKEN, a single learnable embedding trained as an explicit retrieval target that selects a sparse set of query-relevant visual tokens from a pre-filled visual KV cache. Trained on only a small image-QA dataset, RETOKEN yields consistent gains across image and video benchmarks: on Visual Haystacks it improves Qwen3VL-8B by 13.4 points and InternVL3.5 by 12.4 points (>20% relative), and on LVBench it transfers zero-shot to long video for an 8.0-point gain with Qwen3VL-8B. Thanks to its lightweight design, both training and long-video inference fit on a single H100. Code is available at: https://github.com/avaxiao/ReToken."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                368,
+                767,
+                523
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/e4f48a73d78504bc020822d34d2cdfdf7dc20d1c76471148be25a9570534cb5b.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Attention score fails to distinguish relevant frames from distractors."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                196,
+                553,
+                470,
+                691
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/889aa2744cfda07206aac414af79080ef0c4503df76e43595e7cfbbd001f46a6.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) ReToken achieves more than 3x recall in the last layer. Layer-wise VLM Recall@1 on QAEgo4D<sub>Test-MC</sub>"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Figure 1: Attention-based retrieval mechanisms are not effective for retrieving relevant visual information in VLMs. (a) shows attention scores from question tokens (as queries) to frame tokens (as keys), across frames in one video; (b) shows whether the top-1 retrieved frame falls within the ground-truth time window (240 candidate frames per video on average, sampled at 0.5 FPS)."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                524,
+                554,
+                800,
+                691
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                173,
+                819,
+                313,
+                835
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Long visual contexts, e.g. from image collections or hour-long videos, are now within the input range of vision-language models (VLMs) [26, 38, 4, 9]. However, VLMs have difficulty answering questions from long visual contexts when only a small subset of images or frames is relevant to the prompt [45], and sometimes processing the full context at once is computationally infeasible under GPU memory constraints. So, handling long visual input reduces to a retrieval problem: selecting a small subset of frames or tokens from which the model can produce a correct answer. When processing text, the attention signals produced by large language models (LLMs) can be selective with respect to the input context, thanks to extensive long-context training [47, 16]. For VLMs, we find that the analogous signal is unreliable: attention between text and visual features is weakly correlated with relevance, as shown in Fig. 1a, and the attention-based retriever achieves only 5.1% average recall@1 across layers on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { Q A E g o 4 D _ { T e s t - M C } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for Qwen3VL-8B (Fig. 1b)."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                849,
+                826,
+                880
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "arXiv:2607.28627v1 [cs.CV] 30 Jul 2026"
+                    }
+                ]
+            },
+            "bbox": [
+                27,
+                364,
+                65,
+                800
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>˚</sup>This work was done while the author was at UIUC (currently at Google DeepMind)."
+                    }
+                ]
+            },
+            "bbox": [
+                186,
+                888,
+                640,
+                902
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Preprint."
+                    }
+                ]
+            },
+            "bbox": [
+                171,
+                924,
+                222,
+                936
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                169,
+                92,
+                826,
+                218
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Looking at what does work, we find a striking asymmetry: matching a precise target phrase against the average visual value projections, rather than against the keys, increases recall@1 from 65.7 to 78.0 on Qwen3VL and from 78.8 to 83.8 on InternVL3.5 in a controlled two-image setting (Tab. 1). Values carry the content that is actually propagated through attention, and they appear to provide a better space for text-based visual retrieval. However, value–value pooling does not universally outperform query–key scoring for arbitrary retrieval text. Simply averaging over all question tokens introduces noise, reversing the advantage of the value space."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                223,
+                826,
+                321
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Building on this finding, we propose RETOKEN, a single learnable embedding that is appended to the question and trained explicitly as a retrieval target. RETOKEN scores each frame by the cosine similarity between its projected embedding and the frame’s mean value vector at the final layer, and is supervised with a class-balanced binary cross-entropy loss against ground-truth relevance labels. The token and a single projection matrix are the only added parameters; the VLM is frozen by default."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                325,
+                826,
+                397
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Despite its minimal footprint, RETOKEN yields consistent gains across image and video benchmarks. On Visual Haystacks [45], it improves Qwen3VL-8B [4] by 13.4 points and InternVL3.5 [42] by 12.4 points, corresponding to over 20% relative gain. More notably, although trained only on multi-image QA, RETOKEN generalizes to improve performance on long-video understanding: it transfers zero-shot to long video, yielding an 8.0-point improvement on LVBench [41] with Qwen3VL-8B, where the average video length exceeds an hour."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                401,
+                826,
+                486
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our contributions are:"
+                    }
+                ]
+            },
+            "bbox": [
+                171,
+                491,
+                321,
+                506
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• We identify that retrieval scores computed in the value space, rather than the conventional query-key space, provide a substantially stronger signal for retrieving visual information."
+                    }
+                ]
+            },
+            "bbox": [
+                215,
+                513,
+                825,
+                544
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• We introduce RETOKEN, a lightweight learnable retrieval token that enables pretrained VLMs to identify relevant visual information more effectively."
+                    }
+                ]
+            },
+            "bbox": [
+                215,
+                547,
+                825,
+                575
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• We show that RETOKEN trained only on multi-image QA transfers zero-shot to long-video benchmarks, suggesting a practical path toward scalable long-context multimodal reasoning."
+                    }
+                ]
+            },
+            "bbox": [
+                215,
+                578,
+                826,
+                609
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                625,
+                323,
+                642
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Visual Retrieval. The dominant approach to visual retrieval is to train image-text embedding models that align visual and language feature spaces, either with dual encoders such as CLIP [31], Perception Encoder [5], and SigLIP2 [39], or by adapting a VLM into a universal embedder, as in E5-V [18] and LamRA [27]. While effective, all of these operate as external retrievers separate from the VLM: relevant images must first be selected by the retriever and then re-encoded by the VLM for answer generation. A related family in long-video QA chains a separate localizer with an answerer model: SeViLA [49] repurposes BLIP-2 [22] as both a keyframe localizer and an answerer, while VideoAgent [43] and VideoTree [44] build agentic pipelines that iteratively retrieve and caption keyframes for an LLM. A second line of work, originating in long-context language modeling, instead treats the model’s own attention scores as a retrieval signal, unifying retrieval and generation within a single forward pass. InfLLM [46] and EM-LLM [14] demonstrate this effectively in NLP by selecting key-value blocks based on query-to-key attention, and ReKV [13] transfers the mechanism to the visual domain without modification. We diagnose the limitations of attention-based retrieval in VLMs and propose RETOKEN, which performs retrieval in the value space via a learnable token."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                656,
+                826,
+                852
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Long Context Understanding. When handling long visual contexts, prior work follows three main directions. Memory-based methods such as MovieChat [35] and MA-LMM [17] maintain a fixed-size memory bank over streaming input, merging or evicting older content to bound state. Token compression methods such as Chat-UniVi [19], LLaMA-VID [23], LongVU [32], and Video-XL [33] prune, merge, or summarize visual tokens before the LLM to shorten the prefix and reduce attention and KV-cache cost. Both families bound the visual context independently of the query. Retrievalbased methods instead defer context selection to inference time, picking a query-relevant subset to preserve fine-grained evidence: Goldfish [3] chunks the video into clips and retrieves the top-K by caption-query similarity; Video-RAG [28] augments retrieval with visually-aligned auxiliary text from ASR, OCR, and object detectors; and DrVideo [29] converts the video into a long document and retrieves question-relevant passages for the LLM. End-task accuracy in this family, however, is bottlenecked by the retriever rather than the LLM, and our work targets this bottleneck directly."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                854,
+                826,
+                912
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2"
+                    }
+                ]
+            },
+            "bbox": [
+                493,
+                936,
+                504,
+                948
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                169,
+                92,
+                826,
+                204
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Learnable Tokens for Visual Aggregation. RETOKEN is most directly related to methods that introduce learnable tokens into a VLM to aggregate or retrieve visual content. The Q-Former in BLIP-2 [22] and the Perceiver Resampler in Flamingo [1] use a small set of learnable queries to compress variable-length visual features into a fixed-size representation for a frozen LLM, and InstructBLIP [11] extends Q-Former to be text-conditioned. These modules are trained jointly with vision-language alignment as part of the bridge between encoder and LLM, and produce many tokens (typically 32 or 64) intended to carry the visual content forward into generation. SPRING [51] prepends pluggable soft-prompt tokens to externally retrieved passages to help a frozen text-only LLM consume them. The visual summarization token in Video-XL [33] similarly compresses a chunk of visual KVs into a single token. RETOKEN differs along three axes: (i) operational mechanism. Q-Formers and prompt tuning use learnable tokens as static, query-agnostic input conditions. In contrast, the ReToken is generated dynamically. A first-pass placeholder produces an output token that retrieves visual KV contexts relevant to the query. (ii) supervision. Q-Formers are trained as visual compressors under alignment or generation losses, while RETOKEN is supervised by an explicit retrieval loss scored directly against final-layer value vectors. (iii) capacity. Our method needs only a single token rather than a set of 32–64. The second half of the contribution is diagnostic: attention (query–key) scores are unreliable for visual retrieval in pretrained VLMs, while the value space carries a much stronger signal."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                208,
+                826,
+                459
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Approach"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                476,
+                290,
+                494
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we begin by analyzing the limitations of attention-based retrieval methods for identifying relevant visual tokens in Sec. 3.1. Motivated by these insights, we then discuss our proposed RETOKEN approach in Sec. 3.2, which uses a learnable token embedding to help compute more informative retrieval scores over relevant visual tokens."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                506,
+                826,
+                563
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 Attention-Based Retrieval"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                578,
+                395,
+                592
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our empirical setting, we consider a VLM based on a decoder-only LM comprising N transformer layers "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ L _ { 1 } , \\ldots , L _ { N } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Given input question tokens "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { T } _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and visual tokens "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf { I } } _ { v } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the VLM autoregressively generates the response "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "based on the conditional probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ( \\mathbf { y } \\mid \\mathbf { I } _ { v } , \\mathbf { T } _ { t } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For multi-image and video inputs, the visual tokens are partitioned into F frames, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { I } _ { v } ~ = ~ \\{ \\mathbf { I } _ { v } ^ { ( f ) } \\} _ { f = 1 } ^ { F } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", with each frame contributing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M / F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "tokens (where M the total number of visual tokens). For long videos, M can be prohibitively large, rendering full-context inference infeasible. Thus, our goal is to retrieve a subset of the K most relevant frames, where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K \\ll F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", whose tokens suffice to answer the question."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                603,
+                826,
+                708
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Attention Scores as a Retrieval Signal. At each layer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l \\in \\{ 1 , 2 , \\ldots , N \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the VLM computes attention scores "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf A } ^ { ( l ) } = { \\bf Q } ^ { ( l ) } { \\bf K } ^ { ( l ) \\top } / \\sqrt { d } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which indicate how much each token contributes to the final response. Tokens with higher attention contributions can be interpreted as being more relevant to the question. For our analysis, we use the state-of-the-art ReKV [13] approach that directly uses attention score as the retrieval score and aggregates it at the frame level. At the l´th layer, we compute the mean key vector of each frame’s visual tokens and the mean query vector over the question tokens as:"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                712,
+                826,
+                800
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\bar {\\mathbf {k}} _ {f} ^ {(l)} = \\frac {1}{| \\mathbf {I} _ {v} ^ {(f)} |} \\sum_ {i \\in \\mathbf {I} _ {v} ^ {(f)}} \\mathbf {k} _ {i} ^ {(l)}, \\quad \\bar {\\mathbf {q}} ^ {(l)} = \\frac {1}{E} \\sum_ {t = 1} ^ {E} \\mathbf {q} _ {t} ^ {(l)}\\tag{1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bae582912f0a7f51021524bc15ff4ff7adafc3eff7fc04f0fd262e572652b136.jpg"
+                }
+            },
+            "bbox": [
+                343,
+                809,
+                653,
+                851
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where E denotes the number of total question tokens. Then, the frame-level retrieval score "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { s } _ { f } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and top-K frame selection are computed as:"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                857,
+                823,
+                888
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {s} _ {f} ^ {(l)} = \\bar {\\mathbf {q}} ^ {(l) \\top} \\bar {\\mathbf {k}} _ {f} ^ {(l)}, \\qquad \\mathcal {S} _ {K} ^ {(l)} = \\mathrm{TopK} (\\mathbf {s} _ {f} ^ {(l)})\\tag{2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ba691eb4cb89ecf12fd49ffaa295944d6813badfde0144ec7349497693ea9a0f.jpg"
+                }
+            },
+            "bbox": [
+                357,
+                892,
+                637,
+                915
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3"
+                    }
+                ]
+            },
+            "bbox": [
+                493,
+                936,
+                504,
+                948
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/7c738a5f0b570f52e64788d521f3b47ab8e9b943152b857b9d8d82bc2e425da2.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: Retrieval Example. Question/Sentence: \"For the image with a cow, is there a truck "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "? \""
+                    },
+                    {
+                        "type": "text",
+                        "content": "Target phrase: \"a cow\"."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                161,
+                90,
+                800,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\cal S } _ { K } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the K frames most relevant to the question at layer l. Given the per-layer retrieval sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ S _ { K } ^ { ( l ) } \\} _ { l = 1 } ^ { N }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the model re-runs generation through the frozen VLM with layer-wise sparse attention: at each layer l, the question and answer tokens attend only to the visual tokens belonging to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\cal S } _ { K } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The reduced visual context at layer l is therefore "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ \\mathbf { I } _ { v } [ S _ { K } ^ { ( l ) } ] ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "s, and the answer is decoded autoregressively over this layer-dependent context "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ { \\bf I } _ { v } [ S _ { K } ^ { ( l ) } ] , { \\bf T } _ { t } ]"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                268,
+                826,
+                359
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations of Attention-Based Retrieval. While attention-based retrieval is intuitive, two structural issues motivate our approach. First, attention is trained for next-token prediction rather than retrieval, so high-attention tokens are not guaranteed to correspond to query-relevant content. This mismatch is exacerbated by the composition of typical VLM training data: the input images or videos are almost always fully relevant to the question, so the model is never required to select among visual inputs. The consequences are visible in both image and video settings: on Visual Haystacks [45] the layer-wise "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\bar { \\mathbf q } ^ { \\top } \\bar { \\mathbf k } _ { f } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "retriever lands at 63.3% recall@1 even in the simplest two-image case (Tab. 1), and on long-video "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { \\dot { Q } A E g o 4 D _ { T e s t - M C } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "it averages only 5.1% recall@1 across layers (Fig. 1b). Second, averaging the question tokens to form a single query is itself a heuristic, and the resulting rankings shift with the choice of retrieval text. As shown in Tab. 1, replacing the full question sentence with a target phrase that directly names the entity of interest improves Recall@1. Fig. 2 illustrates a question sentence and its target phrase."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                364,
+                826,
+                531
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Why Values Carry Retrieval Signal. A more reliable signal sits in the value projections. Within a transformer attention layer, the value of a token carries the content propagated to any token that attends to it, while the query-key inner product only determines how that content is aggregated. Pooling the value projections within each frame therefore yields a representation of the content the frame contributes to attending tokens, making value features more sensitive to the retrieval text than key features. Tab. 1 confirms this consistently across both backbones:"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                536,
+                486,
+                702
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/4270d7457b3d71a86d40b1cd9012c73b843c81a502f622733c4208c880d27b09.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: Value ˆ Value is more informative, but it is sensitive to the input. Recall@1 with 2 input images, retrieving 1 image based on the retrieval score."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Retrieval Text</td><td> $\\bar{\\mathbf{q}}^{\\top} \\bar{\\mathbf{k}}_{f}$ </td><td> $\\bar{\\mathbf{v}}^{\\top} \\bar{\\mathbf{v}}_{f}$ </td><td>Qwen3VL</td><td>InternVL3.5</td></tr><tr><td rowspan=\"2\">Sentence</td><td>√</td><td></td><td>63.3</td><td>78.5</td></tr><tr><td></td><td>√</td><td>62.6</td><td>75.6</td></tr><tr><td rowspan=\"2\">Target Phrase</td><td>√</td><td></td><td>65.7</td><td>78.8</td></tr><tr><td></td><td>√</td><td>78.0</td><td>83.8</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                498,
+                603,
+                821,
+                686
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "with a precise target phrase that names the entity of interest, value-space pooling identifies the ground truth image at 78.0% recall@1 vs. 65.7% for the corresponding query-key score on Qwen3VL, and at 83.8% vs. 78.8% on InternVL3.5. This mirrors observations in visual segmentation, where value features are reported to be more informative while query-key features can be replaced by alternative aggregation signals [50, 40, 21]; TextRegion [48] in particular shows that, in image-text models, value features in the final attention block are rich in visual-language semantics, whereas attention weights primarily serve as an aggregation mechanism. This sensitivity cuts both ways, however: with the full question sentence, averaging mixes in many uninformative tokens, and the resulting noisy query erases or even reverses the value-space advantage. The value space thus rewards a precise retrieval target and penalizes a noisy one."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                702,
+                826,
+                842
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 ReToken: One Token for Visual Retrieval"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                857,
+                503,
+                872
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To improve retrieval, we introduce RETOKEN, a single learnable embedding "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { X } _ { r } ~ \\in ~ \\mathbb { R } ^ { d }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is appended to the question and trained explicitly as a retrieval target. RETOKEN addresses the rephrasing instability by replacing the question-averaged query with a token learned from data, and strengthens the retrieval score by computing in the value space rather than the query–key space."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                883,
+                825,
+                912
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "4"
+                    }
+                ]
+            },
+            "bbox": [
+                493,
+                936,
+                504,
+                946
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/ee19723101325a24863cc4efb731d50e9ff46be75e8a4e70f364bd55d7de9f28.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 3: Training Pipeline. The visual tokens, question tokens, and a learnable embedding (RETOKEN) are fed into the LLM decoder. The RETOKEN output from the final layer serves as a retrieval query, scoring each frame based on its cosine similarity to the frame’s pooled value features. The resulting scores are supervised using ground-truth frame-relevance labels and a class-balanced binary cross-entropy loss. By default, we train RETOKEN while keeping the VLM frozen. The generation loss is used only during VLM partial fine-tuning setting."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                200,
+                104,
+                805,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                169,
+                377,
+                823,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Retrieval Score. Given an input sequence with visual tokens "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf \\cal I } _ { v } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "question tokens "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { T } _ { t } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the appended retrieval token "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { X } _ { r } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we compute retrieval scores at the final layer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { N }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "via a lightweight projection "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { W } _ { r } \\in \\mathbb { R } ^ { d \\times d }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which together with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf X } _ { r }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "constitutes the only added parameters. The retrieval score for the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f \\mathrm { - t h }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "frame is the cosine similarity between the projected embedding and the frame’s mean value vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\bar { \\mathbf { v } } _ { f } ^ { ( N ) }"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                411,
+                825,
+                487
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\bar {\\mathbf {v}} _ {f} ^ {(N)} = \\frac {1}{| \\mathbf {I} _ {v} ^ {(f)} |} \\sum_ {i \\in \\mathbf {I} _ {r} ^ {(f)}} \\mathbf {v} _ {i} ^ {(N)}, \\quad \\mathbf {Z} _ {r} = \\mathbf {W} _ {r} \\mathbf {X} _ {r} ^ {(N)}, \\quad s _ {f} ^ {(N)} = \\cos \\Bigl (\\mathbf {Z} _ {r}, \\bar {\\mathbf {v}} _ {f} ^ {(N)} \\Bigr)\\tag{3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9454bcd427bf0ab1919e8efb74e5531bb614c163d83c25bc192e0d66153322a9.jpg"
+                }
+            },
+            "bbox": [
+                256,
+                494,
+                736,
+                531
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For inference, we compute "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { S _ { K } ^ { ( N ) } = \\mathrm { T o p K } ( s _ { f } ^ { ( N ) } ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "once at the final layer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { N }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and broadcast it to all layers, rather than maintaining per-layer subsets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ \\boldsymbol { S } _ { K } ^ { ( l ) } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We do not apply this at training time, since our training data is short-context and retrieval is unnecessary."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                541,
+                825,
+                594
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Training. We train RETOKEN with the VLM kept frozen by default; only the retrieval token "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf X } _ { r }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a single final-layer projection "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { W } _ { \\mathcal { r } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are updated. We supervise these parameters with a retrieval loss "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { L } _ { \\mathrm { r e t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that compares the final-layer retrieval scores against ground-truth relevance labels "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { f } \\in \\{ 0 , 1 \\}"
+                    }
+                ]
+            },
+            "bbox": [
+                171,
+                598,
+                825,
+                643
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { F } ^ { + } ~ = ~ \\{ f ~ : ~ y _ { f } ~ = ~ 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { F } ^ { - } ~ = ~ \\{ f ~ : ~ y _ { f } ~ = ~ 0 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the sets of relevant and irrelevant images, respectively. To prevent the loss from being dominated by the irrelevant images, we apply a class-balanced binary cross-entropy in which the positive and negative terms are averaged separately,"
+                    }
+                ]
+            },
+            "bbox": [
+                171,
+                645,
+                825,
+                690
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathcal {L} _ {\\mathrm{ret}} = - \\frac {1}{| \\mathcal {F} ^ {+} |} \\sum_ {f \\in \\mathcal {F} ^ {+}} \\log \\sigma (\\tau s _ {f} ^ {(N)}) - \\frac {1}{| \\mathcal {F} ^ {-} |} \\sum_ {f \\in \\mathcal {F} ^ {-}} \\log \\sigma (- \\tau s _ {f} ^ {(N)})\\tag{4}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b7e03df1dccfeb0208ca9e5b9bd2eae6374739e57e3077fb823bd862f1c0412f.jpg"
+                }
+            },
+            "bbox": [
+                282,
+                694,
+                714,
+                731
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { f } ^ { ( N ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the retrieval score for image "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at the final layer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { N } , \\sigma ( \\cdot )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the sigmoid, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a learnable logit scale parameter."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                739,
+                825,
+                773
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We additionally explore a partial-tuning variant in which the early layers of the VLM are tuned to give the visual representation more flexibility. In this setting, training is driven by two complementary losses, illustrated in Fig. 3. In addition to the retrieval loss above, we use a generation loss "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { L } } _ { \\mathrm { g e n } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the standard next-token prediction loss on the answer, which preserves the model’s question-answering ability and prevents the unfrozen layers from drifting under "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { L } _ { \\mathrm { r e t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "alone. The total loss is"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                777,
+                825,
+                849
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathcal {L} = \\mathcal {L} _ {\\mathrm{ret}} + \\lambda \\mathcal {L} _ {\\mathrm{gen}}\\tag{5}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/03b04cdfccc1ffac2f0a9b6e5cdbae5bc118c47abac0b9fd24ad3a2406559e32.jpg"
+                }
+            },
+            "bbox": [
+                434,
+                854,
+                560,
+                872
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Inference. At test time, we use a two-pass retrieve-then-answer pipeline (Fig. 4). The video is first encoded once, and each question then retrieves a subset of visual KV cache for answer generation."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                883,
+                823,
+                912
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "5"
+                    }
+                ]
+            },
+            "bbox": [
+                493,
+                936,
+                504,
+                948
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b2028a943c04c94c38c426f49a610003c40fc59df98748cdd742770962f64e8e.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 4: Inference Pipeline. Our method first caches features for all input frames. Given a text query, ReToken retrieves the relevant frames, and the answer is generated from their cached features."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                184,
+                99,
+                803,
+                215
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Cache video once: At video ingestion time, the VLM processes the visual tokens and stores the resulting per-layer KV cache in a persistent cache. For short videos, this is a single full-context forward pass. For long videos, we follow ReKV [13] and encode the video chunk by chunk with a sliding-window attention mask: each chunk attends only to the most recent "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "visual tokens, while its newly produced KV states are appended to the cache. Older KV states can be offloaded to CPU memory when GPU memory is limited."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                290,
+                826,
+                375
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Retrieve then answer: Given a question, we run two forward passes through the frozen VLM over the cached visual context. The first pass computes the retrieval set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal S } _ { K } ^ { ( N ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from the final layer; the second pass generates the answer conditioned on the selected frames. We use two passes because RETOKEN is supervised only at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { N }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(Eq. 4). The first pass enables the retrieval token to fully integrate textual and visual content, while the second pass enables attention to a consistent set of visual tokens, matching how it was trained."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                380,
+                826,
+                469
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "First pass – retrieval. We append the retrieval token X<sub>r</sub> to the question and run the first pass over the cached visual KV. For short videos "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf X } _ { r }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "attends to all cached visual tokens at layer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l < N"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the index "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal S } _ { K } ^ { ( N ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is computed at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { N }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "via Eq. 3. For long videos the early-layer attention budget cannot accommodate the full cache, so at each layer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l < N"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we restrict "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { X } _ { r } ^ { \\left( l \\right) } \\mathbf { \\Psi } _ { \\mathbf { s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "attention as follows: (1) project the contextualized "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { X } _ { r } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "through that layer’s frozen value projection; (2) score every frame by the cosine similarity between this projection and the frame’s mean value vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\bar { \\mathbf { v } } _ { f } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at layer l; (3) restrict "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { X } _ { r } ^ { \\left( l \\right) } \\mathbf { \\bar { s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "attention to the top- "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "frames under this score before computing layer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l \\mathbf { \\{ } s "
+                    },
+                    {
+                        "type": "text",
+                        "content": "output. We use "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K ^ { \\prime } = 2 5 6"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by default, which keeps each early-layer attention well within GPU memory while leaving headroom for the final-layer ranking to refine the selection. At "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { N }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we then compute Eq. 3 over the per-frame value means to obtain "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\cal S } _ { K } ^ { ( \\bar { N } ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", reordered by original timestamp."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                473,
+                826,
+                638
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We note an asymmetry between this retrieval-pass budget "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the answer-stage budget "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "RETOKEN’s retrieval pass attends to up to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K ^ { \\prime } = 2 5 6"
+                    },
+                    {
+                        "type": "text",
+                        "content": "frames per early layer, which is different from the K used at answer time. RETOKEN therefore has access to more visual context when ranking candidates, while it still uses only K-frame visual context when generating the answer."
+                    }
+                ]
+            },
+            "bbox": [
+                171,
+                642,
+                826,
+                699
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Second pass – answer. For each layer l, we load only the visual KV cache belonging to frames in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal S } _ { K } ^ { ( N ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and run a standard generation pass over this reduced visual context together with the question. The answer stage therefore attends to about "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K \\cdot M / F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "visual tokens instead of all M, while the expensive video encoding is performed only once per video. This is particularly efficient when multiple questions are asked about the same video. Full prompt templates and a worked example of how RETOKEN interacts with the contextual visual tokens and the question are provided in Supp. A."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                704,
+                826,
+                792
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                811,
+                313,
+                829
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Settings"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                844,
+                269,
+                859
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Implementation Details. We use the greedy decoding configuration for RETOKEN and every baseline. We train RETOKEN using Qwen3VL-8B and InternVL3.5-8B on an image question-answering (QA) dataset. For the default frozen-VLM setting, we use an effective batch size of 64 and a learning rate of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 \\times 1 0 ^ { - 4 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to train the learnable token for 3 epochs on a single H100 GPU with Qwen3VL-8B. Since InternVL3.5-8B requires more tokens to represent an image, resulting in substantially higher computational and memory costs, we train InternVL3.5-8B for only one epoch. We adopt a linear warmup schedule followed by cosine learning rate decay. For the partial fine-tuning setting, we use a learning rate of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\times 1 0 ^ { - 5 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and an effective batch size of 64. As this setting converges rapidly and begins to overfit after one epoch, we apply early stopping at the end of the first epoch. Training Qwen3VL-8B under this setting takes approximately 4 hours on a single H100 GPU."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                869,
+                826,
+                912
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "6"
+                    }
+                ]
+            },
+            "bbox": [
+                493,
+                936,
+                504,
+                948
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                169,
+                90,
+                826,
+                190
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For long video inference, we use an encoding chunk size of 128 frames and a sliding-window length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { m } { = } \\bar { 3 } 0 , 0 0 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "tokens, which corresponds to roughly 153 frames at 196 tokens per frame."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                194,
+                825,
+                224
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Training Datasets. Our default multi-image training dataset comes from the MIRAGE [45] finetuning dataset, whose examples are each annotated with a relevant/irrelevant label per image. We use a 95%/5% train/validation split. It is a multi-image QA (MIQA) dataset that combines existing MIQA datasets (RetVQA [30], SlideVQA [36], and WebQA [7]) with synthetic MIQA data adapted from the LLaVA Visual Instruct 150K dataset [25] via clustering and distractor sampling. Please refer to Supp. B.1 for more details."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                229,
+                826,
+                314
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Evaluation Datasets. We evaluate RETOKEN on four benchmarks chosen to probe complementary aspects of retrieval and long-context understanding."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                319,
+                825,
+                349
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Visual Haystacks (VHs) [45] is a benchmark introduced alongside MIRAGE to evaluate the pure visual recognition ability of vision-language models. Constructed from the COCO dataset [24], it consists of 1,000 question-answer pairs and provides query-relevant image annotations. The answer is always either “Yes” or “No”. For each QA example, a varying number of distractor images is added to test the model’s ability to locate informative content within a large pool of inputs."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                353,
+                826,
+                424
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "equation_inline",
+                        "content": "Q A E g o 4 D _ { T e s t - M C }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "[12] is the multiple-choice subset of the QAEgo4D-test benchmark [6], focusing on question answering over long egocentric videos. Each example is annotated with the video segments relevant to the question. Video lengths range from 4 to 20 minutes."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                428,
+                825,
+                473
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "LVBench [41] is a benchmark for extreme long-video understanding, comprising 103 publicly sourced YouTube videos totaling roughly 117 hours, with an average length of 68 minutes and individual videos extending up to 2 hours. This is a multiple-choice dataset, and the metric is accuracy."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                477,
+                826,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Video-MME [15] consists of 900 videos and 2,700 question-answer pairs. Video durations range from 11 seconds to 1 hour, partitioned into short (ă2 min), medium (4–15 min), and long (30–60 min) splits. Each question is multiple-choice, and we report accuracy as the evaluation metric."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                525,
+                826,
+                569
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Visual Haystacks Retrieval and Accuracy"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                594,
+                501,
+                609
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We evaluate RETOKEN against the baselines on the single-needle task of the Visual Haystacks benchmark [45], in which exactly one image in the haystack is relevant to the query. The context size C controls the number of distractor images, with larger C posing a greater challenge to the model. K denotes the number of retrieved images."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                625,
+                826,
+                681
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d2067763828a752e95ce48d8441d32fed3f4e60a39557f8f0f0882472a23c549.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 5: Accuracy vs. Retrieve K Images. Frozen Qwen3VL-8B."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 2: Retrieval Strategy Comparison. We compare ReToken against different retrievers on Visual Haystacks with retrieval budget K“1. “GT Cache” means using the KV cache of the ground truth image as input and serves as the oracle upper bound for any retriever. All results are based on Qwen3VL-8B with the VLM frozen."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                133,
+                719,
+                447,
+                866
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/ce14710ec6366f10016737c5fc8c854e5d3412fe002f6633bf98de81aa530484.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td>Metric</td><td>Standard</td><td>GT Cache</td><td>SigLIP2</td><td>ReKV</td><td>CoT</td><td>RETOKEN</td></tr><tr><td colspan=\"7\">C=2,K=1</td></tr><tr><td>Recall</td><td>N/A</td><td>100</td><td>76.4</td><td>63.3</td><td>65.3</td><td>88.5</td></tr><tr><td>Accuracy</td><td>82.0</td><td>86.5</td><td>82.8</td><td>73.0</td><td>77.8</td><td>85.9</td></tr><tr><td colspan=\"7\">C=50,K=1</td></tr><tr><td>Recall</td><td>N/A</td><td>100</td><td>20.8</td><td>1.8</td><td>3.1</td><td>64.7</td></tr><tr><td>Accuracy</td><td>58.6</td><td>80.7</td><td>60.7</td><td>51.2</td><td>51.5</td><td>72.0</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                450,
+                805,
+                820,
+                907
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "7"
+                    }
+                ]
+            },
+            "bbox": [
+                493,
+                936,
+                504,
+                948
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Retrieval Behavior of ReToken and Attention-Based Retrieval. Fig. 5 compares RETOKEN and attention-based retriever, ReKV [13], across retrieval budgets from K“1 to K“128 at C“50 and C“100. When K ą“ C, no retrieval is needed since all images are used as input. The two methods exhibit opposite trends in the meaningful retrieval regime "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( K < C ) \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "RETOKEN performs best at small K and degrades as more images (mostly distractors) are retrieved, whereas ReKV starts low and improves with larger K. The crossover reflects a precision–recall tradeoff: RETOKEN is precise per slot, while ReKV needs a wider budget to recall the relevant image."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                90,
+                826,
+                190
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Retrieval Strategy Comparison. We also compute recall to measure the retrieval ability of different strategies on Visual Haystacks. Here, recall measures whether the retriever successfully selects the ground-truth image when K“1. Tab. 2 compares RETOKEN against several retrieval strategies on Visual Haystacks. We compare against four baselines: Standard pre-fills all images (the default VLM inference pipeline); GT Cache uses the ground-truth image’s KV cache as input, serving as an oracle upper bound; SigLIP2 [39] first retrieves a single image with siglip2-giant-opt-patch16-384 and feeds its KV cache to the VLM; and CoT prompts the VLM to first generate a target search phrase, then uses that phrase as the query for ReKV attention-based retrieval (full prompt in Supp. B.2)."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                194,
+                826,
+                308
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "RETOKEN substantially outperforms all baselines, retaining most of the GT Cache upper-bound accuracy at large context size (C “ 50) while the others fail."
+                    }
+                ]
+            },
+            "bbox": [
+                171,
+                311,
+                825,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "How the Stored KV Cache Differs From Re-encoding the Visual Input. Observing the accuracy for GT Cache in Tab. 2, we notice an interesting phenomenon: the accuracy degrades with higher C, even though only the cache for the same single ground truth relevant image is used in each case (86.5 for C “ 2 vs. 80.7 for C “ 50). This is because the image tokens have attended to previous images, which are irrelevant in this case, picking up distracting information."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                345,
+                826,
+                417
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To quantify this distraction, we compare the accuracy when using “GT Image” (re-encoding the ground-truth image alone, yielding a clean KV cache) with “GT Cache” (the fused KV cache for the ground-truth image). Their gap, ∆<sub>GT Image´GT Cache</sub>, measures the degree of distraction (Tab. 3); a smaller gap indicates a cleaner stored KV cache. Partial tuning on the retrieval dataset encourages the model to produce cleaner KV cache representations (KV cache is not affected when we only train the retrieval token). A cleaner KV cache benefits Visual Haystacks, but may pose a challenge for video understanding, which requires connecting information across adjacent frames."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                422,
+                826,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Accuracy Comparison. Tab. 4 reports accuracy across context sizes from C“1 (only the queryrelevant image, no distractors) to C“100. The retrieval budget K is set to 1. At C“1, RETOKEN matches the vanilla Qwen3VL-8B backbone, as we skip retrieval when "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C < = K"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                525,
+                826,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As the context size grows, the gap between RETOKEN and the vanilla backbone widens substantially. The one exception is InternVL3.5-8B at C“100, which we attribute to its 1-epoch training budget (Sec. 4.1). RETOKEN also compares favorably against external baselines, surpassing all baselines across all context sizes, including the dedicated multi-image RAG framework MIRAGE."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                574,
+                826,
+                631
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Image-to-Video Transfer Evaluation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                650,
+                467,
+                665
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Having validated RETOKEN on image data, we now evaluate its transfer to the video setting. Notably, results in this section are obtained with RETOKEN trained only on the multi-image MIRAGE training data, demonstrating strong zero-shot transfer. By default, we evaluate the frozen Qwen3VL-8B on video benchmarks with videos sampled at 0.5 FPS. “Uniformly” means loading the KV cache of K uniformly sampled frames as input."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                676,
+                826,
+                750
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/1d3dac8b69e664c673a777ece2f0d28cac4331a658d2edff2b4de954e6bdabe4.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Partial tuning on the retrieval dataset yields a cleaner KV cache. ∆<sub>GT Image´GT Cache</sub> measures the degree of distraction. A smaller gap indicates a cleaner stored KV cache."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Model</td><td colspan=\"2\">Loss Generation Retrieval</td><td>GT Image</td><td colspan=\"2\">GT Cache C = 2 C = 50</td><td colspan=\"2\"> $\\Delta_{\\text{GT Image-GT Cache}}$  C = 2 C = 50</td></tr><tr><td>Qwen3VL-8B</td><td></td><td></td><td>87.8</td><td>86.5</td><td>80.7</td><td>1.3</td><td>7.1</td></tr><tr><td rowspan=\"2\">Tuned Layer 1 - 3</td><td>√</td><td></td><td>87.8</td><td>86.8</td><td>82.3</td><td>1.0</td><td>5.5</td></tr><tr><td>√</td><td>√</td><td>88.5</td><td>87.3</td><td>83.6</td><td>1.2</td><td>4.9</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                174,
+                811,
+                818,
+                907
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "8"
+                    }
+                ]
+            },
+            "bbox": [
+                493,
+                935,
+                504,
+                948
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/2ba1ac0c40bdf74681f130984c9a6fe40f63ae9eec21e5f4d5eda311fd130a49.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: ReToken’s advantage grows with context size, yielding over 20% relative gain at C=50, when freezing the VLM. Performance on Visual Haystacks. C denotes the number of context images (i.e., images provided as input). E indicates a context overflow or CUDA out-of-memory error."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Method</td><td>C=1</td><td>C=2</td><td>C=3</td><td>C=5</td><td>C=10</td><td>C=20</td><td>C=50</td><td>C=100</td></tr><tr><td colspan=\"9\">Generalist</td></tr><tr><td>Gemini-1.5 Pro [37]</td><td>88.4</td><td>82.0</td><td>78.3</td><td>76.0</td><td>71.9</td><td>68.6</td><td>62.8</td><td>57.4</td></tr><tr><td>InternVL2 [8]</td><td>88.1</td><td>80.5</td><td>72.3</td><td>63.9</td><td>58.8</td><td>55.2</td><td>E</td><td>E</td></tr><tr><td colspan=\"9\">Specialist</td></tr><tr><td>SigLIP2 [39]</td><td>72.0</td><td>69.2</td><td>68.1</td><td>65.3</td><td>64.1</td><td>60.3</td><td>58.7</td><td>58.3</td></tr><tr><td>MIRAGE [45]</td><td>83.2</td><td>77.8</td><td>76.6</td><td>72.8</td><td>70.5</td><td>66.0</td><td>63.6</td><td>62.0</td></tr><tr><td> $\\text{REN}_{\\text{DINO-SigLIP2}}$  [20]</td><td>81.2</td><td>78.6</td><td>77.4</td><td>76.0</td><td>74.0</td><td>72.1</td><td>68.3</td><td>65.5</td></tr><tr><td colspan=\"9\">Freezing the VLM</td></tr><tr><td>Qwen3VL-8B [4]</td><td>87.8</td><td>82.0</td><td>77.9</td><td>74.7</td><td>69.2</td><td>64.0</td><td>58.6</td><td>55.7</td></tr><tr><td>+ RETOKEN</td><td>87.8 (+0.0)</td><td>85.9 (+3.9)</td><td>84.4 (+6.5)</td><td>82.5 (+7.8)</td><td>80.7 (+11.5)</td><td>76.8 (+12.8)</td><td>72.0 (+13.4)</td><td>67.7 (+12.0)</td></tr><tr><td>InternVL3.5-8B [42]</td><td>87.5</td><td>81.6</td><td>79.3</td><td>73.1</td><td>69.0</td><td>65.0</td><td>57.3</td><td>55.3</td></tr><tr><td>+ RETOKEN</td><td>87.5 (+0.0)</td><td>84.1 (+2.5)</td><td>83.7 (+4.4)</td><td>80.7 (+7.6)</td><td>76.9 (+7.9)</td><td>73.0 (+8.0)</td><td>69.7 (+12.4)</td><td>59.7 (+4.4)</td></tr><tr><td colspan=\"9\">Tuning the first 3 layers of the VLM</td></tr><tr><td>Qwen3VL-8B [4]</td><td>88.5</td><td>85.6</td><td>82.4</td><td>79.6</td><td>76.5</td><td>71.2</td><td>64.2</td><td>61.5</td></tr><tr><td>+ RETOKEN</td><td>88.5 (+0.0)</td><td>86.5 (+0.9)</td><td>85.2 (+2.8)</td><td>84.3 (+4.7)</td><td>82.8 (+6.3)</td><td>79.8 (+8.6)</td><td>75.0 (+10.8)</td><td>70.6 (+9.1)</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                174,
+                138,
+                821,
+                351
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Accuracy on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { Q A E g o 4 D _ { T e s t - M C } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Tab. 5 shows that RE-TOKEN’s advantage is most pronounced under tight retrieval budgets. With "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K { = } 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", RETOKEN achieves a 6.8- point improvement over uniform sampling, while ReKV actually performs slightly worse than uniform sampling. Unlike multi-image QA where images are independent, neighboring video frames provide complementary context, so accuracy continues to climb as K grows even where RETOKEN’s lead over uniform sampling narrows."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                377,
+                542,
+                503
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/f003ecaf0f41bee9578156268defd5f6c7e8236336df60ea9f5d9d4ee9c3105a.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 5: Zero-shot performance on QAEgo4D<sub>Test-MC</sub>."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>K</td><td>Uniformly</td><td>ReKV</td><td>RETOKEN</td></tr><tr><td>1</td><td>42.8</td><td>42.6</td><td>49.6</td></tr><tr><td>16</td><td>53.6</td><td>57.8</td><td>60.0</td></tr><tr><td>32</td><td>55.2</td><td>59.8</td><td>60.6</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                568,
+                416,
+                803,
+                484
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Long Video Understanding. The benefits of retrieval grow with video length (Tab. 6a). On the Short split of Video-MME, RETOKEN provides no gain, since these videos last only 2 minutes (60 frames at 0.5 FPS), which falls below our retrieval input budget of 100 frames and therefore does not trigger retrieval. As video length grows, however, the gain becomes substantial. RETOKEN achieves an 8.0-point improvement on LVBench (Tab. 6b)."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                507,
+                826,
+                579
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.4 Ablations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                171,
+                593,
+                282,
+                608
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We ablate the design choices of RETOKEN with Qwen3VL-8B on Visual Haystacks by default, focusing on: (1) retrieval based on visual key or value; (2) training the token only versus partial tuning; (3) the influence of the inference setting; (4) efficiency analysis; and (5) error analysis."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                618,
+                826,
+                662
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 6: ReToken helps more with long videos, even when trained only with images. Freezing the VLM and only tuning ReToken."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                681,
+                825,
+                712
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(a) Performance gain for Qwen3VL on different split of VideoMME."
+                    }
+                ]
+            },
+            "bbox": [
+                171,
+                718,
+                450,
+                744
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/e6e1a87182f389b2c873d195b3e6e65183819cb3b6514a07acf611d2e127bc7f.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                138,
+                753,
+                452,
+                907
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/08d31627a145412c807fdafa7f25a9f546ae164fbd4ca639b839c8f46098a570.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) All results in the Process raw frames section are sourced from the technical report [4]."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Model Duration</td><td># Frames</td><td>LVBench 30 – 140 min</td><td>Video-MME 0 – 60 min</td></tr><tr><td colspan=\"4\">Process raw frames</td></tr><tr><td>Gemini 2.5 Pro [10]</td><td>512</td><td>69.0</td><td>80.6</td></tr><tr><td>OpenAI GPT-5 [34]</td><td>256</td><td>-</td><td>77.3</td></tr><tr><td>Claude Opus 4.1 [2]</td><td>100</td><td>-</td><td>73.3</td></tr><tr><td>Qwen3VL-8B [4]</td><td>2 FPS</td><td>58.0</td><td>71.4</td></tr><tr><td colspan=\"4\">Retrieve from the stored KV cache at 0.5 FPS</td></tr><tr><td>Qwen3VL-8B [4]</td><td>100</td><td>40.6</td><td>65.1</td></tr><tr><td>+ RETOKEN</td><td>100</td><td>48.6 (+8.0)</td><td>67.1 (+2.0)</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                457,
+                751,
+                823,
+                902
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "9"
+                    }
+                ]
+            },
+            "bbox": [
+                491,
+                935,
+                504,
+                946
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/025bc14a693bf42b8f61f0befde0ab955ac8b3233e7a9a7951022a25c322ec0a.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 8: Tuning early layers can improve performance on the image task, but it degrades performance on the video task. (a) Tuning the first few VLM layers (Layer 1–3) gives the best recall–accuracy trade-off at C“50, K “ 1. (b) Training the VLM on images decreases accuracy on video; evaluated on QAEgo4D<sub>Test-MC</sub> with K“16."
+                    },
+                    {
+                        "type": "text",
+                        "content": "(a) Train on images, evaluate on images."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Tuning Layers</td><td>Freezing</td><td>1</td><td>1-3</td><td>1-10</td><td>N</td></tr><tr><td>Recall</td><td>64.7</td><td>68.3</td><td>68.2</td><td>58.2</td><td>64.3</td></tr><tr><td>Acc</td><td>72.0</td><td>73.3</td><td>75.0</td><td>72.6</td><td>71.3</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                171,
+                172,
+                496,
+                227
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/27e189a067521ffed98342db355cf2f3d8ffb4933a384c73e8afc78ad0368dc2.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) Train on images, evaluate on video."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Strategy</td><td>Uniformly</td><td>ReKV [13]</td><td>ReToken</td></tr><tr><td>Freezing</td><td>53.6</td><td>57.8</td><td>60.0</td></tr><tr><td>Layer 1 - 3</td><td>50.0</td><td>55.2</td><td>58.0</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                509,
+                172,
+                820,
+                228
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We further ablate design choices on whether a single token is sufficient for retrieval in Supp. C.1, and whether RETOKEN can skip attending to visual tokens in Supp. C.2."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                271,
+                617,
+                315
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Retrieval Score Based on Average Vision Key or Value. We ablate RETOKEN’s scoring mechanism in Tab. 7 with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C = 5 0 , K = 1 ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "“ˆKey” trains RETOKEN to retrieve via the average image keys, while “ˆValue” uses the average image values. “ˆValue” pulls"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                319,
+                617,
+                375
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/7cb07122dd89745b885e0d656c7fcac2ac5cb77ab80cc04801e91fae0f1cc81d.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 7: Key vs. Value."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>× Key</td><td>× Value</td></tr><tr><td>Recall</td><td>59.4</td><td>64.7</td></tr><tr><td>Accuracy</td><td>70.6</td><td>72.0</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                633,
+                295,
+                816,
+                351
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "clearly ahead in both recall and accuracy. We attribute this to values carrying the content actually propagated through attention, providing a more discriminative signal for distinguishing the relevant image among many distractors. Supp. B.3 provides further evidence for this."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                375,
+                825,
+                417
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Train Only Token or Partial Tuning VLM Layers. Tab. 8a ablates the partial-tuning depth. Tuning the first few layers (1–3) gives the best accuracy while preserving high recall, indicating that early layers are where visual features can be best shaped without compromising downstream performance."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                422,
+                826,
+                465
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Tab. 8b compares the transfer ability of the frozen and partial-tuning settings. RETOKEN shows a clear advantage in both. However, overall performance under partial tuning is lower than under the frozen setting. A possible reason is that tuning the LLM layers on image data can cause domain shift, especially given the distribution gap between image training data and video benchmarks."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                470,
+                826,
+                529
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Single or Two-pass Inference. Since RETOKEN is trained to retrieve at the last layer, we use two-pass inference to obtain retrieval results at the final layer and then broadcast them to all layers. We ablate its effect and report the accuracy in Tab. 9 under "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C = 5 0 , K = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "“Single” means each layer retrieves its own images and directly generates the response based on that. “Two” means early layers attend to all visual tokens, and the last-layer retrieval result is broadcast"
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                532,
+                617,
+                628
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/209727d8ba013d08f90ea88ac4bb33e539123b7f0baa0b90c314fecaf4e4cc13.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 9: Two-pass Inference."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>ReKV</td><td>RETOKEN</td></tr><tr><td>Single</td><td>51.2</td><td>50.4</td></tr><tr><td>Two</td><td>50.4</td><td>72.0</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                627,
+                561,
+                823,
+                614
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "to generate the response. The conclusions are different for ReKV and RETOKEN. One possible explanation is that attention-based retrieval is suited for answering directly, so it does not rely on the final layer’s results; in contrast, RETOKEN is only trained with the retrieval loss at the final layer. Therefore, the default setting for ReKV is single-pass, while for RETOKEN it is two-pass."
+                    }
+                ]
+            },
+            "bbox": [
+                169,
+                628,
+                826,
+                686
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/613f7351c7102337b2e78bdec2a05ddd816111c3d978a12c130fc9708db8e8ab.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 10: Runtime vs. quality on long-video QA "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathrm { Q A E g o 4 D _ { T e s t - M C } } , \\sim 2 4 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "frames per video at 0.5 FPS, single H100). Latency is reported per question after one-time video encoding. RETOKEN achieves higher accuracy with only modest overhead in the retrieval pass, and identical cost for the encode and answer-stage."
+                    }
+                ],
+                "table_footnote": [
+                    {
+                        "type": "text",
+                        "content": "<sup>:</sup>Encoding is performed once per video; answers are generated from the visual tokens of the K retrieved frames."
+                    }
+                ],
+                "html": "<table><tr><td rowspan=\"2\">Method</td><td rowspan=\"2\">K</td><td colspan=\"3\">Latency (second, per question)</td><td colspan=\"2\">Peak GPU (GB)</td><td colspan=\"2\">QA (%)</td></tr><tr><td> $Encode^{\\dagger}$ </td><td>Retrieve / Load</td><td>Answer</td><td>Retrieve</td><td>Answer</td><td>Acc.</td><td>Recall</td></tr><tr><td>Uniformly</td><td>16</td><td>14.68</td><td>0.081</td><td>0.169</td><td>65.1</td><td>65.4</td><td>53.6</td><td>38.0</td></tr><tr><td>RETOKEN</td><td>16</td><td>14.68</td><td>0.519</td><td>0.167</td><td>66.6</td><td>65.4</td><td>60.0</td><td>70.6</td></tr><tr><td>Uniformly</td><td>32</td><td>14.70</td><td>0.128</td><td>0.166</td><td>66.0</td><td>66.7</td><td>55.2</td><td>59.6</td></tr><tr><td>RETOKEN</td><td>32</td><td>14.70</td><td>0.538</td><td>0.166</td><td>67.2</td><td>66.8</td><td>60.6</td><td>81.2</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                173,
+                785,
+                818,
+                891
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "10"
+                    }
+                ]
+            },
+            "bbox": [
+                490,
+                935,
+                509,
+                948
+            ]
+        }
+    ]
+]

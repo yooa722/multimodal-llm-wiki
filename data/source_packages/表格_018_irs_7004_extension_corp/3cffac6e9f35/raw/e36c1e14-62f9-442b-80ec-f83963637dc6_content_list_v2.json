@@ -1,0 +1,96 @@
+[
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/f3808fb1280eb0dd035f7e5ac3b018d796f57850204d65cfa77d8d3d62fa55f3.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [
+                    {
+                        "type": "text",
+                        "content": "For Privacy Act and Paperwork Reduction Act Notice, see separate instructions. Cat. No. 13804A Form 7004 (Rev. 12-2025) Created 9/3/25"
+                    }
+                ],
+                "html": "<table><tr><td rowspan=\"3\">Print or Type</td><td colspan=\"4\">Name</td><td colspan=\"2\">Identifying number</td></tr><tr><td colspan=\"4\">Number and street (If P.O. box, see instructions.)</td><td colspan=\"2\">Room or suite no.</td></tr><tr><td>City or town</td><td>State or province</td><td colspan=\"2\">Country</td><td colspan=\"2\">ZIP or foreign postal code</td></tr><tr><td colspan=\"7\">Note: File request for extension by the due date of the return. See instructions before completing this form.</td></tr><tr><td colspan=\"7\">Part I Automatic Extension for Certain Business Income Tax, Information, and Other Returns. See instructions.</td></tr><tr><td colspan=\"6\">1 Enter the form code for the return listed below that this application is for . . . . . . . . . . . . . . . . .</td><td></td></tr><tr><td>ApplicationIs For:</td><td>FormCode</td><td colspan=\"3\">ApplicationIs For:</td><td colspan=\"2\">FormCode</td></tr><tr><td>Form 706-GSD</td><td>01</td><td colspan=\"3\">Form 1120-ND</td><td colspan=\"2\">19</td></tr><tr><td>Form 706-GST</td><td>02</td><td colspan=\"3\">Form 1120-ND (section 4951 taxes)</td><td colspan=\"2\">20</td></tr><tr><td>Form 708</td><td>37</td><td colspan=\"3\">Form 1120-PC</td><td colspan=\"2\">21</td></tr><tr><td>Form 1041 (bankruptcy estate only)</td><td>03</td><td colspan=\"3\">Form 1120-POL</td><td colspan=\"2\">22</td></tr><tr><td>Form 1041 (estate other than a bankruptcy estate)</td><td>04</td><td colspan=\"3\">Form 1120-REIT</td><td colspan=\"2\">23</td></tr><tr><td>Form 1041 (trust)</td><td>05</td><td colspan=\"3\">Form 1120-RIC</td><td colspan=\"2\">24</td></tr><tr><td>Form 1041-N</td><td>06</td><td colspan=\"3\">Form 1120-S</td><td colspan=\"2\">25</td></tr><tr><td>Form 1041-QFT</td><td>07</td><td colspan=\"3\">Form 1120-SF</td><td colspan=\"2\">26</td></tr><tr><td>Form 1042</td><td>08</td><td colspan=\"3\">Form 3520-A</td><td colspan=\"2\">27</td></tr><tr><td>Form 1065</td><td>09</td><td colspan=\"3\">Form 8612</td><td colspan=\"2\">28</td></tr><tr><td>Form 1066</td><td>11</td><td colspan=\"3\">Form 8613</td><td colspan=\"2\">29</td></tr><tr><td>Form 1120</td><td>12</td><td colspan=\"3\">Form 8725</td><td colspan=\"2\">30</td></tr><tr><td>Form 1120-C</td><td>34</td><td colspan=\"3\">Form 8804</td><td colspan=\"2\">31</td></tr><tr><td>Form 1120-F</td><td>15</td><td colspan=\"3\">Form 8831</td><td colspan=\"2\">32</td></tr><tr><td>Form 1120-FSC</td><td>16</td><td colspan=\"3\">Form 8876</td><td colspan=\"2\">33</td></tr><tr><td>Form 1120-H</td><td>17</td><td colspan=\"3\">Form 8924</td><td colspan=\"2\">35</td></tr><tr><td>Form 1120-L</td><td>18</td><td colspan=\"3\">Form 8928</td><td colspan=\"2\">36</td></tr><tr><td colspan=\"7\">Part II All Filers Must Complete This Part</td></tr><tr><td colspan=\"7\">2 If the organization is a foreign corporation that does not have an office or place of business in the United States, check here . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</td></tr><tr><td colspan=\"7\">3 If the organization is a corporation and is the common parent of a group that intends to file a consolidated return, check here . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . If checked, attach a statement listing the name, address, and employer identification number (EIN) for each member covered by this application.</td></tr><tr><td colspan=\"4\">4 If the organization is a corporation or partnership that qualifies under Regulations section 1.6081-5, check here . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</td><td></td><td></td><td></td></tr><tr><td colspan=\"7\">5a The application is for calendar year 20 ____, or tax year beginning ____, 20 ____, and ending ____, 20 ____.b Short tax year. If this tax year is less than 12 months, check the reason: ☐ Initial return ☐ Final return☐ Change in accounting period ☐ Consolidated return to be filed ☐ Other (See instructions—attach explanation.)</td></tr><tr><td rowspan=\"2\">6 Tentative total tax . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</td><td>6</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td colspan=\"7\">7 Total payments and credits. See instructions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8 Balance due. Subtract line 7 from line 6. See instructions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                53,
+                104,
+                942,
+                792
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Form 7004 (Rev. December 2025) Department of the Treasury Internal Revenue Service"
+                    }
+                ]
+            },
+            "bbox": [
+                53,
+                42,
+                197,
+                104
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Application for Automatic Extension of Time To File Certain Business Income Tax, Information, and Other Returns File a separate application for each return."
+                    }
+                ]
+            },
+            "bbox": [
+                235,
+                40,
+                761,
+                88
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "OMB No. 1545-0233"
+                    }
+                ]
+            },
+            "bbox": [
+                813,
+                66,
+                924,
+                79
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Go to www.irs.gov/Form7004 for instructions and the latest information."
+                    }
+                ]
+            },
+            "bbox": [
+                272,
+                89,
+                723,
+                102
+            ]
+        }
+    ]
+]
