@@ -13,6 +13,16 @@ from mmwiki.retrieval import RETRIEVAL_MODES
 
 
 ROOT = Path(__file__).resolve().parent
+QUERY_MODES = ("auto",) + RETRIEVAL_MODES
+
+
+def add_feature_flags(command: argparse.ArgumentParser) -> None:
+    command.add_argument("--vlm", choices=("on", "off"), help="临时覆盖 VLM 开关")
+    command.add_argument(
+        "--vector-retrieval",
+        choices=("on", "off"),
+        help="临时覆盖向量检索开关",
+    )
 
 
 def parser() -> argparse.ArgumentParser:
@@ -37,28 +47,42 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="按页分析全部视觉资源后统一编译 Wiki（仅 api）",
     )
+    add_feature_flags(ingest)
+
+    ingest_wiki = commands.add_parser(
+        "ingest-wiki",
+        help="导入已有本地 Markdown Wiki，生成只读派生多模态 Wiki",
+    )
+    ingest_wiki.add_argument("wiki_root", type=Path)
+    ingest_wiki.add_argument("--caption-package", type=Path, required=True)
+    add_feature_flags(ingest_wiki)
 
     search = commands.add_parser("search", help="执行 Wiki 导航与 Evidence chunk 检索")
     search.add_argument("question")
     search.add_argument("--top-k", type=int, default=5)
     search.add_argument("--source-id", action="append", default=[])
     search.add_argument(
-        "--retrieval-mode", choices=RETRIEVAL_MODES, default="lexical"
+        "--retrieval-mode", choices=QUERY_MODES, default="auto"
     )
+    add_feature_flags(search)
 
     query = commands.add_parser("query", help="执行带引用的图文问答")
     query.add_argument("question")
     query.add_argument("--top-k", type=int, default=5)
     query.add_argument("--source-id", action="append", default=[])
     query.add_argument(
-        "--retrieval-mode", choices=RETRIEVAL_MODES, default="hybrid"
+        "--retrieval-mode", choices=QUERY_MODES, default="auto"
     )
     query.add_argument(
         "--provider",
         choices=("api", "baseline"),
         default="api",
-        help="默认调用在线视觉模型；baseline 只用于开发诊断",
+        help="默认调用在线模型；是否发送图片由 --vlm/配置决定，baseline 只用于开发诊断",
     )
+    add_feature_flags(query)
+
+    status = commands.add_parser("wiki-status", help="显示 Wiki 与多模态功能开关状态")
+    add_feature_flags(status)
 
     commands.add_parser("lint", help="检查 Wiki 页面、资源和状态")
     commands.add_parser(
@@ -92,10 +116,12 @@ def parser() -> argparse.ArgumentParser:
         default=[],
         help="仅重建指定来源并与版本一致的现有索引安全合并，可重复使用",
     )
-    commands.add_parser(
+    add_feature_flags(index)
+    wiki_index = commands.add_parser(
         "build-wiki-index",
         help="只构建 Wiki 页面语义索引，保留现有文本与视觉 Evidence 向量",
     )
+    add_feature_flags(wiki_index)
     commands.add_parser(
         "migrate-index",
         help="严格校验后把旧索引元数据本地升级到当前版本，不调用外部模型",
@@ -113,8 +139,12 @@ def output(value: object) -> None:
 
 def main() -> int:
     args = parser().parse_args()
-    pipeline = WikiPipeline(ROOT)
     try:
+        pipeline = WikiPipeline(ROOT)
+        pipeline.configure_features(
+            vlm=getattr(args, "vlm", None),
+            vector_retrieval=getattr(args, "vector_retrieval", None),
+        )
         if args.command == "validate":
             output(pipeline.validate(args.package))
         elif args.command == "ingest":
@@ -125,6 +155,13 @@ def main() -> int:
                     args.force,
                     args.full_scale,
                     args.stage,
+                )
+            )
+        elif args.command == "ingest-wiki":
+            output(
+                pipeline.ingest_existing_wiki(
+                    args.wiki_root,
+                    args.caption_package,
                 )
             )
         elif args.command == "search":
@@ -145,6 +182,13 @@ def main() -> int:
                     set(args.source_id) or None,
                     args.retrieval_mode,
                 )
+            )
+        elif args.command == "wiki-status":
+            output(
+                {
+                    "feature_config": pipeline.features.as_dict(),
+                    "retrieval": pipeline.retrieval_status(),
+                }
             )
         elif args.command == "lint":
             output(pipeline.lint())

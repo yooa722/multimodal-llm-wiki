@@ -34,15 +34,22 @@ case "${command_name}" in
   query)
     shift
     if [[ $# -lt 1 ]]; then
-      echo 'usage: demo.sh query <question> [hybrid|multimodal]' >&2
+      echo 'usage: demo.sh query <question> [auto|lexical|hybrid|multimodal]' >&2
       exit 2
     fi
     question="$1"
-    mode="${2:-hybrid}"
+    mode="${2:-auto}"
     exec python3 app.py query "${question}" --retrieval-mode "${mode}" --top-k 5
     ;;
+  import)
+    if [[ $# -lt 3 ]]; then
+      echo 'usage: demo.sh import <wiki-root> <caption-package>' >&2
+      exit 2
+    fi
+    exec python3 app.py ingest-wiki "$2" --caption-package "$3"
+    ;;
   *)
-    echo 'usage: demo.sh {start|status|tour|compare|questions|table|visual|refuse|preflight|serve|query}' >&2
+    echo 'usage: demo.sh {start|status|tour|compare|questions|table|visual|refuse|preflight|serve|query|import}' >&2
     exit 2
     ;;
 esac

@@ -302,8 +302,15 @@ class OpenAICompatibleProvider:
         ).strip()
         self.url = explicit_url or (f"{base_url}/chat/completions" if base_url else "")
         self.key = os.environ.get("MMWIKI_API_KEY", values.get("MMWIKI_API_KEY", "")).strip()
-        model_key = "MMWIKI_VISION_MODEL" if task == "vision" else "MMWIKI_BUILD_MODEL"
+        model_key = {
+            "vision": "MMWIKI_VISION_MODEL",
+            "answer": "MMWIKI_ANSWER_MODEL",
+        }.get(task, "MMWIKI_BUILD_MODEL")
         self.model = os.environ.get(model_key, values.get(model_key, "")).strip()
+        if task == "answer" and not self.model:
+            self.model = os.environ.get(
+                "MMWIKI_BUILD_MODEL", values.get("MMWIKI_BUILD_MODEL", "")
+            ).strip()
         self.timeout = int(os.environ.get("MMWIKI_TIMEOUT", values.get("MMWIKI_TIMEOUT", "60")))
         default_tokens = "1200" if task == "vision" else "3000"
         self.max_tokens = int(

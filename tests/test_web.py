@@ -70,6 +70,22 @@ title: "测试页面"
         self.assertIn('<span id="item-1"></span>', rendered)
         self.assertIn("<table>", rendered)
 
+    def test_renderer_preserves_standard_markdown_image_alt(self) -> None:
+        rendered = render_wiki_html(
+            "![系统架构图](assets/figure.png)",
+            "wiki/test.md",
+            "http://127.0.0.1:19828",
+        ).decode("utf-8")
+        self.assertIn('alt="系统架构图"', rendered)
+        self.assertIn("/api/v1/media/assets/figure.png", rendered)
+
+        nested = render_wiki_html(
+            "![派生 Caption](../assets/asset-figure.png)",
+            "wiki/external/demo/pages/readme.md",
+            "http://127.0.0.1:19828",
+        ).decode("utf-8")
+        self.assertIn("/api/v1/media/wiki/external/demo/assets/asset-figure.png", nested)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,12 +17,14 @@ def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> Non
     vault_root = project_root / "runtime/vault"
 
     def online_status() -> dict[str, Any]:
-        provider = OpenAICompatibleProvider(project_root, "vision")
+        task = "vision" if pipeline.features.enable_vlm else "answer"
+        provider = OpenAICompatibleProvider(project_root, task)
         return {
             "status": "ok" if provider.configured else "needs_configuration",
-            "mode": "online_multimodal_qa",
+            "mode": "online_multimodal_qa" if pipeline.features.enable_vlm else "online_text_qa",
             "configured": provider.configured,
             "model": provider.model or None,
+            "feature_config": pipeline.features.as_dict(),
             "retrieval": pipeline.retrieval_status(),
         }
 
@@ -66,8 +68,11 @@ def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> Non
                     path = resolve_vault_path(
                         vault_root,
                         relative,
-                        required_prefix="assets",
-                        allowed_suffixes={".jpg", ".jpeg", ".png", ".gif", ".webp"},
+                        required_prefix=("assets", "wiki"),
+                        allowed_suffixes={
+                            ".apng", ".avif", ".bmp", ".gif", ".jpeg", ".jpg",
+                            ".png", ".svg", ".tif", ".tiff", ".webp",
+                        },
                     )
                     content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
                     self._send_bytes(200, path.read_bytes(), content_type)
@@ -115,14 +120,14 @@ def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> Non
                         int(body.get("top_k", 5)),
                         "api",
                         self._source_ids(body),
-                        str(body.get("retrieval_mode") or "hybrid"),
+                        str(body.get("retrieval_mode") or "auto"),
                     )
                 elif self.path == "/api/v1/search":
                     result = pipeline.search_with_trace(
                         str(body.get("question") or body.get("query") or ""),
                         int(body.get("top_k", 5)),
                         self._source_ids(body),
-                        str(body.get("retrieval_mode") or "hybrid"),
+                        str(body.get("retrieval_mode") or "auto"),
                     )
                 else:
                     self._send(404, {"error": "not_found"})

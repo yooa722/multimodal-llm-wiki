@@ -26,8 +26,29 @@ Then explain only these project commands: `/wiki-start`, `/wiki-demo`, `/wiki-ta
 - For a human-readable readiness check, run `bash .opencode/skills/multimodal-wiki/scripts/demo.sh status`.
 - For the full read-only walkthrough, run `bash .opencode/skills/multimodal-wiki/scripts/demo.sh tour`.
 - For a new Source Package, follow the staged build below. Do not use a one-shot build when collecting comparison metrics.
-- For a question, use `hybrid` by default. Use `multimodal` only when pixels, layout, color, arrows, curves, or other visual details matter.
+- For a question, use `auto` by default. The lightweight incremental Wiki path uses BM25 + MinerU Caption; it reaches Hybrid or Multimodal retrieval only when the corresponding feature switches are explicitly enabled.
 - For benchmark or architecture explanations, read `references/architecture.md` first.
+
+## Import an existing Markdown Wiki
+
+Use the same `multimodal-wiki` Skill and its `wiki_import` operation for a user's existing local Wiki. The original directory is read-only; the command creates a derived view under `runtime/vault/wiki/external/<wiki_id>/`:
+
+```bash
+python3 app.py ingest-wiki \
+  /absolute/path/to/wiki \
+  --caption-package /absolute/path/to/mmwiki-package
+```
+
+The importer supports local relative Markdown images and Obsidian image links. It matches image bytes to MinerU assets by SHA-256, materializes MinerU Caption as derived Markdown `alt`, and leaves the original Markdown, WikiLinks, and image files untouched. Remote, absolute, and path-traversing images are rejected and reported without failing the whole Wiki.
+
+The default configuration is deliberately lightweight:
+
+```dotenv
+MMWIKI_ENABLE_VLM=false
+MMWIKI_ENABLE_VECTOR_RETRIEVAL=false
+```
+
+Use `python3 app.py wiki-status` for `wiki_status`. CLI flags `--vlm on|off` and `--vector-retrieval on|off` temporarily override `.env`. A visual query with these switches off safely falls back to BM25 + Caption and reports the reason; it never calls VLM, Embedding, or Rerank implicitly.
 
 ## Build in two stages
 
@@ -41,19 +62,19 @@ Then explain only these project commands: `/wiki-start`, `/wiki-demo`, `/wiki-ta
 
    ```bash
    python3 app.py ingest /absolute/path/to/package --provider api --stage text
-   python3 app.py build-index --text-only
+   python3 app.py build-index --text-only --vector-retrieval on
    ```
 
 3. Add first-class table, equation, and image Evidence without rebuilding the immutable source or existing text vectors:
 
    ```bash
    python3 app.py ingest /absolute/path/to/package --provider api --stage multimodal
-   python3 app.py build-index --source-id <package-id>
+   python3 app.py build-index --source-id <package-id> --vlm on --vector-retrieval on
    ```
 
 4. Report the stage metrics returned by the commands: elapsed time, API calls, token usage, page impact scope, active item/chunk/asset counts, and reused/new Wiki-page, Evidence-text and visual index records.
 
-If a valid Evidence index already exists and only the independent page-level index is missing or stale, run `python3 app.py build-wiki-index`. This command must preserve all existing text and visual Evidence vectors and embed only changed Wiki pages.
+If a valid Evidence index already exists and only the independent page-level index is missing or stale, run `python3 app.py build-wiki-index --vector-retrieval on`. This command must preserve all existing text and visual Evidence vectors and embed only changed Wiki pages.
 
 Use `--full-scale` only on the multimodal stage when every page image must be analyzed. Repeating the same source version should return `unchanged` with zero model calls.
 
@@ -66,7 +87,7 @@ The typed tool returns presentation-ready final Markdown. After it succeeds, out
 Run directly through the CLI:
 
 ```bash
-python3 app.py query "<question>" --retrieval-mode hybrid --top-k 5
+python3 app.py query "<question>" --retrieval-mode auto --top-k 5
 python3 app.py query "<visual question>" --retrieval-mode multimodal --top-k 5
 ```
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import mimetypes
 import os
@@ -15,6 +16,8 @@ from pathlib import Path
 from typing import Any
 
 from .contracts import load_package, validate_package
+from .config import FeatureConfig, load_feature_config, resolve_query_mode
+from .markdown_overlay import load_caption_map, materialize_wiki
 from .models import Item, Package
 from .provider import (
     OpenAICompatibleProvider,
@@ -217,7 +220,11 @@ def _clean_generated_content(content: str, title: str) -> str:
 
 
 class WikiPipeline:
-    def __init__(self, project_root: str | Path):
+    def __init__(
+        self,
+        project_root: str | Path,
+        feature_config: FeatureConfig | None = None,
+    ):
         self._state_lock = threading.RLock()
         self.root = Path(project_root).expanduser().resolve()
         self.runtime = self.root / "runtime"
@@ -238,7 +245,21 @@ class WikiPipeline:
         self.graph_path = self.wiki_root / "graph.json"
         self.graph_report_path = self.wiki_root / "graph-health.md"
         self.maintenance_path = self.wiki_root / "maintenance.md"
+        self.features = feature_config or load_feature_config(self.root)
         self.ensure_layout()
+
+    def configure_features(
+        self,
+        *,
+        vlm: str | None = None,
+        vector_retrieval: str | None = None,
+    ) -> FeatureConfig:
+        self.features = load_feature_config(
+            self.root,
+            vlm=vlm,
+            vector_retrieval=vector_retrieval,
+        )
+        return self.features
 
     def ensure_layout(self) -> None:
         for path in (
@@ -289,6 +310,8 @@ class WikiPipeline:
         changed = state.get("schema_version") != "0.4"
         state["schema_version"] = "0.4"
         for source_id, source in state.get("sources", {}).items():
+            if source.get("source_type") == "external_markdown":
+                continue
             evidence_map_path = f"wiki/evidence/{slugify(str(source_id))}-multimodal.md"
             if source.get("evidence_map_path") != evidence_map_path:
                 source["evidence_map_path"] = evidence_map_path
@@ -1331,6 +1354,177 @@ class WikiPipeline:
             )
         return result
 
+    def ingest_existing_wiki(
+        self,
+        wiki_root: str | Path,
+        caption_package: str | Path | None = None,
+    ) -> dict[str, Any]:
+        """Create a derived, searchable view of a user's local Markdown Wiki."""
+
+        source_root = Path(wiki_root).expanduser().resolve()
+        if not source_root.is_dir():
+            raise PipelineError(f"Wiki 目录不存在：{source_root}")
+        wiki_id = slugify(source_root.name)
+        output_root = self.wiki_root / "external" / wiki_id
+        old_manifest_path = output_root / "manifest.json"
+        old_manifest: dict[str, Any] = {}
+        if old_manifest_path.is_file():
+            try:
+                old_manifest = json.loads(old_manifest_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                old_manifest = {}
+        caption_map = load_caption_map(Path(caption_package)) if caption_package else {}
+        manifest = materialize_wiki(source_root, output_root, caption_map)
+        source_id = f"external-{wiki_id}"
+        state = self._load_state()
+        state.setdefault("sources", {})
+        state.setdefault("pages", {})
+        for path, page in list(state["pages"].items()):
+            if source_id in {str(value) for value in page.get("source_ids", [])}:
+                del state["pages"][path]
+
+        manifest_assets = manifest.get("assets", [])
+        assets: dict[str, dict[str, Any]] = {}
+        asset_by_name: dict[str, str] = {}
+        for record in manifest_assets:
+            derived = Path(str(record.get("derived_path") or ""))
+            try:
+                vault_path = derived.relative_to(self.vault).as_posix()
+            except ValueError:
+                continue
+            asset_id = str(record.get("asset_id") or "")
+            if not asset_id:
+                continue
+            assets[asset_id] = {
+                "asset_id": asset_id,
+                "vault_path": vault_path,
+                "media_type": record.get("media_type") or "application/octet-stream",
+                "sha256": record.get("sha256") or "",
+                "source_path": record.get("source_path") or "",
+                "caption": record.get("caption") or "",
+                "caption_provenance": record.get("caption_provenance") or "missing",
+            }
+            asset_by_name[derived.name] = asset_id
+
+        items: list[dict[str, Any]] = []
+        chunks: list[dict[str, Any]] = []
+        page_count = 0
+        page_paths: list[str] = []
+        for page_record in manifest.get("pages", []):
+            derived_path = Path(str(page_record.get("derived_path") or ""))
+            if not derived_path.is_file():
+                continue
+            try:
+                relative = derived_path.relative_to(output_root)
+            except ValueError:
+                continue
+            if relative.parts[:1] != ("pages",):
+                continue
+            page_relative = relative.relative_to("pages")
+            vault_page = (output_root.relative_to(self.vault) / "pages" / page_relative).as_posix()
+            content = derived_path.read_text(encoding="utf-8")
+            item_id = "page-" + hashlib.sha256(str(page_relative).encode("utf-8")).hexdigest()[:20]
+            used_asset_ids = [
+                asset_id
+                for filename, asset_id in asset_by_name.items()
+                if f"assets/{filename}" in content
+            ]
+            item = {
+                "item_id": item_id,
+                "sequence": page_count,
+                "item_type": "markdown_page",
+                "page_start": None,
+                "page_end": None,
+                "bbox": {},
+                "breadcrumb": str(page_relative),
+                "raw_text": content,
+                "caption": "\n".join(
+                    str(assets[asset_id].get("caption") or "")
+                    for asset_id in used_asset_ids
+                    if assets[asset_id].get("caption")
+                ),
+                "search_text": content,
+                "table": None,
+                "equation": None,
+                "semantic": {},
+                "asset_ids": used_asset_ids,
+                "provenance": {
+                    "source_path": str(source_root / page_relative),
+                    "derived_path": str(derived_path),
+                    "source_type": "external_markdown",
+                },
+                "quality": {"caption_source": "mineru" if used_asset_ids else "none"},
+                "searchable": True,
+                "metadata": {"derived_page": vault_page},
+            }
+            evidence_id = f"{source_id}@{manifest['source_version']}#{item_id}"
+            items.append(item)
+            chunks.append(
+                {
+                    "chunk_id": "chunk-" + item_id,
+                    "item_ids": [item_id],
+                    "text": content,
+                    "breadcrumb": str(page_relative),
+                    "modalities": ["text"] + (["image"] if used_asset_ids else []),
+                    "asset_ids": used_asset_ids,
+                    "page_refs": [],
+                    "provenance": {"evidence_id": evidence_id, "path": vault_page},
+                    "quality": {},
+                }
+            )
+            state["pages"][vault_page] = {
+                "path": vault_page,
+                "title": page_relative.stem,
+                "kind": "external_markdown",
+                "summary": " ".join(content.split())[:500],
+                "source_ids": [source_id],
+                "source_versions": [manifest["source_version"]],
+                "evidence_ids": [evidence_id],
+                "evidence_modalities": ["text"] + (["image"] if used_asset_ids else []),
+                "representation_layers": ["text"] + (["image"] if used_asset_ids else []),
+                "revision": 1,
+            }
+            page_paths.append(vault_page)
+            page_count += 1
+
+        if not page_paths:
+            raise PipelineError("Wiki 中没有可导入的 Markdown 页面")
+        source = {
+            "title": source_root.name,
+            "source_version": manifest["source_version"],
+            "checksum": manifest["source_version"],
+            "source_filename": source_root.name,
+            "source_media_type": "text/markdown",
+            "parser_name": "external-markdown-overlay",
+            "wiki_path": page_paths[0],
+            "evidence_map_path": "",
+            "source_type": "external_markdown",
+            "items": items,
+            "chunks": chunks,
+            "assets": assets,
+            "stages": {"text": {"status": "completed", "provider": "local-overlay"}},
+            "manifest_path": (output_root / "manifest.json").relative_to(self.vault).as_posix(),
+        }
+        state["sources"][source_id] = source
+        self._save_state(state)
+        self._write_navigation(state)
+        self._log(
+            "external-wiki-import",
+            f"wiki={source_id} · pages={page_count} · assets={len(assets)} · errors={len(manifest.get('errors', []))}",
+        )
+        return {
+            "status": "unchanged" if old_manifest.get("source_version") == manifest["source_version"] else "ingested",
+            "source_id": source_id,
+            "wiki_id": wiki_id,
+            "source_version": manifest["source_version"],
+            "derived_root": str(output_root),
+            "pages": page_count,
+            "assets": len(assets),
+            "assets_copied": manifest.get("assets_copied", 0),
+            "errors": manifest.get("errors", []),
+            "caption_source": "mineru" if caption_map else "none",
+        }
+
     def ingest(
         self,
         package_path: str | Path,
@@ -1343,6 +1537,11 @@ class WikiPipeline:
             raise PipelineError("provider 必须是 baseline 或 api")
         if stage not in INGEST_STAGES:
             raise PipelineError(f"stage 必须是 {', '.join(INGEST_STAGES)}")
+        # Ingest remains usable when VLM is disabled: textual OCR/Caption
+        # proxies continue through the existing pipeline, but no image payload
+        # is sent to the vision model and full-scale visual analysis is skipped.
+        if not self.features.enable_vlm:
+            full_scale = False
         if full_scale and (provider != "api" or stage == "text"):
             raise PipelineError("full_scale 只支持 api provider 的多模态阶段")
 
@@ -1617,6 +1816,7 @@ class WikiPipeline:
                 analyzer = (
                     vision_llm
                     if stage == "multimodal"
+                    and self.features.enable_vlm
                     and image_payloads
                     and vision_llm.configured
                     else llm
@@ -2232,7 +2432,10 @@ class WikiPipeline:
             **status,
             "text_configured": provider.text_configured,
             "multimodal_configured": provider.multimodal_configured,
-            "available_modes": list(RETRIEVAL_MODES),
+            "feature_config": self.features.as_dict(),
+            "vector_retrieval_enabled": self.features.enable_vector_retrieval,
+            "vlm_enabled": self.features.enable_vlm,
+            "available_modes": ["auto", *RETRIEVAL_MODES],
             "wiki_navigation_ready": bool(state.get("sources")),
             "wiki_page_navigation": {
                 "lexical": bool(state.get("sources")),
@@ -2240,8 +2443,12 @@ class WikiPipeline:
                 "strategy": "Wiki page -> source/chunk Evidence -> answer",
             },
             "wiki_coverage": self._wiki_coverage(state),
-            "remote_content_processing": bool(
+            "configured_remote_content_processing": bool(
                 provider.text_configured or provider.multimodal_configured
+            ),
+            "remote_content_processing": bool(
+                (self.features.enable_vlm and provider.multimodal_configured)
+                or (self.features.enable_vector_retrieval and provider.text_configured)
             ),
         }
 
@@ -2250,11 +2457,22 @@ class WikiPipeline:
         include_visual: bool = True,
         source_ids: set[str] | None = None,
     ) -> dict[str, Any]:
+        if not self.features.enable_vector_retrieval:
+            return {
+                "status": "disabled",
+                "reason": "向量检索已关闭；保留已有索引且不调用 Embedding/Rerank",
+                "feature_config": self.features.as_dict(),
+            }
         state = self._load_state()
         provider = BailianRetrievalProvider(self.root)
         result = RetrievalIndex(
             self.retrieval_index_path, self.vault
-        ).build(state, provider, include_visual, source_ids)
+        ).build(
+            state,
+            provider,
+            include_visual and self.features.enable_vlm,
+            source_ids,
+        )
         self._log(
             "retrieval-index",
             (
@@ -2267,6 +2485,12 @@ class WikiPipeline:
 
     def build_wiki_page_index(self) -> dict[str, Any]:
         """Build only Wiki-page vectors without touching existing Evidence vectors."""
+        if not self.features.enable_vector_retrieval:
+            return {
+                "status": "disabled",
+                "reason": "向量检索已关闭；不构建 Wiki 页面向量索引",
+                "feature_config": self.features.as_dict(),
+            }
         state = self._load_state()
         provider = BailianRetrievalProvider(self.root)
         result = RetrievalIndex(
@@ -2301,7 +2525,7 @@ class WikiPipeline:
         question: str,
         top_k: int = 5,
         source_ids: set[str] | None = None,
-        retrieval_mode: str = "lexical",
+        retrieval_mode: str = "auto",
     ) -> dict[str, Any]:
         question = question.strip()
         if not question:
@@ -2321,6 +2545,21 @@ class WikiPipeline:
         if not 1 <= top_k <= 20:
             raise PipelineError("top_k 必须在 1 到 20 之间")
         state = self._load_state()
+        visual_intent = any(
+            word in question.casefold()
+            for word in ("图", "图片", "图表", "figure", "chart", "image")
+        )
+        effective_mode = resolve_query_mode(
+            retrieval_mode,
+            visual_intent=visual_intent,
+            config=self.features,
+        )
+        fallback_reason = None
+        if effective_mode != retrieval_mode:
+            if not self.features.enable_vector_retrieval:
+                fallback_reason = "向量检索已关闭，已回退到 BM25 + MinerU Caption"
+            elif retrieval_mode == "multimodal" and not self.features.enable_vlm:
+                fallback_reason = "VLM 已关闭，已回退到文本混合检索"
         unknown_sources = set(source_ids or set()) - set(state.get("sources", {}))
         if unknown_sources:
             raise PipelineError(f"不存在的 source_id：{sorted(unknown_sources)}")
@@ -2341,7 +2580,7 @@ class WikiPipeline:
         for page in state.get("pages", {}).values():
             for source_id in page.get("source_ids", []):
                 wiki_paths_by_source.setdefault(str(source_id), []).append(page["path"])
-        if retrieval_mode == "lexical":
+        if effective_mode == "lexical":
             hits = Retriever(state).search(
                 question,
                 top_k,
@@ -2350,12 +2589,12 @@ class WikiPipeline:
                 wiki_source_ranks,
             )
             trace = {
-                "requested_mode": "lexical",
+                "requested_mode": retrieval_mode,
                 "mode": "lexical",
                 "channels": (["wiki_navigation"] if wiki_navigation else [])
                 + ["bm25"],
                 "models": {},
-                "fallback_reason": None,
+                "fallback_reason": fallback_reason,
                 "usage": {},
                 "wiki_navigation_strategy": "wiki-page-bm25->evidence",
             }
@@ -2369,9 +2608,12 @@ class WikiPipeline:
                 source_ids,
                 wiki_paths_by_source,
                 wiki_source_ranks,
-                retrieval_mode,
+                effective_mode,
                 provider,
             )
+            trace["requested_mode"] = retrieval_mode
+            if fallback_reason and not trace.get("fallback_reason"):
+                trace["fallback_reason"] = fallback_reason
             semantic_pages = trace.get("wiki_semantic_navigation_pages", [])
             if semantic_pages:
                 fused_navigation: dict[str, dict[str, Any]] = {}
@@ -2475,7 +2717,7 @@ class WikiPipeline:
         top_k: int = 5,
         provider: str = "baseline",
         source_ids: set[str] | None = None,
-        retrieval_mode: str = "lexical",
+        retrieval_mode: str = "auto",
     ) -> dict[str, Any]:
         question = question.strip()
         if not question:
@@ -2557,7 +2799,8 @@ class WikiPipeline:
             answer_mode = "abstention"
             usage: dict[str, Any] = {}
         elif provider == "api":
-            llm = OpenAICompatibleProvider(self.root, "vision")
+            answer_task = "vision" if self.features.enable_vlm else "answer"
+            llm = OpenAICompatibleProvider(self.root, answer_task)
             evidence_index = [
                 {
                     "id": value["evidence_id"],
@@ -2576,12 +2819,18 @@ class WikiPipeline:
             value = llm.answer(
                 question,
                 evidence_index,
-                self._image_payloads(selected, state, matched_visual_assets),
+                self._image_payloads(selected, state, matched_visual_assets)
+                if self.features.enable_vlm
+                else [],
             )
             answer = value["answer"]
             cited = value["evidence_refs"]
             model = llm.model
-            answer_mode = "multimodal_generation" if value["answerable"] else "abstention"
+            answer_mode = (
+                "multimodal_generation"
+                if self.features.enable_vlm and value["answerable"]
+                else ("text_generation" if value["answerable"] else "abstention")
+            )
             usage = value.get("_usage", {})
         else:
             answer = "离线模式只展示召回证据，未调用视觉模型。\n\n" + "\n".join(
@@ -2668,6 +2917,7 @@ class WikiPipeline:
             errors.append("Wiki Schema 缺失：schema.md")
 
         for package_id, source in state.get("sources", {}).items():
+            external_source = source.get("source_type") == "external_markdown"
             source_path = safe_vault_file(source.get("wiki_path"))
             if source_path is None or not source_path.is_file():
                 errors.append(f"来源页缺失：{package_id}")
@@ -2678,7 +2928,7 @@ class WikiPipeline:
                 if item.get("item_id")
             }
             evidence_ids.update(source_evidence_ids)
-            if source_path is not None and source_path.is_file():
+            if source_path is not None and source_path.is_file() and not external_source:
                 source_content = source_path.read_text(encoding="utf-8")
                 for evidence_id in source_evidence_ids:
                     if evidence_id not in source_content:
@@ -2690,7 +2940,7 @@ class WikiPipeline:
                 if target is None or not target.is_file():
                     errors.append(f"资源缺失或越界：{package_id}/{asset_id}")
             evidence_map = safe_vault_file(source.get("evidence_map_path"))
-            if evidence_map is None or not evidence_map.is_file():
+            if not external_source and (evidence_map is None or not evidence_map.is_file()):
                 errors.append(f"多模态证据地图缺失：{package_id}")
         for path, page in state.get("pages", {}).items():
             target = safe_vault_file(path)
@@ -2699,7 +2949,7 @@ class WikiPipeline:
                 content = ""
             else:
                 content = target.read_text(encoding="utf-8")
-            if page.get("kind") not in {"concept", "entity", "analysis"}:
+            if page.get("kind") not in {"concept", "entity", "analysis", "external_markdown"}:
                 errors.append(f"Wiki 页面 kind 无效：{path}")
             required = ("source_ids", "source_versions", "evidence_ids")
             for field in required:
@@ -2715,7 +2965,7 @@ class WikiPipeline:
                 errors.append(
                     f"Wiki 页面引用不存在来源：{path} · {sorted(missing_sources)}"
                 )
-            for evidence_id in page.get("evidence_ids", []):
+            for evidence_id in page.get("evidence_ids", []) if page.get("kind") != "external_markdown" else []:
                 if content and str(evidence_id) not in content:
                     errors.append(
                         f"Wiki 页面正文缺少 Evidence：{path} · {evidence_id}"

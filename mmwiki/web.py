@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import posixpath
 import re
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote
@@ -23,7 +24,7 @@ def resolve_vault_path(
     vault_root: Path,
     raw_path: str,
     *,
-    required_prefix: str,
+    required_prefix: str | tuple[str, ...],
     allowed_suffixes: set[str],
 ) -> Path:
     decoded = unquote(raw_path)
@@ -32,8 +33,11 @@ def resolve_vault_path(
     logical = PurePosixPath(decoded)
     if logical.is_absolute() or ".." in logical.parts:
         raise ValueError("资源路径不能逃逸 Vault")
-    if not logical.parts or logical.parts[0] != required_prefix:
-        raise ValueError(f"资源路径必须位于 {required_prefix}/")
+    required_prefixes = (
+        (required_prefix,) if isinstance(required_prefix, str) else required_prefix
+    )
+    if not logical.parts or logical.parts[0] not in required_prefixes:
+        raise ValueError(f"资源路径必须位于 {' 或 '.join(required_prefixes)}/")
     candidate = (vault_root / Path(*logical.parts)).resolve()
     root = vault_root.resolve()
     if candidate != root and root not in candidate.parents:
@@ -45,7 +49,7 @@ def resolve_vault_path(
     return candidate
 
 
-def _inline(value: str, base_url: str) -> str:
+def _inline(value: str, base_url: str, image_base: str = "") -> str:
     tokens: list[str] = []
 
     def token(fragment: str) -> str:
@@ -63,6 +67,31 @@ def _inline(value: str, base_url: str) -> str:
             "在浏览器中打开原图</a></figcaption></figure>"
         )
 
+    def standard_image(match: re.Match[str]) -> str:
+        alt = match.group(1).strip()
+        path = match.group(2).strip()
+        title = re.match(r"^(.*?)(?:\s+[\"'].*[\"'])$", path)
+        path = title.group(1) if title else path
+        if (
+            image_base
+            and not path.startswith("assets/")
+            and not PurePosixPath(path).is_absolute()
+            and not re.match(
+            r"^[A-Za-z][A-Za-z0-9+.-]*:", path
+            )
+        ):
+            path = posixpath.normpath(
+                (PurePosixPath(image_base).parent / PurePosixPath(path)).as_posix()
+            )
+        url = media_url(path, base_url)
+        escaped_url = html.escape(url, quote=True)
+        escaped_alt = html.escape(alt, quote=True)
+        return token(
+            f'<figure><a href="{escaped_url}" target="_blank" rel="noopener">'
+            f'<img src="{escaped_url}" alt="{escaped_alt}"></a>'
+            f'<figcaption>{escaped_alt}</figcaption></figure>'
+        )
+
     def wiki_link(match: re.Match[str]) -> str:
         target = match.group(1).strip()
         label = (match.group(2) or target).strip()
@@ -77,6 +106,7 @@ def _inline(value: str, base_url: str) -> str:
             f"{html.escape(label)}</a>"
         )
 
+    value = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", standard_image, value)
     value = re.sub(r"!\[\[([^\]]+)\]\]", obsidian_image, value)
     value = re.sub(r"\[\[([^|\]]+)(?:\|([^\]]+))?\]\]", wiki_link, value)
     escaped = html.escape(value)
@@ -87,7 +117,7 @@ def _inline(value: str, base_url: str) -> str:
     return escaped
 
 
-def _render_table(lines: list[str], base_url: str) -> str:
+def _render_table(lines: list[str], base_url: str, image_base: str = "") -> str:
     rows: list[list[str]] = []
     for line in lines:
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
@@ -98,9 +128,9 @@ def _render_table(lines: list[str], base_url: str) -> str:
         return ""
     width = max(len(row) for row in rows)
     rows = [row + [""] * (width - len(row)) for row in rows]
-    header = "".join(f"<th>{_inline(cell, base_url)}</th>" for cell in rows[0])
+    header = "".join(f"<th>{_inline(cell, base_url, image_base)}</th>" for cell in rows[0])
     body = "".join(
-        "<tr>" + "".join(f"<td>{_inline(cell, base_url)}</td>" for cell in row) + "</tr>"
+        "<tr>" + "".join(f"<td>{_inline(cell, base_url, image_base)}</td>" for cell in row) + "</tr>"
         for row in rows[1:]
     )
     return f"<div class=table-wrap><table><thead><tr>{header}</tr></thead><tbody>{body}</tbody></table></div>"
@@ -152,14 +182,14 @@ def render_wiki_html(markdown: str, relative_path: str, base_url: str) -> bytes:
                     break
                 table_lines.append(candidate)
                 index += 1
-            blocks.append(_render_table(table_lines, base_url))
+            blocks.append(_render_table(table_lines, base_url, relative_path))
             continue
         anchor = re.fullmatch(r'<a\s+id="([A-Za-z0-9_.:-]+)"></a>', stripped)
         if anchor:
             blocks.append(f'<span id="{html.escape(anchor.group(1), quote=True)}"></span>')
         elif match := re.match(r"^(#{1,6})\s+(.+)$", stripped):
             level = len(match.group(1))
-            blocks.append(f"<h{level}>{_inline(match.group(2), base_url)}</h{level}>")
+            blocks.append(f"<h{level}>{_inline(match.group(2), base_url, relative_path)}</h{level}>")
         elif match := re.match(r"^-\s+(.+)$", stripped):
             items = [match.group(1)]
             index += 1
@@ -169,7 +199,7 @@ def render_wiki_html(markdown: str, relative_path: str, base_url: str) -> bytes:
                     break
                 items.append(next_match.group(1))
                 index += 1
-            blocks.append("<ul>" + "".join(f"<li>{_inline(item, base_url)}</li>" for item in items) + "</ul>")
+            blocks.append("<ul>" + "".join(f"<li>{_inline(item, base_url, relative_path)}</li>" for item in items) + "</ul>")
             continue
         elif match := re.match(r"^\d+\.\s+(.+)$", stripped):
             items = [match.group(1)]
@@ -180,14 +210,14 @@ def render_wiki_html(markdown: str, relative_path: str, base_url: str) -> bytes:
                     break
                 items.append(next_match.group(1))
                 index += 1
-            blocks.append("<ol>" + "".join(f"<li>{_inline(item, base_url)}</li>" for item in items) + "</ol>")
+            blocks.append("<ol>" + "".join(f"<li>{_inline(item, base_url, relative_path)}</li>" for item in items) + "</ol>")
             continue
         elif stripped.startswith(">"):
-            blocks.append(f"<blockquote>{_inline(stripped.lstrip('>').strip(), base_url)}</blockquote>")
-        elif stripped.startswith("![["):
-            blocks.append(_inline(stripped, base_url))
+            blocks.append(f"<blockquote>{_inline(stripped.lstrip('>').strip(), base_url, relative_path)}</blockquote>")
+        elif stripped.startswith(("![[", "![")):
+            blocks.append(_inline(stripped, base_url, relative_path))
         elif stripped:
-            blocks.append(f"<p>{_inline(stripped, base_url)}</p>")
+            blocks.append(f"<p>{_inline(stripped, base_url, relative_path)}</p>")
         index += 1
 
     raw_url = f"{base_url.rstrip('/')}/api/v1/wiki/raw?path={quote(relative_path, safe='/')}"

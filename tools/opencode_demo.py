@@ -93,19 +93,22 @@ def collect_snapshot(pipeline: WikiPipeline) -> dict[str, Any]:
     items = sum(len(source.get("items", [])) for source in sources)
     chunks = sum(len(source.get("chunks", [])) for source in sources)
     assets = sum(len(source.get("assets", [])) for source in sources)
-    vision = OpenAICompatibleProvider(PROJECT_ROOT, "vision")
+    answer_provider = OpenAICompatibleProvider(
+        PROJECT_ROOT,
+        "vision" if pipeline.features.enable_vlm else "answer",
+    )
     opencode_cli = shutil.which("opencode") or str(
         Path.home() / ".opencode/bin/opencode"
     )
     config = load_json(PROJECT_ROOT / "opencode.json")
-    data_ready = (
-        lint.get("status") == "passed"
-        and retrieval.get("text_ready")
-        and retrieval.get("visual_ready")
+    data_ready = lint.get("status") == "passed" and (
+        not pipeline.features.enable_vector_retrieval
+        or bool(retrieval.get("text_ready"))
     )
     return {
         "data_ready": bool(data_ready),
-        "provider_ready": vision.configured,
+        "provider_ready": answer_provider.configured,
+        "feature_config": pipeline.features.as_dict(),
         "sources": len(sources),
         "pages": len(state.get("pages", {})),
         "items": items,
@@ -120,7 +123,7 @@ def collect_snapshot(pipeline: WikiPipeline) -> dict[str, Any]:
                 (source.get("model") for source in sources if source.get("model")),
                 "未记录",
             ),
-            "vision_qa": vision.model or "未配置",
+            "vision_qa": answer_provider.model or "未配置",
             "text_embedding": retrieval.get("text_model", "未配置"),
             "text_rerank": retrieval.get("text_rerank_model", "未配置"),
             "visual_embedding": retrieval.get("visual_model", "未配置"),
@@ -178,8 +181,28 @@ def render_status(pipeline: WikiPipeline) -> str:
     checks = [
         ("Wiki 数据与页面", snapshot["data_ready"], f"{snapshot['sources']} 来源 / {snapshot['pages']} 知识页"),
         ("Wiki 页面语义索引", retrieval.get("wiki_semantic_ready"), f"{retrieval.get('wiki_records', 0)} 页"),
-        ("文本检索索引", retrieval.get("text_ready"), f"{retrieval.get('text_records', 0)} 条"),
-        ("视觉检索索引", retrieval.get("visual_ready"), f"{retrieval.get('visual_records', 0)} 条"),
+        (
+            "文本检索索引",
+            (retrieval.get("text_ready") if pipeline.features.enable_vector_retrieval else True),
+            (
+                f"{retrieval.get('text_records', 0)} 条"
+                if pipeline.features.enable_vector_retrieval
+                else "默认关闭，使用 BM25 + Caption"
+            ),
+        ),
+        (
+            "视觉检索索引",
+            (
+                retrieval.get("visual_ready")
+                if pipeline.features.enable_vlm and pipeline.features.enable_vector_retrieval
+                else True
+            ),
+            (
+                f"{retrieval.get('visual_records', 0)} 条"
+                if pipeline.features.enable_vlm and pipeline.features.enable_vector_retrieval
+                else "默认关闭，按需手动开启"
+            ),
+        ),
         ("模型配置", snapshot["provider_ready"], snapshot["models"]["vision_qa"]),
         ("OpenCode CLI", snapshot["opencode_cli_ready"], snapshot["opencode_cli"]),
         ("OpenCode Desktop", snapshot["opencode_desktop_ready"], "/Applications/OpenCode.app"),
@@ -235,6 +258,13 @@ def render_status(pipeline: WikiPipeline) -> str:
             f"| 图文问答 | `{snapshot['models']['vision_qa']}` |",
             f"| 文本向量 / 重排 | `{snapshot['models']['text_embedding']}` / `{snapshot['models']['text_rerank']}` |",
             f"| 视觉向量 / 重排 | `{snapshot['models']['visual_embedding']}` / `{snapshot['models']['visual_rerank']}` |",
+            "",
+            "## 增量多模态开关",
+            "",
+            f"- VLM：`{'on' if snapshot['feature_config'].get('enable_vlm') else 'off'}`",
+            f"- 向量检索：`{'on' if snapshot['feature_config'].get('enable_vector_retrieval') else 'off'}`",
+            "- Caption 来源：`MinerU（已有 Wiki 导入时）`",
+            "- 默认查询路径：`BM25 + Caption`",
         ]
     )
     return "\n".join(lines) + "\n"

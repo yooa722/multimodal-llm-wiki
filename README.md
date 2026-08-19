@@ -129,6 +129,10 @@ MMWIKI_TEXT_EMBEDDING_MODEL=qwen3.7-text-embedding
 MMWIKI_TEXT_RERANK_MODEL=qwen3-rerank
 MMWIKI_VL_EMBEDDING_MODEL=qwen3-vl-embedding
 MMWIKI_VL_RERANK_MODEL=qwen3-vl-rerank
+
+# 轻量增量多模态 Wiki 默认值：Caption-first，VLM/向量按需开启
+MMWIKI_ENABLE_VLM=false
+MMWIKI_ENABLE_VECTOR_RETRIEVAL=false
 ```
 
 | 环节 | 默认模型 | 作用 |
@@ -169,6 +173,28 @@ MMWIKI_VL_RERANK_MODEL=qwen3-vl-rerank
 
 Source Package 中的绝对路径、`../` 路径逃逸、悬空 Item/Asset 引用和错误 SHA-256 会被拒绝。
 
+## 接入用户已有 Markdown Wiki
+
+多模态能力以现有文本 Wiki 为基座，不另起一套视觉系统。原始 Wiki 只读，导入后生成派生视图：
+
+```bash
+python3 app.py ingest-wiki \
+  /absolute/path/to/wiki \
+  --caption-package /absolute/path/to/mmwiki-package
+python3 app.py wiki-status
+```
+
+导入器支持本地相对路径的标准 Markdown 图片和 Obsidian 图片语法。它用图片内容 SHA-256 关联 MinerU Package 的资源与 Caption，将 Caption 写入派生 Markdown 的 `alt`，因此默认 BM25 可以直接检索图片语义；原 Markdown、图片和 WikiLink 不会被修改。远程、绝对和越界图片会被逐项报告，不会让整库导入失败。
+
+查询默认使用 `auto`，等价于 BM25 + Caption。仅在需要时临时打开昂贵能力：
+
+```bash
+python3 app.py query "图片中的系统架构是什么？" \
+  --retrieval-mode auto --vlm on --vector-retrieval on
+```
+
+开关关闭时不会调用 VLM、Embedding 或 Rerank，也不会删除已有向量索引。
+
 ## 仓库内置构建数据
 
 `data/source_packages/` 提供当前活跃 Wiki 使用的 5 份 Source Package，共包含 212 个 Item、182 个 Chunk 和 28 个视觉 Asset，覆盖中文/英文文本、复杂表格、公式、图片和图表。
@@ -194,7 +220,7 @@ python3 app.py validate /absolute/path/to/package
 python3 app.py ingest /absolute/path/to/package \
   --provider api \
   --stage text
-python3 app.py build-index --text-only
+python3 app.py build-index --text-only --vector-retrieval on
 ```
 
 在同一来源版本上增量加入多模态能力：
@@ -203,15 +229,16 @@ python3 app.py build-index --text-only
 python3 app.py ingest /absolute/path/to/package \
   --provider api \
   --stage multimodal
-python3 app.py build-index --source-id <package-id>
+python3 app.py build-index --source-id <package-id> \
+  --vlm on --vector-retrieval on
 ```
 
-需要逐页读取全部视觉资源时，可在多模态阶段增加 `--full-scale`。同一内容重复摄入应返回 `unchanged`，不会重复调用模型。
+需要逐页读取全部视觉资源时，可在多模态阶段增加 `--full-scale --vlm on`。同一内容重复摄入应返回 `unchanged`，不会重复调用模型。
 
 如果现有 Evidence 索引完整、只缺少独立 Wiki 页面向量，执行：
 
 ```bash
-python3 app.py build-wiki-index
+python3 app.py build-wiki-index --vector-retrieval on
 ```
 
 ## 在 OpenCode 中使用
@@ -258,7 +285,7 @@ python3 app.py build-wiki-index
 | 模式 | 组成 | 推荐场景 |
 |---|---|---|
 | `lexical` | Page BM25、WikiLink 权威度和 Evidence BM25 | 离线兜底、编号和精确关键词 |
-| `hybrid` | Wiki 页面语义导航、文本向量、RRF 和文本 Rerank | 默认模式；文字、事实、表格语义和跨语言问题 |
+| `hybrid` | Wiki 页面语义导航、文本向量、RRF 和文本 Rerank | 显式开启向量后的文字、事实、表格语义和跨语言问题 |
 | `multimodal` | Hybrid、视觉融合向量和视觉 Rerank | 颜色、布局、箭头、曲线、形状和像素细节 |
 
 Hybrid 在检索阶段不读取图片像素，但最终回答仍可回读命中 Evidence 关联的原图。Multimodal 从召回和重排阶段开始使用视觉信息，因此成本和延迟通常更高。
@@ -268,9 +295,9 @@ Hybrid 在检索阶段不读取图片像素，但最终回答仍可回读命中 
 常用 CLI：
 
 ```bash
-python3 app.py search "问题" --retrieval-mode hybrid --top-k 5
-python3 app.py query "问题" --retrieval-mode hybrid --provider api
-python3 app.py query "视觉问题" --retrieval-mode multimodal --provider api
+python3 app.py search "问题" --retrieval-mode auto --top-k 5
+python3 app.py query "问题" --retrieval-mode auto --provider api
+python3 app.py query "视觉问题" --retrieval-mode auto --provider api --vlm on --vector-retrieval on
 python3 app.py lint
 ```
 

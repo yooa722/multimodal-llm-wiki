@@ -43,6 +43,38 @@ async function runPython(
 }
 
 
+async function runCli(
+  worktree: string,
+  args: string[],
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn("python3", ["app.py", ...args], {
+      cwd: worktree,
+      shell: false,
+      stdio: ["ignore", "pipe", "pipe"],
+    })
+    let stdout = ""
+    let stderr = ""
+    child.stdout.setEncoding("utf8")
+    child.stderr.setEncoding("utf8")
+    child.stdout.on("data", (chunk: string) => {
+      stdout += chunk
+    })
+    child.stderr.on("data", (chunk: string) => {
+      stderr += chunk
+    })
+    child.on("error", reject)
+    child.on("close", (exitCode) => {
+      if (exitCode !== 0) {
+        reject(new Error(stderr.trim() || `multimodal Wiki command exited with ${exitCode}`))
+        return
+      }
+      resolve(stdout.trim())
+    })
+  })
+}
+
+
 async function wikiServerReady(): Promise<boolean> {
   return new Promise((resolve) => {
     const request = http.get("http://127.0.0.1:19828/api/v1/health", (response) => {
@@ -99,6 +131,32 @@ export const status = tool({
 })
 
 
+const importWiki = tool({
+  description: "只读导入用户已有 Markdown Wiki，使用 MinerU Caption 生成派生图片 alt 并接入现有文本 Wiki 检索。",
+  args: {
+    wiki_root: tool.schema
+      .string()
+      .min(1)
+      .describe("用户已有 Wiki 的本地目录绝对路径"),
+    caption_package: tool.schema
+      .string()
+      .min(1)
+      .describe("MinerU mmwiki-0.1 Source Package 的本地目录绝对路径"),
+  },
+  async execute(args, context) {
+    return runCli(context.worktree, [
+      "ingest-wiki",
+      args.wiki_root,
+      "--caption-package",
+      args.caption_package,
+    ])
+  },
+})
+
+
+export { importWiki as import }
+
+
 export const tour = tool({
   description: "生成多模态 Wiki 的完整中文导览，展示构建路线、查询路线、真实完整表格、Figure 4 原图和 Evidence ID。",
   args: {},
@@ -130,7 +188,7 @@ export const query = tool({
     mode: tool.schema
       .enum(["auto", "lexical", "hybrid", "multimodal"])
       .default("auto")
-      .describe("普通问题用 hybrid；颜色、布局、箭头、曲线或图片细节用 multimodal"),
+      .describe("默认按配置自动选择；默认是 BM25 + MinerU Caption，只有显式开启开关才使用向量或多模态检索"),
     provider: tool.schema
       .enum(["api", "baseline"])
       .default("api")
