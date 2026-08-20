@@ -29,6 +29,7 @@ AGENTS.md
 config/wiki-plans/
 tools/build_first_round_report.py
 tools/render_summary_html.py
+logs/
 
 # 编辑器与操作系统文件
 .DS_Store
