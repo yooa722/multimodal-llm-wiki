@@ -23,6 +23,7 @@ except ImportError:  # pragma: no cover - 系统 Python 证书正常时不需要
 from .models import SearchHit
 from .provider import ProviderError, read_dotenv
 from .search import Retriever, make_search_hit
+from .visual_evidence import iter_retrieval_chunks
 
 
 RETRIEVAL_INDEX_VERSION = "mmwiki-retrieval-0.2"
@@ -320,6 +321,17 @@ def _source_fingerprints(state: dict[str, Any]) -> dict[str, str]:
                 }
                 for asset_id, asset in sorted(source.get("assets", {}).items())
             },
+            "visual_evidence": [
+                {
+                    "id": str(record.get("id") or ""),
+                    "kind": str(record.get("kind") or ""),
+                    "text": str(record.get("text") or ""),
+                    "asset_id": str(record.get("asset_id") or ""),
+                    "status": str(record.get("status") or ""),
+                }
+                for record in source.get("visual_evidence", [])
+                if isinstance(record, dict)
+            ],
         }
         encoded = json.dumps(
             payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
@@ -511,7 +523,7 @@ class RetrievalIndex:
         expected_text = {
             (str(source_id), str(chunk.get("chunk_id") or ""))
             for source_id, source in sources.items()
-            for chunk in source.get("chunks", [])
+            for chunk in iter_retrieval_chunks(source)
         }
         indexed_text = {
             (
@@ -526,7 +538,7 @@ class RetrievalIndex:
 
         expected_visual: set[tuple[str, str, str, str]] = set()
         for source_id, source in sources.items():
-            for chunk in source.get("chunks", []):
+            for chunk in iter_retrieval_chunks(source, include_derived=False):
                 for raw_asset_id in chunk.get("asset_ids", []):
                     asset_id = str(raw_asset_id)
                     asset = source.get("assets", {}).get(raw_asset_id)
@@ -774,7 +786,7 @@ class RetrievalIndex:
 
         current_text: dict[tuple[str, str], tuple[dict[str, str], str]] = {}
         for source_id, source in sources.items():
-            for chunk in source.get("chunks", []):
+            for chunk in iter_retrieval_chunks(source):
                 key = (str(source_id), str(chunk.get("chunk_id") or ""))
                 current_text[key] = (
                     {"source_id": key[0], "chunk_id": key[1]},
@@ -863,7 +875,7 @@ class RetrievalIndex:
             tuple[str, str, str, str], tuple[str, Path, str]
         ] = {}
         for source_id, source in sources.items():
-            for chunk in source.get("chunks", []):
+            for chunk in iter_retrieval_chunks(source, include_derived=False):
                 text = _document_text(source, chunk)[:3000]
                 for raw_asset_id in chunk.get("asset_ids", []):
                     asset_id = str(raw_asset_id)
@@ -998,7 +1010,7 @@ class HybridRetriever:
         self.index = RetrievalIndex(index_path, vault)
         self.chunk_lookup: dict[tuple[str, str], tuple[dict[str, Any], dict[str, Any]]] = {}
         for source_id, source in state.get("sources", {}).items():
-            for chunk in source.get("chunks", []):
+            for chunk in iter_retrieval_chunks(source):
                 self.chunk_lookup[(str(source_id), str(chunk.get("chunk_id") or ""))] = (
                     source,
                     chunk,

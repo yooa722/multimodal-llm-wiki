@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .models import SearchHit
+from .visual_evidence import iter_retrieval_chunks
 
 
 def token_list(text: str) -> list[str]:
@@ -261,7 +262,7 @@ class Retriever:
         for package_id, source in self.state.get("sources", {}).items():
             if source_ids is not None and package_id not in source_ids:
                 continue
-            for chunk in source.get("chunks", []):
+            for chunk in iter_retrieval_chunks(source):
                 searchable = "\n".join(
                     [str(chunk.get("breadcrumb") or ""), str(chunk.get("text") or "")]
                 )
@@ -310,7 +311,13 @@ class Retriever:
             if query_labels & reference_labels(searchable):
                 score += 6
             modalities = [str(value) for value in chunk.get("modalities", [])]
-            if visual_intent and set(modalities) & {"image", "chart", "figure"}:
+            if visual_intent and set(modalities) & {
+                "image",
+                "chart",
+                "figure",
+                "image_caption",
+                "image_ocr",
+            }:
                 score += 4
             if table_intent and "table" in modalities:
                 score += 4
