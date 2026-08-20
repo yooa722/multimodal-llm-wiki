@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from mmwiki.contracts import load_package
 from mmwiki.pipeline import PipelineError, WikiPipeline
 
 
@@ -151,6 +152,47 @@ def make_package(root: Path) -> Path:
 
 
 class StagedIngestTests(unittest.TestCase):
+    def test_existing_page_context_includes_evidence_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            pipeline = WikiPipeline(root)
+            page_path = pipeline.vault / "wiki/concepts/Page.md"
+            page_path.parent.mkdir(parents=True, exist_ok=True)
+            page_path.write_text("# Page\n\n旧正文", encoding="utf-8")
+            state = {
+                "pages": {
+                    "wiki/concepts/Page.md": {
+                        "title": "Page",
+                        "kind": "concept",
+                        "path": "wiki/concepts/Page.md",
+                        "source_ids": ["staged-demo"],
+                        "evidence_ids": ["staged-demo@v1#text-1"],
+                    }
+                }
+            }
+
+            existing = pipeline._existing_pages_for_actions(
+                {"page_actions": [{"title": "Page", "kind": "concept"}]},
+                state,
+            )
+
+            self.assertEqual(existing[0]["evidence_ids"], ["staged-demo@v1#text-1"])
+
+    def test_preserved_evidence_ids_are_limited_to_current_package(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = load_package(make_package(root))
+            pipeline = WikiPipeline(root)
+            current_text_id = pipeline._item_evidence_id(package, "paragraph-1")
+            foreign_id = "other-source@v1#text-1"
+
+            preserved = pipeline._preserved_evidence_ids(
+                package,
+                [{"evidence_ids": [current_text_id, foreign_id]}],
+            )
+
+            self.assertEqual(preserved, {current_text_id})
+
     def test_multimodal_stage_requires_text_wiki_base(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

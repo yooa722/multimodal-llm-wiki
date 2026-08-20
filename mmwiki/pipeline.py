@@ -1350,9 +1350,31 @@ class WikiPipeline:
                     "content": _clean_generated_content(
                         raw_content, str(page["title"])
                     )[:20000],
+                    "evidence_ids": list(
+                        dict.fromkeys(
+                            str(value) for value in page.get("evidence_ids", [])
+                        )
+                    ),
                 }
             )
         return result
+
+    def _preserved_evidence_ids(
+        self,
+        package: Package,
+        existing_pages: list[dict[str, Any]],
+    ) -> set[str]:
+        package_evidence_ids = {
+            self._item_evidence_id(package, item.item_id)
+            for item in package.items
+        }
+        return {
+            str(evidence_id)
+            for page in existing_pages
+            if isinstance(page, dict)
+            for evidence_id in page.get("evidence_ids", [])
+            if str(evidence_id) in package_evidence_ids
+        }
 
     def ingest_existing_wiki(
         self,
@@ -1838,13 +1860,17 @@ class WikiPipeline:
                 (time.perf_counter() - analysis_started) * 1000, 3
             )
             compile_started = time.perf_counter()
+            existing_pages = self._existing_pages_for_actions(analysis, state)
             plan = llm.compile_wiki(
                 package.title,
                 analysis,
                 evidence,
-                self._existing_pages_for_actions(analysis, state),
+                existing_pages,
                 schema,
                 stage=stage,
+                preserved_evidence_ids=self._preserved_evidence_ids(
+                    package, existing_pages
+                ),
             )
             compile_usage = plan.get("_usage", {})
             api_calls += 1
