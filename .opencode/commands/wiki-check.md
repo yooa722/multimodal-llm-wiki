@@ -1,6 +1,11 @@
 ---
-description: 检查 Wiki、模型、索引和 OpenCode 是否适合演示
-agent: build
+description: 检查当前 Wiki 是否已经可以演示
+agent: wiki-presenter
+subtask: false
 ---
 
-请加载 `multimodal-wiki` Skill，调用 `wiki_status` 工具。请用中文逐字保留工具返回的检查表，并用一句话说明是否可以演示。
+请检查当前多模态 LLM Wiki 是否已经可以演示。
+
+<!-- mmwiki-action
+tool: wiki_status
+-->

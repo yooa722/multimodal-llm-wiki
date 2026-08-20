@@ -27,17 +27,17 @@ from mmwiki.web import media_url, wiki_view_url
 DEMO_CASES = {
     "table": {
         "question": "开发测试阶段需要多少天、多少人、多少预算？",
-        "mode": "hybrid",
+        "mode": "auto",
         "why": "验证 Wiki 能否定位知识页，并回读完整表格单元格。",
     },
     "visual": {
         "question": "根据 Figure 4，ReToken 推理时的数据流是什么？请按顺序说明，并指出图中缓存的对象。",
-        "mode": "multimodal",
+        "mode": "auto",
         "why": "验证系统是否真正读取原图，而不只依赖 Caption。",
     },
     "refuse": {
         "question": "Figure 4 中蓝色方框的 RGB 精确数值是多少？",
-        "mode": "multimodal",
+        "mode": "auto",
         "why": "验证证据不足时是否拒绝编造。",
     },
 }
@@ -246,6 +246,17 @@ def render_status(pipeline: WikiPipeline) -> str:
                 "当前由 Page BM25 完成 Wiki-first 页面定位；页面语义索引是可独立回填的增强项，"
                 "不影响现有 Evidence 检索与图文问答。"
             )
+    vector_enabled = bool(
+        snapshot["feature_config"].get("enable_vector_retrieval")
+    )
+    vlm_enabled = bool(snapshot["feature_config"].get("enable_vlm"))
+    if not vector_enabled:
+        auto_path = "Page BM25 + Evidence BM25 + MinerU Caption"
+    elif vlm_enabled:
+        auto_path = "普通问题 Hybrid；视觉问题 Multimodal"
+    else:
+        auto_path = "Hybrid；视觉问题使用 Caption 与关联原图回读"
+
     lines.extend(
         [
             "",
@@ -261,10 +272,10 @@ def render_status(pipeline: WikiPipeline) -> str:
             "",
             "## 增量多模态开关",
             "",
-            f"- VLM：`{'on' if snapshot['feature_config'].get('enable_vlm') else 'off'}`",
-            f"- 向量检索：`{'on' if snapshot['feature_config'].get('enable_vector_retrieval') else 'off'}`",
+            f"- VLM：`{'on' if vlm_enabled else 'off'}`",
+            f"- 向量检索：`{'on' if vector_enabled else 'off'}`",
             "- Caption 来源：`MinerU（已有 Wiki 导入时）`",
-            "- 默认查询路径：`BM25 + Caption`",
+            f"- Auto 查询路径：`{auto_path}`",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -448,29 +459,11 @@ def render_compare() -> str:
 
 ## 正确解读
 
-- `Hybrid` 是默认模式：速度和整体召回更均衡。
-- `Multimodal` 用于颜色、布局、曲线、箭头和图片细节；视觉能力更强，但延迟更高。
+- `auto` 是统一入口：默认走 BM25 + MinerU Caption，不隐式调用向量或 VLM。
+- 显式打开向量检索后，普通语义问题可进入 `Hybrid`；同时打开 VLM 后，视觉问题才进入 `Multimodal`。
 - 100% 文本向量复用说明增量架构有效，不代表所有问答指标都应该达到 100%。
 - 离线工程基准验证增量复杂度；在线 40 题评测验证真实模型效果，两者不能混为一谈。
 """
-
-
-def choose_mode(question: str) -> str:
-    visual_markers = (
-        "图中",
-        "图片",
-        "原图",
-        "颜色",
-        "箭头",
-        "曲线",
-        "布局",
-        "像素",
-        "rgb",
-        "figure",
-        "chart",
-    )
-    lowered = question.lower()
-    return "multimodal" if any(marker in lowered for marker in visual_markers) else "hybrid"
 
 
 def render_live_result(result: dict[str, Any]) -> str:
@@ -570,7 +563,7 @@ def render_live(
     provider: str,
     dry_run: bool,
 ) -> str:
-    selected_mode = choose_mode(question) if mode == "auto" else mode
+    selected_mode = mode
     if dry_run:
         return f"""# 现场问答执行计划
 
@@ -596,10 +589,10 @@ def render_questions() -> str:
 
 | 类型 | 问题 | 推荐命令/模式 | 证明什么 |
 |---|---|---|---|
-| 表格 | 开发测试阶段需要多少天、多少人、多少预算？ | `/wiki-table` · Hybrid | 完整 rows/cells 回读 |
-| 图片 | Figure 4 中 ReToken 推理的数据流是什么？ | `/wiki-image` · Multimodal | 原图理解与视觉检索 |
-| 拒答 | Figure 4 中蓝色方框的 RGB 精确数值是多少？ | `/wiki-refuse` · Multimodal | 证据不足时不编造 |
-| 自由问答 | 任意文档问题 | `/wiki-ask 你的问题` | 自动选择 Hybrid/Multimodal |
+| 表格 | 开发测试阶段需要多少天、多少人、多少预算？ | `/wiki-table` · Auto | 默认 BM25 + Caption，回读完整 rows/cells |
+| 图片 | Figure 4 中 ReToken 推理的数据流是什么？ | `/wiki-image` · Auto | VLM 开启时读取原图；关闭时明确回退 |
+| 拒答 | Figure 4 中蓝色方框的 RGB 精确数值是多少？ | `/wiki-refuse` · Auto | 证据不足时不编造 |
+| 自由问答 | 任意文档问题 | `/wiki-ask 你的问题` | Auto 根据特性开关选择实际路径 |
 
 推荐顺序：`/wiki-demo` → `/wiki-table` → `/wiki-image` → `/wiki-compare` → `/wiki-refuse`。
 """

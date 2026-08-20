@@ -11,7 +11,7 @@
 - **OpenCode 原生联动**：提供项目级 Skill、中文斜杠命令和类型化 `wiki_*` 工具。
 - **Wiki-first 查询**：先定位持久 Wiki 页面，再下钻到 Chunk、Item、表格、公式和图片 Evidence。
 - **两阶段构建**：先形成文本 Wiki 基座，再增量加入多模态表示，不重建不受影响的文本向量。
-- **三种检索模式**：支持 `lexical`、`hybrid` 和 `multimodal`，默认优先使用成本更低的 Hybrid。
+- **分级检索模式**：统一从 `auto` 进入；默认使用 BM25 + MinerU Caption，向量检索和 VLM 只在显式开启后进入 Hybrid 或 Multimodal。
 - **原始证据回读**：表格问题读取完整 `rows/cells/html`，视觉问题回读命中的原图，不用 Caption 冒充原始事实。
 - **可追溯回答**：回答保留 Wiki 页面、Evidence ID、来源版本、原图/表格、模型、延迟和回退状态。
 - **稳定展示**：Wiki 链接和图片通过本机 HTTP 服务打开；数学公式自动规范化为 OpenCode KaTeX 支持的格式。
@@ -43,6 +43,10 @@ flowchart LR
 1. OpenCode 只负责理解意图和调用工具，不直接替代 Wiki 管线。
 2. `wiki_query` 使用结构化参数传递完整问题，不把用户问题拼接成 Shell 命令。
 3. OpenCode 原样展示工具生成的最终 Markdown，不二次压缩答案、链接、表格或原图。
+
+项目使用低温度的 `wiki-presenter` Agent 执行 `/wiki-*` 命令。命令消息面向用户只显示自然语言任务，工具名和运行参数保存在不渲染的 `mmwiki-action` 注释中；Agent 只调用对应的类型化工具，项目级 `wiki-result-passthrough` 插件再直接采用工具生成的最终 Markdown，避免模型压缩答案或改动链接、公式与 Evidence ID。
+
+Skill 各组件的职责、查询时序、构建流程和命令映射见 [multimodal-wiki Skill 架构说明](.opencode/skills/multimodal-wiki/README.md)。
 
 ## Wiki 构建路线
 
@@ -81,7 +85,9 @@ flowchart TD
 │   └── schema.md                  # 页面类型、元数据和治理规则
 ├── .opencode/
 │   ├── skills/multimodal-wiki/    # OpenCode 项目级 Skill
-│   ├── commands/                  # /wiki-* 中文命令
+│   ├── commands/                  # /wiki-* 中文命令（统一使用 auto）
+│   ├── agents/wiki-presenter.md   # 低温度，只调用类型化 Wiki 工具
+│   ├── plugins/wiki-result-passthrough.ts # 最终 Markdown 确定性透传
 │   └── tools/wiki.ts              # 类型化 OpenCode 工具
 ├── evaluation/                    # 检索与问答评测集
 ├── data/source_packages/          # 可复现当前 Wiki 的 5 份 mmwiki-0.1 数据包
@@ -245,7 +251,7 @@ python3 app.py build-wiki-index --vector-retrieval on
 
 1. 使用 OpenCode Desktop 打开本仓库根目录。
 2. 首次使用时输入 `/connect`，为 `bailian` Provider 配置个人 API Key。
-3. 完全退出并重新打开一次 OpenCode，使 `.opencode/tools/wiki.ts` 生效。
+3. 完全退出并重新打开一次 OpenCode，使项目级命令、Agent、工具和结果透传插件生效。
 4. 在对话框输入：
 
    ```text
@@ -263,7 +269,7 @@ python3 app.py build-wiki-index --vector-retrieval on
 | `/wiki-table` | 演示完整表格回读 | 是 |
 | `/wiki-image` | 演示原图理解 | 是 |
 | `/wiki-refuse` | 演示证据不足拒答 | 是 |
-| `/wiki-ask <问题>` | 自由查询并自动选择检索模式 | 是 |
+| `/wiki-ask <问题>` | 以 `auto` 查询；默认 Caption-first，增强能力按开关启用 | 是 |
 
 自由问题示例：
 

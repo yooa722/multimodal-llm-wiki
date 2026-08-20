@@ -4,6 +4,17 @@ import http from "node:http"
 import path from "path"
 
 
+function markdownResult(
+  context: { metadata(input: { title?: string; metadata?: Record<string, unknown> }): void },
+  title: string,
+  output: string,
+  metadata: Record<string, unknown> = {},
+) {
+  context.metadata({ title, metadata })
+  return { title, output, metadata }
+}
+
+
 async function runPython(
   worktree: string,
   args: string[],
@@ -116,7 +127,8 @@ export const start = tool({
   args: {},
   async execute(_args, context) {
     await ensureWikiServer(context.worktree)
-    return runPython(context.worktree, ["start"])
+    const output = await runPython(context.worktree, ["start"])
+    return markdownResult(context, "Wiki 使用入口", output)
   },
 })
 
@@ -126,7 +138,8 @@ export const status = tool({
   args: {},
   async execute(_args, context) {
     await ensureWikiServer(context.worktree)
-    return runPython(context.worktree, ["status"])
+    const output = await runPython(context.worktree, ["status"])
+    return markdownResult(context, "Wiki 演示就绪检查", output)
   },
 })
 
@@ -144,12 +157,15 @@ const importWiki = tool({
       .describe("MinerU mmwiki-0.1 Source Package 的本地目录绝对路径"),
   },
   async execute(args, context) {
-    return runCli(context.worktree, [
+    const output = await runCli(context.worktree, [
       "ingest-wiki",
       args.wiki_root,
       "--caption-package",
       args.caption_package,
     ])
+    return markdownResult(context, "已有 Wiki 导入结果", output, {
+      wiki_root: args.wiki_root,
+    })
   },
 })
 
@@ -162,7 +178,8 @@ export const tour = tool({
   args: {},
   async execute(_args, context) {
     await ensureWikiServer(context.worktree)
-    return runPython(context.worktree, ["tour"])
+    const output = await runPython(context.worktree, ["tour"])
+    return markdownResult(context, "多模态 Wiki 导览", output)
   },
 })
 
@@ -172,7 +189,18 @@ export const compare = tool({
   args: {},
   async execute(_args, context) {
     await ensureWikiServer(context.worktree)
-    return runPython(context.worktree, ["compare"])
+    const output = await runPython(context.worktree, ["compare"])
+    return markdownResult(context, "Wiki 效果与成本对比", output)
+  },
+})
+
+
+export const questions = tool({
+  description: "显示推荐的表格、图片、拒答和自由问答演示问题。",
+  args: {},
+  async execute(_args, context) {
+    const output = await runPython(context.worktree, ["questions"])
+    return markdownResult(context, "Wiki 推荐演示问题", output)
   },
 })
 
@@ -196,7 +224,7 @@ export const query = tool({
   },
   async execute(args, context) {
     await ensureWikiServer(context.worktree)
-    return runPython(context.worktree, [
+    const output = await runPython(context.worktree, [
       "live",
       "--question",
       args.question,
@@ -205,5 +233,9 @@ export const query = tool({
       "--provider",
       args.provider,
     ])
+    return markdownResult(context, "Wiki 完整回答", output, {
+      requested_mode: args.mode,
+      provider: args.provider,
+    })
   },
 })

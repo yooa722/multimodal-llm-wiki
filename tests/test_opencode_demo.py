@@ -1,15 +1,53 @@
 from __future__ import annotations
 
+import re
 import unittest
+from pathlib import Path
 
-from tools.opencode_demo import choose_mode, markdown_table, render_live_result
+from tools.opencode_demo import DEMO_CASES, markdown_table, render_live, render_live_result
 
 
 class OpenCodeDemoTests(unittest.TestCase):
-    def test_choose_mode_uses_multimodal_only_for_visual_details(self) -> None:
-        self.assertEqual(choose_mode("开发测试阶段预算是多少"), "hybrid")
-        self.assertEqual(choose_mode("Figure 4 中箭头的方向是什么"), "multimodal")
-        self.assertEqual(choose_mode("图中蓝色曲线代表什么"), "multimodal")
+    def test_auto_mode_reaches_pipeline_without_command_side_rerouting(self) -> None:
+        rendered = render_live(
+            object(),
+            "Figure 4 中箭头的方向是什么",
+            "auto",
+            "baseline",
+            True,
+        )
+        self.assertIn("检索模式：`auto`", rendered)
+        self.assertTrue(all(case["mode"] == "auto" for case in DEMO_CASES.values()))
+
+    def test_opencode_command_uses_deterministic_presenter_and_auto_mode(self) -> None:
+        root = Path(__file__).parents[1]
+        command = (root / ".opencode/commands/wiki-ask.md").read_text(
+            encoding="utf-8"
+        )
+        agent = (root / ".opencode/agents/wiki-presenter.md").read_text(
+            encoding="utf-8"
+        )
+        tool_source = (root / ".opencode/tools/wiki.ts").read_text(encoding="utf-8")
+        passthrough = (
+            root / ".opencode/plugins/wiki-result-passthrough.ts"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("agent: wiki-presenter", command)
+        visible_command = re.sub(r"<!--.*?-->", "", command, flags=re.S)
+        self.assertIn("<!-- mmwiki-action", command)
+        self.assertIn("tool: wiki_query", command)
+        self.assertIn("mode: auto", command)
+        self.assertNotIn("wiki_query", visible_command)
+        self.assertNotIn("provider", visible_command)
+        self.assertNotIn("默认使用 `hybrid`", command)
+        self.assertIn("temperature: 0", agent)
+        self.assertIn("隐藏的工具路由元数据", agent)
+        self.assertIn("禁止添加开场白", agent)
+        self.assertIn('markdownResult(context, "Wiki 完整回答"', tool_source)
+        self.assertIn('"tool.execute.after"', passthrough)
+        self.assertIn('"experimental.text.complete"', passthrough)
+        self.assertIn("output.text = wikiOutput", passthrough)
+        self.assertIn("pendingBySession.delete", passthrough)
 
     def test_markdown_table_keeps_complete_rows_and_escapes_pipes(self) -> None:
         rendered = markdown_table(

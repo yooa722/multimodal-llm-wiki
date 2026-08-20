@@ -82,7 +82,7 @@ Use `--full-scale` only on the multimodal stage when every page image must be an
 
 In OpenCode, call the typed `wiki_query` tool with `question`, `mode`, and `provider`. Never concatenate a user question into a shell command.
 
-The typed tool returns presentation-ready final Markdown. After it succeeds, output that return value verbatim. Do not summarize, rewrite, reorder, translate, or reconstruct it. Never drop its Wiki HTTP links, Evidence IDs, evidence excerpts, complete tables, image links/previews, or runtime table. This passthrough rule applies to every question type, not only demo cases.
+The typed tool returns a titled result whose `output` is presentation-ready final Markdown. The `wiki-presenter` agent calls the tool, and the project-level `wiki-result-passthrough` plugin replaces the completed assistant text with that exact output. Do not summarize, rewrite, reorder, translate, or reconstruct it. Never drop its Wiki HTTP links, Evidence IDs, evidence excerpts, complete tables, image links/previews, or runtime table. This passthrough rule applies to every question type, not only demo cases.
 
 Run directly through the CLI:
 
