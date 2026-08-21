@@ -139,6 +139,18 @@ class VaultLayoutTests(unittest.TestCase):
                                 "media_type": "image/png",
                             }
                         },
+                        "visual_evidence": [
+                            {
+                                "id": "source-a@v1#asset-1#image_ocr",
+                                "kind": "image_ocr",
+                                "text": "Layer 14 附近的 Recall@1 约为 6.8%。",
+                                "asset_id": "asset-1",
+                                "parent_item_ids": ["figure-1"],
+                                "parent_chunk_ids": ["chunk-1"],
+                                "status": "ready",
+                                "searchable": True,
+                            }
+                        ],
                     }
                 },
                 "pages": {},
@@ -151,6 +163,8 @@ class VaultLayoutTests(unittest.TestCase):
             ).read_text(encoding="utf-8")
             self.assertIn("Figure 1 模型架构", content)
             self.assertIn("上游语义说明（派生信息，不替代原图）", content)
+            self.assertIn("**Image OCR：**", content)
+            self.assertIn("6.8%", content)
             self.assertIn("![[assets/source-a/figure.png]]", content)
             self.assertIn("source-a@v1#figure-1", content)
 

@@ -87,6 +87,8 @@ app.py                       # Wiki CLI 与本地 API
 tools/opencode_demo.py       # OpenCode 演示适配层
 mmwiki/pipeline.py           # 构建与查询主流程
 mmwiki/retrieval.py          # 页面导航和 Evidence 检索
+mmwiki/ocr.py                # Qwen3.5-OCR 图片文字提取
+mmwiki/visual_evidence.py    # OCR/Caption 子 Evidence 与父级原图映射
 mmwiki/contracts.py          # mmwiki-0.1 输入校验
 runtime/vault/               # Wiki 页面、索引和运行状态
 runtime/raw/                 # 不可变来源副本
@@ -100,7 +102,7 @@ runtime/raw/                 # 不可变来源副本
 2. `wiki-presenter` 读取路由信息，只调用 `wiki_query`，不把问题拼成 Bash 命令。
 3. `wiki_query` 通过结构化参数把完整问题传给 `tools/opencode_demo.py`，必要时启动 `127.0.0.1:19828` 本地展示服务。
 4. Python 管线先检索持久 Wiki 页面，得到相关知识范围和来源范围。
-5. 系统再检索 Chunk、Item 和 Asset Evidence。普通事实与表格问题通常进入 Hybrid；颜色、箭头、布局和图内关系问题进入 Multimodal。
+5. 系统再检索 Chunk、Item 和 Asset Evidence。图片 OCR 与语义 Caption 作为派生子 Evidence 参与 BM25 和文本向量检索；命中后仍回到父级 Item、Chunk、Asset 和原图。普通事实与表格问题通常进入 Hybrid；颜色、箭头、布局和图内关系问题进入 Multimodal。
 6. 模型只能依据候选 Evidence 生成答案。Citation 必须属于本次候选集合，否则查询失败。
 7. 后端生成完整 Markdown，固定包含“结论、Wiki 定位、原始 Evidence、运行信息”。
 8. `wiki-result-passthrough` 用工具原始输出替换模型的二次表述，OpenCode 最终展示完整表格、原图和可点击链接。
@@ -140,7 +142,12 @@ flowchart TD
     C --> D[文本阶段<br/>正文 / OCR / Caption / 线性化代理]
     D --> E[文本 Wiki 页面与文本索引]
     E --> F[多模态增量阶段<br/>完整表格 / 公式 / 原图]
-    F --> G[视觉索引与受影响页面更新]
+    F --> O[Qwen3.5-OCR<br/>图片文字与数字]
+    F --> V[视觉模型<br/>图片语义 Caption]
+    O --> X[派生视觉子 Evidence]
+    V --> X
+    X --> G[文本索引 / 父级原图映射<br/>受影响页面更新]
+    F --> G
     G --> H[Lint / Status / Maintenance]
 ```
 
@@ -148,6 +155,8 @@ flowchart TD
 
 - 文本阶段不得读取图片像素或使用完整表格单元格；
 - 多模态阶段复用同一 `source_id + source_version + item_id`，不建立平行知识库；
+- OCR 与 Image Caption 只补充图片的可检索表示，不替代原始图片 Evidence，也不机械创建新 Wiki 页面；
+- 派生视觉 Evidence 存入 `runtime/state.json`，按图片 SHA-256 缓存于 `runtime/build-cache/visual/`；
 - 相同来源版本重复导入返回 `unchanged`，不重复调用模型；
 - 查询只追加运行日志，不自动把答案写入稳定知识页；
 - Source Package 和 `runtime/raw/` 中的来源副本不可修改。

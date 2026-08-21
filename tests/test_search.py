@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import unittest
+from copy import deepcopy
+import hashlib
 import json
 import tempfile
 from pathlib import Path
@@ -83,6 +85,35 @@ class RetrieverTests(unittest.TestCase):
     def test_source_filter_excludes_other_packages(self) -> None:
         hits = Retriever(self.state).search("开发测试阶段", 5, {"source-b"})
         self.assertEqual([hit.chunk_id for hit in hits], ["chunk-other"])
+
+    def test_image_ocr_is_searchable_and_returns_parent_image(self) -> None:
+        self.state["sources"]["source-a"].update(
+            {
+                "source_version": "v1",
+                "visual_evidence": [
+                    {
+                        "id": "source-a@v1#asset-1#image_ocr",
+                        "kind": "image_ocr",
+                        "text": "Layer 14 附近的 Recall@1 约为 6.8%。",
+                        "asset_id": "asset-1",
+                        "parent_item_ids": ["item-image"],
+                        "parent_chunk_ids": ["chunk-image"],
+                        "page_refs": [2],
+                        "status": "ready",
+                        "searchable": True,
+                    }
+                ],
+            }
+        )
+        self.state["sources"]["source-a"]["assets"] = {
+            "asset-1": {"vault_path": "assets/figure.png"}
+        }
+
+        hits = Retriever(self.state).search("6.8", 5, {"source-a"})
+
+        self.assertEqual(hits[0].chunk_id, "source-a@v1#asset-1#image_ocr")
+        self.assertEqual(hits[0].item_ids, ["item-image"])
+        self.assertEqual(hits[0].asset_paths, ["assets/figure.png"])
 
 
 class FakeRetrievalProvider:
@@ -207,6 +238,41 @@ class HybridRetrieverTests(unittest.TestCase):
         self.assertAlmostEqual(cosine_similarity([1, 0], [1, 0]), 1.0)
         self.assertAlmostEqual(cosine_similarity([1, 0], [0, 1]), 0.0)
 
+    def test_empty_visual_evidence_preserves_legacy_source_fingerprint(self) -> None:
+        source = self.state["sources"]["source-a"]
+        legacy_payload = {
+            "source_version": "version-a",
+            "representation": "legacy",
+            "chunks": [
+                {
+                    "chunk_id": str(chunk.get("chunk_id") or ""),
+                    "text": str(chunk.get("text") or ""),
+                    "asset_ids": list(map(str, chunk.get("asset_ids", []))),
+                }
+                for chunk in source["chunks"]
+            ],
+            "assets": {
+                str(asset_id): {
+                    "sha256": str(asset.get("sha256") or ""),
+                    "vault_path": str(asset.get("vault_path") or ""),
+                }
+                for asset_id, asset in sorted(source["assets"].items())
+            },
+        }
+        expected = hashlib.sha256(
+            json.dumps(
+                legacy_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        state = deepcopy(self.state)
+        state["sources"]["source-a"]["visual_evidence"] = []
+
+        self.assertEqual(_source_fingerprints(self.state)["source-a"], expected)
+        self.assertEqual(_source_fingerprints(state)["source-a"], expected)
+
     def test_index_builds_text_and_visual_records(self) -> None:
         status = RetrievalIndex(self.index_path, self.vault).build(
             self.state, FakeRetrievalProvider(), include_visual=True
@@ -217,6 +283,31 @@ class HybridRetrieverTests(unittest.TestCase):
         self.assertEqual(status["text_records"], 2)
         self.assertEqual(status["visual_records"], 1)
         self.assertEqual(status["wiki_records"], 1)
+
+    def test_derived_visual_evidence_enters_text_index_not_visual_index(self) -> None:
+        state = deepcopy(self.state)
+        state["sources"]["source-a"]["visual_evidence"] = [
+            {
+                "id": "source-a@version-a#asset-1#image_ocr",
+                "kind": "image_ocr",
+                "text": "Recall@1 6.8%",
+                "asset_id": "asset-1",
+                "parent_item_ids": ["item-image"],
+                "parent_chunk_ids": ["chunk-image"],
+                "page_refs": [2],
+                "status": "ready",
+                "searchable": True,
+            }
+        ]
+        state["sources"]["source-a"]["source_version"] = "version-a"
+
+        status = RetrievalIndex(self.index_path, self.vault).build(
+            state, FakeRetrievalProvider(), include_visual=True
+        )
+
+        self.assertTrue(status["text_ready"])
+        self.assertEqual(status["text_records"], 3)
+        self.assertEqual(status["visual_records"], 1)
 
     def test_wiki_page_backfill_preserves_existing_evidence_vectors(self) -> None:
         index = RetrievalIndex(self.index_path, self.vault)

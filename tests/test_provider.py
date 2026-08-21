@@ -229,6 +229,82 @@ class WikiValidationTests(unittest.TestCase):
         self.assertEqual(value["pages"][0]["title"], "页面")
         self.assertEqual(value["pages"][0]["evidence_refs"], ["source@v1#item-1"])
 
+    def test_compile_accepts_preserved_existing_evidence_refs(self) -> None:
+        provider = object.__new__(OpenAICompatibleProvider)
+        captured = {}
+
+        def fake_chat_json(system, user):
+            captured["user"] = user
+            return {
+                "summary": "摘要",
+                "pages": [
+                    {
+                        "title": "页面",
+                        "kind": "concept",
+                        "summary": "摘要",
+                        "content": "保留旧文本并补充图片事实",
+                        "evidence_refs": [
+                            "source@v1#text-1",
+                            "source@v1#image-1",
+                            "source@v1#text-1",
+                        ],
+                    }
+                ],
+            }
+
+        provider.chat_json = fake_chat_json
+        value = provider.compile_wiki(
+            "来源",
+            {"page_actions": [{"title": "页面", "kind": "concept"}]},
+            [{"id": "source@v1#image-1"}],
+            [
+                {
+                    "title": "页面",
+                    "path": "wiki/concepts/Page.md",
+                    "content": "旧正文",
+                    "evidence_ids": ["source@v1#text-1"],
+                }
+            ],
+            "schema",
+            preserved_evidence_ids={"source@v1#text-1"},
+            stage="multimodal",
+        )
+
+        self.assertEqual(
+            value["pages"][0]["evidence_refs"],
+            ["source@v1#text-1", "source@v1#image-1"],
+        )
+        self.assertIn("已有页面中的合法 evidence_refs 可以保留", captured["user"])
+
+    def test_compile_rejects_evidence_refs_outside_current_and_preserved(self) -> None:
+        provider = object.__new__(OpenAICompatibleProvider)
+
+        def fake_chat_json(system, user):
+            return {
+                "summary": "摘要",
+                "pages": [
+                    {
+                        "title": "页面",
+                        "kind": "concept",
+                        "summary": "摘要",
+                        "content": "正文",
+                        "evidence_refs": ["source@v1#unknown"],
+                    }
+                ],
+            }
+
+        provider.chat_json = fake_chat_json
+        with self.assertRaisesRegex(ProviderError, "evidence_refs"):
+            provider.compile_wiki(
+                "来源",
+                {"page_actions": [{"title": "页面", "kind": "concept"}]},
+                [{"id": "source@v1#image-1"}],
+                [],
+                "schema",
+                preserved_evidence_ids={"source@v1#text-1"},
+                stage="multimodal",
+            )
+
     def test_visual_wiki_analysis_receives_actual_image_with_evidence_identity(self) -> None:
         provider = object.__new__(OpenAICompatibleProvider)
         captured = {}

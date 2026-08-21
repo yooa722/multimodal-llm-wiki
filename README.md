@@ -139,7 +139,17 @@ MMWIKI_VL_RERANK_MODEL=qwen3-vl-rerank
 # 轻量增量多模态 Wiki 默认值：Caption-first，VLM/向量按需开启
 MMWIKI_ENABLE_VLM=false
 MMWIKI_ENABLE_VECTOR_RETRIEVAL=false
+
+# 图片证据派生信息（仅在 multimodal + --vlm on 时使用）
+MMWIKI_OCR_MODEL=qwen3.5-ocr
+MMWIKI_OCR_TASK=text_recognition
+MMWIKI_OCR_API_URL=
+MMWIKI_OCR_MIN_PIXELS=3072
+MMWIKI_OCR_MAX_PIXELS=8388608
+MMWIKI_VISION_BATCH_SIZE=8
 ```
+
+`MMWIKI_OCR_API_URL` 可以留空。此时程序根据 `MMWIKI_API_BASE_URL` 自动推导百炼原生 OCR Endpoint；如果 `MMWIKI_OCR_MODEL` 未写入 `.env`，程序使用内置默认值 `qwen3.5-ocr`。`.env.example` 只是配置模板，不会作为运行时配置文件自动加载。
 
 | 环节 | 默认模型 | 作用 |
 |---|---|---|
@@ -150,6 +160,8 @@ MMWIKI_ENABLE_VECTOR_RETRIEVAL=false
 | 文本重排 | `qwen3-rerank` | 重排 Hybrid 候选 |
 | 视觉融合向量 | `qwen3-vl-embedding` | 建立图片与文本的联合表示 |
 | 多模态重排 | `qwen3-vl-rerank` | 重排需要视觉理解的候选 |
+
+Qwen3.5-OCR 不替代现有视觉模型：OCR 负责提取图片中的文字和数字，视觉模型负责生成图片语义 Caption。两者只在构建阶段产生派生 Evidence，不会在查询时临时调用 OCR。
 
 `.env` 只供 Python Wiki 管线读取。OpenCode Agent 的账号凭据由 OpenCode 自身管理：首次使用时在 OpenCode 中执行 `/connect` 并连接 `bailian` Provider。凭据不应写入 `opencode.json`、Skill 或 Git。
 
@@ -234,12 +246,37 @@ python3 app.py build-index --text-only --vector-retrieval on
 ```bash
 python3 app.py ingest /absolute/path/to/package \
   --provider api \
-  --stage multimodal
+  --stage multimodal \
+  --vlm on
 python3 app.py build-index --source-id <package-id> \
   --vlm on --vector-retrieval on
 ```
 
-需要逐页读取全部视觉资源时，可在多模态阶段增加 `--full-scale --vlm on`。同一内容重复摄入应返回 `unchanged`，不会重复调用模型。
+当 `--vlm on` 时，普通 `multimodal` 阶段会对非公式图片执行串行 OCR，并让现有视觉模型按 `MMWIKI_VISION_BATCH_SIZE` 分批生成 Image Caption。结果保存为 `state.sources[package_id].visual_evidence`，并在 Evidence 页的原始 Caption 下展示：
+
+```markdown
+**原始 Caption：** (b) ReToken achieves more than 3x recall...
+
+**Image Caption：**
+图中展示不同层的 Recall@1 曲线。
+
+**Image OCR：**
+Layer 14 附近的 Recall@1 约为 6.8%。
+```
+
+`Image Caption` 和 `Image OCR` 会作为图片的派生子 Evidence 进入 BM25；配置文本向量模型并开启向量检索后，也会进入文本向量索引，但不会重复建立视觉向量。查询 `6.8` 时命中的派生记录仍通过父级 Item、Chunk 和 Asset 返回原图。
+
+图片内容按 SHA-256 缓存在 `runtime/build-cache/visual/`。相同图片、模型、任务和提示词版本不重复调用 OCR/VLM；单张图片或单个批次失败会保留失败状态，不阻断其他图片处理。`--vlm off` 时不调用 OCR 或 VLM，默认关闭向量检索也不会删除已有索引。
+
+验证图片证据检索：
+
+```bash
+python3 app.py search "哪个图片提到了6.8" \
+  --source-id <package-id> \
+  --top-k 5
+```
+
+当前 OCR Evidence 接入以普通 `multimodal` 构建路径为主；`--full-scale` 仍使用原有按页视觉分析流程，不额外重复发起 OCR/VLM 请求。
 
 如果现有 Evidence 索引完整、只缺少独立 Wiki 页面向量，执行：
 

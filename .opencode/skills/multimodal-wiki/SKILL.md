@@ -58,25 +58,28 @@ Use `python3 app.py wiki-status` for `wiki_status`. CLI flags `--vlm on|off` and
    python3 app.py validate /absolute/path/to/package
    ```
 
-2. Build the text LLM Wiki baseline. It may use OCR, captions, and linearized text proxies, but must not read image pixels or structured table cells:
+2. Build the text LLM Wiki baseline. It may consume OCR, captions, and linearized text proxies already supplied by the parser, but this stage must not call the new image OCR/VLM path, read image pixels, or use structured table cells:
 
    ```bash
    python3 app.py ingest /absolute/path/to/package --provider api --stage text
    python3 app.py build-index --text-only --vector-retrieval on
    ```
 
-3. Add first-class table, equation, and image Evidence without rebuilding the immutable source or existing text vectors:
+3. Add first-class table, equation, and image Evidence without rebuilding the immutable source or existing text vectors. `--vlm on` also builds image-derived OCR and semantic Caption Evidence:
 
    ```bash
-   python3 app.py ingest /absolute/path/to/package --provider api --stage multimodal
+   python3 app.py ingest /absolute/path/to/package \
+     --provider api --stage multimodal --vlm on
    python3 app.py build-index --source-id <package-id> --vlm on --vector-retrieval on
    ```
+
+   During the normal multimodal stage, Qwen3.5-OCR extracts visible text and numbers while the configured vision model generates semantic Image Captions. The derived records are stored in `state.sources[package_id].visual_evidence`, exposed as child Evidence for BM25/text embeddings, and mapped back to the parent Item, Chunk, Asset, and original image. Do not build duplicate visual vectors for these text records. Reuse the SHA-256 cache under `runtime/build-cache/visual/`.
 
 4. Report the stage metrics returned by the commands: elapsed time, API calls, token usage, page impact scope, active item/chunk/asset counts, and reused/new Wiki-page, Evidence-text and visual index records.
 
 If a valid Evidence index already exists and only the independent page-level index is missing or stale, run `python3 app.py build-wiki-index --vector-retrieval on`. This command must preserve all existing text and visual Evidence vectors and embed only changed Wiki pages.
 
-Use `--full-scale` only on the multimodal stage when every page image must be analyzed. Repeating the same source version should return `unchanged` with zero model calls.
+Use `--full-scale` only on the multimodal stage when every page image must be analyzed. The current `--full-scale` path keeps its page-level visual analysis and does not additionally run the OCR/Caption child-Evidence builder. Repeating the same source version should return `unchanged` with zero model calls.
 
 ## Query with evidence
 
