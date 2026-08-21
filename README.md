@@ -1,70 +1,150 @@
-# OpenCode × 多模态 LLM Wiki
+# Multimodal LLM Wiki
 
-本项目实现一套以 **OpenCode 为交互入口、以 LLM Wiki 为知识骨架、以原始多模态 Evidence 为事实依据**的可追溯知识系统。
+本仓库实现一套可构建、可检索、可追溯的多模态 LLM Wiki。系统以持久 Wiki 页面组织知识，以原始文字、完整表格、公式和图片作为事实证据，并通过 OpenCode 项目级 Skill 提供统一的构建检查和图文问答入口。
 
-系统接收文档解析模块输出的 `mmwiki-0.1` Source Package，先构建可浏览、可链接、可维护的文本 LLM Wiki，再在同一来源版本上增量加入完整表格、公式、原图、视觉向量和视觉语言模型能力。用户在 OpenCode 中通过项目级 Skill 和类型化工具完成构建检查、Wiki 导航、图文问答与证据回跳。
+项目不直接解析 PDF。上游文档解析模块需要先输出符合 `mmwiki-0.1` 的 Source Package；本仓库从该数据包开始完成 Wiki 构建、多模态增量表示、分级检索和带引用回答。
 
-> OpenCode 是操作台，不是知识库；Wiki 页面负责组织知识，原始 Evidence 负责证明答案，检索与模型只负责定位和理解。
+## 项目概览
 
-## 核心能力
+| 项目 | 当前实现 |
+|---|---|
+| 输入 | `mmwiki-0.1` Source Package：Item、Chunk、Asset 与 provenance |
+| 构建 | 先生成文本 Wiki 主干，再增量加入表格、公式、原图、OCR 和 Image Caption |
+| 存储 | Markdown Wiki 页面、不可变 Raw、副本资源、运行状态、文本/视觉索引 |
+| 查询 | 先定位 Wiki 页面，再回读 Chunk、Item、Asset 原始 Evidence |
+| 交互 | OpenCode Desktop + `multimodal-wiki` Skill + 类型化 `wiki_*` 工具 |
+| 输出 | 结论、Wiki 定位、Evidence ID、完整表格/原图和运行信息 |
 
-- **OpenCode 原生联动**：提供项目级 Skill、中文斜杠命令和类型化 `wiki_*` 工具。
-- **Wiki-first 查询**：先定位持久 Wiki 页面，再下钻到 Chunk、Item、表格、公式和图片 Evidence。
-- **两阶段构建**：先形成文本 Wiki 基座，再增量加入多模态表示，不重建不受影响的文本向量。
-- **分级检索模式**：统一从 `auto` 进入；默认使用 BM25 + MinerU Caption，向量检索和 VLM 只在显式开启后进入 Hybrid 或 Multimodal。
-- **原始证据回读**：表格问题读取完整 `rows/cells/html`，视觉问题回读命中的原图，不用 Caption 冒充原始事实。
-- **可追溯回答**：回答保留 Wiki 页面、Evidence ID、来源版本、原图/表格、模型、延迟和回退状态。
-- **稳定展示**：Wiki 链接和图片通过本机 HTTP 服务打开；数学公式自动规范化为 OpenCode KaTeX 支持的格式。
-- **增量与治理**：支持内容指纹、幂等摄入、页面版本、WikiLink 图谱、维护检查和证据不足拒答。
+> OpenCode 是操作入口，不保存知识；Wiki 页面负责组织知识，原始 Evidence 负责证明答案。
 
-## OpenCode 与多模态 Wiki 如何联动
+## 快速开始
+
+```bash
+git clone git@github.com:yooa722/multimodal-llm-wiki.git
+cd multimodal-llm-wiki
+
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+
+cp .env.example .env
+python3 app.py lint
+```
+
+按[模型配置](#模型配置)填写本机 `.env`。随后使用 OpenCode Desktop 打开仓库根目录，首次使用执行 `/connect` 配置 `bailian` Provider，再运行：
+
+```text
+/wiki-check
+/wiki-start
+/wiki-demo
+```
+
+仓库内置了 5 份可复现 Source Package。首次从数据包构建 Wiki 的命令见[从 Source Package 构建 Wiki](#从-source-package-构建-wiki)。
+OpenCode 的类型化工具会按需自动启动本地展示服务；只有独立调用 HTTP API 时才需要手动运行 `python3 app.py api`。
+
+## 总体技术路线
 
 ```mermaid
 flowchart LR
-    U["用户"] --> O["OpenCode Desktop"]
-    O --> C["/wiki-* 中文命令"]
-    C --> S["multimodal-wiki Skill"]
-    S --> T["类型化 wiki_* 工具"]
-    T --> P["Python Wiki Pipeline"]
+    A["mmwiki-0.1<br/>Source Package"] --> B["文本 Wiki<br/>主干构建"]
+    B --> C["多模态<br/>增量构建"]
+    C --> D["Wiki 页面<br/>Evidence<br/>检索索引"]
 
-    P --> W["Wiki 页面导航<br/>Page BM25 + Page Embedding"]
-    W --> E["Evidence 检索<br/>Chunk / Item / Asset"]
-    E --> R["原始证据回读<br/>文字 / 完整表格 / 公式 / 原图"]
-    R --> V["视觉语言模型"]
-    V --> A["最终 Markdown<br/>结论 + Wiki 定位 + Evidence + 运行信息"]
-    A --> O
-
-    P -. "仅监听 127.0.0.1" .-> H["Wiki 页面与原图展示服务"]
-    A --> H
+    U["用户"] --> O["OpenCode<br/>Skill + 类型化工具"]
+    O --> Q["Wiki-first<br/>查询"]
+    D --> Q
+    Q --> R["带引用的<br/>图文回答"]
+    R --> O
 ```
 
-联动链路有三项关键约束：
+这条路线包含两个彼此独立但相互连接的过程：
 
-1. OpenCode 只负责理解意图和调用工具，不直接替代 Wiki 管线。
-2. `wiki_query` 使用结构化参数传递完整问题，不把用户问题拼接成 Shell 命令。
-3. OpenCode 原样展示工具生成的最终 Markdown，不二次压缩答案、链接、表格或原图。
+1. **构建过程**把 Source Package 编译成可维护的 Wiki 页面和可回读的多模态 Evidence。
+2. **查询过程**由 OpenCode 发起，先通过 Wiki 确定知识范围，再读取原始 Evidence 生成答案。
 
-项目使用低温度的 `wiki-presenter` Agent 执行 `/wiki-*` 命令。命令消息面向用户只显示自然语言任务，工具名和运行参数保存在不渲染的 `mmwiki-action` 注释中；Agent 只调用对应的类型化工具，项目级 `wiki-result-passthrough` 插件再直接采用工具生成的最终 Markdown，避免模型压缩答案或改动链接、公式与 Evidence ID。
-
-Skill 各组件的职责、查询时序、构建流程和命令映射见 [multimodal-wiki Skill 架构说明](.opencode/skills/multimodal-wiki/README.md)。
-
-## Wiki 构建路线
+## Wiki 构建流程
 
 ```mermaid
-flowchart TD
-    A["文档解析模块"] --> B["mmwiki-0.1 Source Package"]
-    B --> C["协议校验与不可变 Raw 归档"]
-    C --> D["文本阶段<br/>正文 / OCR / Caption / 文本代理"]
-    D --> E["文本 LLM Wiki<br/>来源页 / 概念页 / 实体页 / 分析页"]
-    E --> F["Wiki 页面索引 + Evidence 文本索引"]
+flowchart TB
+    A["上游文档解析"] --> B["mmwiki-0.1 Source Package"]
+    B --> C["协议、引用、路径和 SHA-256 校验"]
+    C --> D["归档不可变 Raw 副本"]
 
-    C --> G["多模态增量阶段"]
-    F --> G
-    G --> H["完整表格 / LaTeX / 原图 / 视觉向量"]
-    H --> I["只更新受影响 Wiki 页面和视觉索引"]
+    D --> E["阶段 1：文本 Wiki 主干"]
+    E --> E1["正文和上游文本代理"]
+    E1 --> E2["来源页、概念页、实体页、分析页"]
+    E2 --> E3["页面索引和文本 Evidence 索引"]
+
+    E3 --> F["阶段 2：多模态增量"]
+    F --> F1["完整表格、公式和原图"]
+    F --> F2["Qwen3.5-OCR<br/>图片文字与数字"]
+    F --> F3["视觉模型<br/>Image Caption"]
+
+    F1 --> G["更新受影响 Wiki 页面"]
+    F2 --> G
+    F3 --> G
+    G --> H["增量更新文本与视觉索引"]
 ```
 
-文本阶段和多模态阶段使用相同的 `source_id + source_version + item_id`。多模态信息是对文本 Wiki 的增量增强，不会建立一套脱离 Wiki 的平行知识库。
+两个阶段复用同一组 `source_id + source_version + item_id`。OCR 和 Image Caption 是原始图片的派生子 Evidence：它们帮助检索，但不会替代原图，也不会为每张图片单独创建一套 Wiki 页面。
+
+### 构建产物
+
+| 产物 | 位置 | 用途 |
+|---|---|---|
+| 不可变来源副本 | `runtime/raw/<source>/<version>/` | 保留可复现输入，不允许构建阶段修改 |
+| Wiki 页面 | `runtime/vault/wiki/` | 保存来源页、知识页、证据地图和 WikiLink |
+| 原始资源 | `runtime/vault/assets/` | 保存查询时回读的图片和视觉 Evidence |
+| 来源与派生 Evidence 状态 | `runtime/state.json` | 保存版本、Item/Chunk/Asset 和 `visual_evidence` |
+| OCR/VLM 构建缓存 | `runtime/build-cache/visual/` | 相同图片、模型和提示词版本不重复调用 |
+| 检索索引 | `runtime/retrieval-index.json` | 保存页面、文本 Evidence 和视觉 Evidence 向量 |
+
+## Wiki 查询流程
+
+```mermaid
+flowchart TB
+    A["用户问题"] --> B["OpenCode /wiki-* 命令"]
+    B --> C["multimodal-wiki Skill"]
+    C --> D["wiki-presenter Agent"]
+    D --> E["类型化 wiki_* 工具"]
+    E --> F["Python Wiki Pipeline"]
+
+    F --> G["1. Wiki 页面定位<br/>Page BM25 / Page Embedding"]
+    G --> H["2. Evidence 检索<br/>Chunk / Item / Asset"]
+    H --> I["3. 原始证据回读<br/>文字 / 完整表格 / 公式 / 原图"]
+    I --> J["4. 文本模型或视觉语言模型回答"]
+    J --> K["5. Citation 与 Evidence ID 校验"]
+    K --> L["最终 Markdown"]
+    L --> M["结果透传插件"]
+    M --> N["OpenCode 答案"]
+    L -.->|Wiki 链接 / 原图 URL| W["本地展示服务<br/>127.0.0.1:19828"]
+    W -.->|点击查看| N
+```
+
+查询默认使用 `auto`。后端根据功能开关和问题类型选择 `lexical`、`hybrid` 或 `multimodal`；OpenCode 命令层不重复实现检索判断。无论使用哪种模式，Wiki 页面只用于定位，最终结论必须由本次召回的原始 Evidence 支撑。
+
+### 组件职责
+
+| 组件 | 职责 | 不负责 |
+|---|---|---|
+| OpenCode | 接收自然语言和 `/wiki-*` 命令 | 不保存 Wiki，不直接实现检索 |
+| Skill 与 `wiki-presenter` | 选择类型化工具、约束调用顺序和展示格式 | 不生成事实，不改写工具结果 |
+| 类型化 `wiki_*` 工具 | 校验参数并安全调用 Python | 不用 Shell 拼接用户问题 |
+| Python Wiki Pipeline | 构建页面、维护状态、检索 Evidence、调用模型 | 不修改上游 Source Package |
+| Wiki 页面 | 组织概念、实体、分析和页面关系 | 不作为最终事实证明 |
+| 原始 Evidence | 提供文字、表格、公式和图片事实 | 不自动写入稳定知识页 |
+
+项目级 `wiki-result-passthrough` 插件会将后端生成的最终 Markdown 原样交给 OpenCode，避免二次生成阶段删除链接、完整表格、原图、公式或 Evidence ID。更详细的 Skill 结构见 [multimodal-wiki Skill 架构说明](.opencode/skills/multimodal-wiki/README.md)。
+
+## 核心能力
+
+- 两阶段、可幂等的文本 Wiki → 多模态增量构建。
+- Wiki 页面优先、原始 Evidence 兜底的分层查询。
+- 图片原始 Caption、OCR 和语义 Caption 的并行表示。
+- BM25、页面向量、文本向量、视觉向量和 Rerank 的分级启用。
+- 完整表格与命中原图回读，不用压缩文本代理冒充原始证据。
+- Evidence ID、来源版本、模型、延迟、回退状态完整保留。
+- WikiLink 图谱、页面版本、维护检查和证据不足拒答。
 
 ## 代码结构
 
@@ -76,8 +156,11 @@ flowchart TD
 │   ├── models.py                  # Source、Item、Chunk、Asset 数据模型
 │   ├── pipeline.py                # 构建、增量更新、查询与 Wiki 治理
 │   ├── provider.py                # 文本/视觉模型调用与回答规范化
-│   ├── retrieval.py               # Wiki 页面导航与 Evidence 检索编排
-│   ├── search.py                  # BM25、向量融合、Rerank 与增量索引
+│   ├── retrieval.py               # 页面/Evidence 向量、RRF、Rerank 与分级检索
+│   ├── search.py                  # Wiki 页面导航与 Evidence BM25
+│   ├── ocr.py                     # Qwen3.5-OCR 调用与结果规范化
+│   ├── visual_evidence.py         # OCR/Caption 派生 Evidence 索引映射
+│   ├── markdown_overlay.py        # 既有 Markdown Wiki 的只读多模态派生视图
 │   ├── api.py                     # 本地 HTTP API
 │   └── web.py                     # Wiki 页面、WikiLink 和原图展示
 ├── config/
@@ -204,7 +287,7 @@ python3 app.py wiki-status
 
 导入器支持本地相对路径的标准 Markdown 图片和 Obsidian 图片语法。它用图片内容 SHA-256 关联 MinerU Package 的资源与 Caption，将 Caption 写入派生 Markdown 的 `alt`，因此默认 BM25 可以直接检索图片语义；原 Markdown、图片和 WikiLink 不会被修改。远程、绝对和越界图片会被逐项报告，不会让整库导入失败。
 
-查询默认使用 `auto`，等价于 BM25 + Caption。仅在需要时临时打开昂贵能力：
+查询默认使用 `auto`。在向量和 VLM 开关均关闭时，它使用 Page/Evidence BM25 并检索 Caption 等文本代理；开启增强能力后，后端再按问题类型进入 `hybrid` 或 `multimodal`。临时开启方式如下：
 
 ```bash
 python3 app.py query "图片中的系统架构是什么？" \
