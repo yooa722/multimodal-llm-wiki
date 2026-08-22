@@ -45,16 +45,29 @@ OpenCode 的类型化工具会按需自动启动本地展示服务；只有独�
 ## 总体技术路线
 
 ```mermaid
+%%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":28,"rankSpacing":42},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 flowchart LR
-    A["mmwiki-0.1<br/>Source Package"] --> B["文本 Wiki<br/>主干构建"]
-    B --> C["多模态<br/>增量构建"]
-    C --> D["Wiki 页面<br/>Evidence<br/>检索索引"]
+    SRC["mmwiki-0.1<br/>Source Package"] -->|"构建"| BASE["文本 Wiki 主干<br/>页面 · WikiLink"]
+    BASE -->|"增量"| MM["多模态 Evidence<br/>表格 · 公式 · 原图 · OCR · Caption"]
+    MM --> STORE[("Wiki 存储<br/>Markdown · Evidence · Index")]
+    STORE --> PAGE
+    PAGE["Wiki 页面定位"] --> EVIDENCE["原始 Evidence 回读"]
+    EVIDENCE --> ANSWER(["带引用的<br/>图文答案"])
 
-    U["用户"] --> O["OpenCode<br/>Skill + 类型化工具"]
-    O --> Q["Wiki-first<br/>查询"]
-    D --> Q
-    Q --> R["带引用的<br/>图文回答"]
-    R --> O
+    USER(["用户问题"]) --> OC["OpenCode<br/>Command · Skill · Tool"]
+    OC --> PAGE
+
+    class SRC,USER neutral
+    class BASE,OC,PAGE core
+    class MM,EVIDENCE multimodal
+    class STORE storage
+    class ANSWER result
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,color:#0F172A,stroke-width:1px
+    classDef core fill:#EFF6FF,stroke:#3B82F6,color:#0F172A,stroke-width:1.3px
+    classDef multimodal fill:#ECFEFF,stroke:#0891B2,color:#164E63,stroke-width:1.3px
+    classDef storage fill:#F1F5F9,stroke:#475569,color:#0F172A,stroke-width:1.3px
+    classDef result fill:#164E63,stroke:#164E63,color:#FFFFFF,stroke-width:1.3px
+    linkStyle default stroke:#64748B,stroke-width:1.2px
 ```
 
 这条路线包含两个彼此独立但相互连接的过程：
@@ -65,25 +78,22 @@ flowchart LR
 ## Wiki 构建流程
 
 ```mermaid
-flowchart TB
-    A["上游文档解析"] --> B["mmwiki-0.1 Source Package"]
-    B --> C["协议、引用、路径和 SHA-256 校验"]
-    C --> D["归档不可变 Raw 副本"]
+%%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":38},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
+flowchart LR
+    A["Source Package<br/>Item · Chunk · Asset · provenance"] --> B["01  校验与归档<br/>Schema · 引用 · Path · SHA-256<br/>runtime/raw"]
+    B -->|"阶段一"| C["02  文本 Wiki 主干<br/>来源页 · 知识页 · WikiLink<br/>Page / Evidence 文本索引"]
+    C -->|"阶段二"| D["03  多模态增量<br/>完整表格 · 公式 · 原图<br/>Qwen3.5-OCR · Image Caption"]
+    D --> E[("04  局部发布<br/>更新受影响页面与索引<br/>复用未变化向量")]
 
-    D --> E["阶段 1：文本 Wiki 主干"]
-    E --> E1["正文和上游文本代理"]
-    E1 --> E2["来源页、概念页、实体页、分析页"]
-    E2 --> E3["页面索引和文本 Evidence 索引"]
-
-    E3 --> F["阶段 2：多模态增量"]
-    F --> F1["完整表格、公式和原图"]
-    F --> F2["Qwen3.5-OCR<br/>图片文字与数字"]
-    F --> F3["视觉模型<br/>Image Caption"]
-
-    F1 --> G["更新受影响 Wiki 页面"]
-    F2 --> G
-    F3 --> G
-    G --> H["增量更新文本与视觉索引"]
+    class A,B neutral
+    class C core
+    class D multimodal
+    class E storage
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,color:#0F172A,stroke-width:1px
+    classDef core fill:#EFF6FF,stroke:#3B82F6,color:#0F172A,stroke-width:1.3px
+    classDef multimodal fill:#ECFEFF,stroke:#0891B2,color:#164E63,stroke-width:1.3px
+    classDef storage fill:#F1F5F9,stroke:#475569,color:#0F172A,stroke-width:1.3px
+    linkStyle default stroke:#64748B,stroke-width:1.2px
 ```
 
 两个阶段复用同一组 `source_id + source_version + item_id`。OCR 和 Image Caption 是原始图片的派生子 Evidence：它们帮助检索，但不会替代原图，也不会为每张图片单独创建一套 Wiki 页面。
@@ -102,23 +112,25 @@ flowchart TB
 ## Wiki 查询流程
 
 ```mermaid
-flowchart TB
-    A["用户问题"] --> B["OpenCode /wiki-* 命令"]
-    B --> C["multimodal-wiki Skill"]
-    C --> D["wiki-presenter Agent"]
-    D --> E["类型化 wiki_* 工具"]
-    E --> F["Python Wiki Pipeline"]
+%%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":38},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
+flowchart LR
+    U(["用户问题"]) --> O["OpenCode 调用层<br/>/wiki-* · Skill · wiki_* Tool"]
+    O --> P["01  Wiki 页面定位<br/>Page BM25 · Page Embedding"]
+    P --> E["02  Evidence 检索与原件回读<br/>BM25 · Vector · RRF · Rerank<br/>文字 · 表格 · 公式 · 原图"]
+    E --> A["03  模型回答与引用校验<br/>Text LLM / VLM<br/>Evidence ID · Source Version"]
+    A --> X(["OpenCode 展示<br/>结论 · Wiki 定位 · Evidence · 运行信息"])
+    X -.-> H["点击查看<br/>Wiki 页面 · 原图<br/>127.0.0.1:19828"]
 
-    F --> G["1. Wiki 页面定位<br/>Page BM25 / Page Embedding"]
-    G --> H["2. Evidence 检索<br/>Chunk / Item / Asset"]
-    H --> I["3. 原始证据回读<br/>文字 / 完整表格 / 公式 / 原图"]
-    I --> J["4. 文本模型或视觉语言模型回答"]
-    J --> K["5. Citation 与 Evidence ID 校验"]
-    K --> L["最终 Markdown"]
-    L --> M["结果透传插件"]
-    M --> N["OpenCode 答案"]
-    L -.->|Wiki 链接 / 原图 URL| W["本地展示服务<br/>127.0.0.1:19828"]
-    W -.->|点击查看| N
+    class U,H neutral
+    class O,P core
+    class E,A multimodal
+    class X result
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,color:#0F172A,stroke-width:1px
+    classDef core fill:#EFF6FF,stroke:#3B82F6,color:#0F172A,stroke-width:1.3px
+    classDef multimodal fill:#ECFEFF,stroke:#0891B2,color:#164E63,stroke-width:1.3px
+    classDef storage fill:#F1F5F9,stroke:#475569,color:#0F172A,stroke-width:1.3px
+    classDef result fill:#164E63,stroke:#164E63,color:#FFFFFF,stroke-width:1.3px
+    linkStyle default stroke:#64748B,stroke-width:1.2px
 ```
 
 查询默认使用 `auto`。后端根据功能开关和问题类型选择 `lexical`、`hybrid` 或 `multimodal`；OpenCode 命令层不重复实现检索判断。无论使用哪种模式，Wiki 页面只用于定位，最终结论必须由本次召回的原始 Evidence 支撑。
