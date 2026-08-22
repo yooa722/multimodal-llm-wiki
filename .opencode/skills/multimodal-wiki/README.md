@@ -23,38 +23,24 @@
 ## 2. 总体架构
 
 ```mermaid
+%%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":28,"rankSpacing":38},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 flowchart LR
-    U[用户]
+    U(["用户问题"]) --> O["OpenCode Skill 能力包<br/>Command · Agent · wiki_* Tool"]
+    O --> P["Python Wiki 管线<br/>opencode_demo.py · app.py · mmwiki/*"]
+    P --> W["Wiki 页面定位<br/>Page BM25 · Page Embedding"]
+    W --> E["原始 Evidence 回读<br/>Chunk · Item · Asset"]
+    E --> M["模型回答与引用校验<br/>Text LLM / VLM · Citation"]
+    M --> R(["结果透传 → OpenCode 展示<br/>结论 · Wiki 定位 · Evidence · 运行信息"])
 
-    subgraph B[OpenCode 项目级 multimodal-wiki Skill 能力包]
-        C[自然语言或 /wiki-* 命令]
-        S[SKILL.md<br/>工作流与安全规范]
-        A[wiki-presenter Agent]
-        T[类型化 wiki_* 工具]
-        X[结果透传插件]
-
-        C --> A
-        S -.约束.-> A
-        C -.隐藏路由元数据<br/>mmwiki-action.-> A
-        A --> T
-    end
-
-    U --> C
-    T --> D[tools/opencode_demo.py]
-    T -.wiki_import.-> P[app.py / Python Wiki Pipeline]
-    D --> P
-
-    P --> W[持久 Wiki 页面<br/>Page BM25 / Page Embedding]
-    W --> E[原始 Evidence<br/>Chunk / Item / Asset]
-    E --> M[文本模型或视觉语言模型]
-    M --> R[最终 Markdown<br/>结论 / Wiki 定位 / Evidence / 运行信息]
-
-    R --> X
-    X --> O[OpenCode 最终展示]
-    O --> U
-
-    P -.仅监听 127.0.0.1:19828.-> H[Wiki 页面与原图服务]
-    R --> H
+    class U neutral
+    class O,P,W core
+    class E,M multimodal
+    class R result
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,color:#0F172A,stroke-width:1px
+    classDef core fill:#EFF6FF,stroke:#3B82F6,color:#0F172A,stroke-width:1.3px
+    classDef multimodal fill:#ECFEFF,stroke:#0891B2,color:#164E63,stroke-width:1.3px
+    classDef result fill:#164E63,stroke:#164E63,color:#FFFFFF,stroke-width:1.3px
+    linkStyle default stroke:#64748B,stroke-width:1.2px
 ```
 
 这套架构把需要语言理解的部分与必须确定执行的部分分开：
@@ -108,18 +94,17 @@ runtime/raw/                 # 不可变来源副本
 8. `wiki-result-passthrough` 用工具原始输出替换模型的二次表述，OpenCode 最终展示完整表格、原图和可点击链接。
 
 ```mermaid
+%%{init: {"theme":"base","sequence":{"diagramMarginX":20,"actorMargin":32,"messageMargin":24},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 sequenceDiagram
     participant U as 用户
-    participant O as OpenCode
-    participant A as wiki-presenter
+    participant O as OpenCode / Skill
     participant T as wiki_query
     participant P as Python Wiki 管线
     participant K as Wiki / Evidence
     participant X as 结果透传插件
 
     U->>O: /wiki-ask 问题
-    O->>A: 自然语言 + 隐藏路由
-    A->>T: question, mode=auto, provider=api
+    O->>T: question, mode=auto, provider=api
     T->>P: 安全进程参数
     P->>K: 先定位 Wiki 页面
     K-->>P: 页面与来源范围
@@ -136,19 +121,23 @@ sequenceDiagram
 Skill 规定新 Source Package 按两个阶段构建，便于复用文本结果并计算多模态增量成本：
 
 ```mermaid
-flowchart TD
-    A[mmwiki-0.1 Source Package] --> B[协议、引用、路径与 SHA-256 校验]
-    B --> C[不可变 Raw 归档]
-    C --> D[文本阶段<br/>正文 / OCR / Caption / 线性化代理]
-    D --> E[文本 Wiki 页面与文本索引]
-    E --> F[多模态增量阶段<br/>完整表格 / 公式 / 原图]
-    F --> O[Qwen3.5-OCR<br/>图片文字与数字]
-    F --> V[视觉模型<br/>图片语义 Caption]
-    O --> X[派生视觉子 Evidence]
-    V --> X
-    X --> G[文本索引 / 父级原图映射<br/>受影响页面更新]
-    F --> G
-    G --> H[Lint / Status / Maintenance]
+%%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":38},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
+flowchart LR
+    A["mmwiki-0.1 Source Package<br/>Item · Chunk · Asset · provenance"] --> B["01  校验与不可变归档<br/>Schema · 引用 · Path · SHA-256<br/>runtime/raw"]
+    B -->|"阶段一"| C["02  文本 Wiki 主干<br/>正文 · 上游文本代理<br/>来源页 · 知识页 · WikiLink"]
+    C -->|"阶段二"| D["03  多模态增量<br/>完整表格 · 公式 · 原图<br/>Qwen3.5-OCR · Image Caption"]
+    D --> E[("04  局部更新<br/>受影响页面 · 父级原图映射<br/>文本 / 视觉索引")]
+    E --> F["Lint · Status · Maintenance"]
+
+    class A,B,F neutral
+    class C core
+    class D multimodal
+    class E storage
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,color:#0F172A,stroke-width:1px
+    classDef core fill:#EFF6FF,stroke:#3B82F6,color:#0F172A,stroke-width:1.3px
+    classDef multimodal fill:#ECFEFF,stroke:#0891B2,color:#164E63,stroke-width:1.3px
+    classDef storage fill:#F1F5F9,stroke:#475569,color:#0F172A,stroke-width:1.3px
+    linkStyle default stroke:#64748B,stroke-width:1.2px
 ```
 
 关键约束：
