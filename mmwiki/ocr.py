@@ -1,4 +1,4 @@
-"""Small native HTTP client for the Bailian Qwen3.5-OCR endpoint."""
+"""Small native HTTP client for a Bailian-compatible OCR endpoint."""
 
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ def build_ocr_payload(
     }
 
 
-def extract_ocr_text(payload: dict[str, Any]) -> str:
+def extract_ocr_text(payload: dict[str, Any], model: str = "OCR") -> str:
     """Extract plain text from the native OCR response, not JSON mode."""
 
     choices = ((payload.get("output") or {}).get("choices") or [])
@@ -88,12 +88,12 @@ def extract_ocr_text(payload: dict[str, Any]) -> str:
                 parts.append(str(part["text"]).strip())
     text = "\n".join(part for part in parts if part).strip()
     if not text:
-        raise ProviderError("Qwen3.5-OCR 返回了空文本")
+        raise ProviderError(f"{model} 返回了空文本")
     return text
 
 
 class QwenOCRProvider:
-    """串行、单图调用的 Qwen3.5-OCR Provider。"""
+    """串行、单图调用的 OCR Provider。"""
 
     def __init__(self, root: Path):
         values = read_dotenv(Path(root) / ".env")
@@ -115,8 +115,9 @@ class QwenOCRProvider:
         return bool(self.key and self.url and self.model and self.task)
 
     def recognize(self, data_url: str) -> tuple[str, dict[str, Any]]:
+        model = self.model or "OCR"
         if not self.configured:
-            raise ProviderError("Qwen3.5-OCR API 尚未配置")
+            raise ProviderError(f"{model} API 尚未配置")
         request = urllib.request.Request(
             self.url,
             data=json.dumps(
@@ -147,13 +148,13 @@ class QwenOCRProvider:
                 raw = response.read().decode("utf-8")
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")[:500]
-            raise ProviderError(f"Qwen3.5-OCR API HTTP {exc.code}: {detail}") from exc
+            raise ProviderError(f"{model} API HTTP {exc.code}: {detail}") from exc
         except urllib.error.URLError as exc:
-            raise ProviderError(f"Qwen3.5-OCR API 请求失败：{exc.reason}") from exc
+            raise ProviderError(f"{model} API 请求失败：{exc.reason}") from exc
         try:
             payload = json.loads(raw)
         except json.JSONDecodeError as exc:
-            raise ProviderError("Qwen3.5-OCR API 返回的不是 JSON") from exc
+            raise ProviderError(f"{model} API 返回的不是 JSON") from exc
         if not isinstance(payload, dict):
-            raise ProviderError("Qwen3.5-OCR API 返回格式错误")
-        return extract_ocr_text(payload), payload.get("usage") or {}
+            raise ProviderError(f"{model} API 返回格式错误")
+        return extract_ocr_text(payload, model), payload.get("usage") or {}

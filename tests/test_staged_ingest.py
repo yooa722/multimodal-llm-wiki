@@ -290,7 +290,7 @@ class StagedIngestTests(unittest.TestCase):
     def test_visual_evidence_builds_ocr_and_caption_once_per_asset(self) -> None:
         class FakeOCR:
             calls = 0
-            model = "qwen3.5-ocr"
+            model = "custom-ocr"
             task = "text_recognition"
             configured = True
 
@@ -362,6 +362,8 @@ class StagedIngestTests(unittest.TestCase):
                 {record["kind"] for record in first[0]},
                 {"image_caption", "image_ocr"},
             )
+            by_kind = {record["kind"]: record for record in first[0]}
+            self.assertEqual(by_kind["image_ocr"]["provenance"]["source"], "custom-ocr")
             self.assertTrue(all(record["searchable"] for record in first[0]))
 
     def test_existing_page_context_includes_evidence_ids(self) -> None:
