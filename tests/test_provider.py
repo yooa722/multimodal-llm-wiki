@@ -53,6 +53,7 @@ class AnswerRequirementTests(unittest.TestCase):
         self.assertIn("有序列表", prompt)
         self.assertIn("可直接展示给最终用户的完整 Markdown", prompt)
         self.assertIn("行内公式", prompt)
+        self.assertIn("〔Evidence ID〕", prompt)
 
 
 class MathMarkdownTests(unittest.TestCase):
@@ -353,6 +354,37 @@ class WikiValidationTests(unittest.TestCase):
                 if part.get("type") == "text"
             )
         )
+
+    def test_text_only_wiki_analysis_discards_ungrounded_image_annotations(self) -> None:
+        provider = object.__new__(OpenAICompatibleProvider)
+
+        def fake_chat_json(system, user):
+            return {
+                "summary": "摘要",
+                "claims": [],
+                "entities": [],
+                "concepts": [],
+                "contradictions": [],
+                "page_actions": [],
+                "image_annotations": [
+                    {
+                        "asset_id": "asset-not-supplied",
+                        "evidence_id": "source@v1#image-1",
+                        "caption": "未读取像素的注释",
+                    }
+                ],
+            }
+
+        provider.chat_json = fake_chat_json
+        value = provider.analyze_wiki(
+            "来源",
+            [{"id": "source@v1#image-1", "type": "image"}],
+            [],
+            "schema",
+            [],
+        )
+
+        self.assertEqual(value["image_annotations"], [])
 
 
 if __name__ == "__main__":

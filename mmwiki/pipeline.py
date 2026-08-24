@@ -16,7 +16,13 @@ from pathlib import Path
 from typing import Any
 
 from .contracts import load_package, validate_package
-from .config import FeatureConfig, load_feature_config, resolve_query_mode
+from .config import (
+    FeatureConfig,
+    detect_visual_intent,
+    load_feature_config,
+    resolve_query_mode,
+    resolve_visual_processing_policy,
+)
 from .markdown_overlay import load_caption_map, materialize_wiki
 from .models import Item, Package
 from .provider import (
@@ -57,7 +63,7 @@ NON_WIKI_VAULT_DOCUMENTS = (
 
 VISUAL_ITEM_TYPES = {"image", "figure", "chart"}
 RICH_EVIDENCE_ITEM_TYPES = VISUAL_ITEM_TYPES | {"table", "equation"}
-VISUAL_ANNOTATION_PROMPT_VERSION = "qwen3.5-ocr-evidence-v1"
+VISUAL_ANNOTATION_PROMPT_VERSION = "cost-aware-visual-evidence-v2"
 INGEST_STAGES = ("all", "text", "multimodal")
 MANAGED_EVIDENCE_START = "<!-- mmwiki:multimodal-evidence:start -->"
 MANAGED_EVIDENCE_END = "<!-- mmwiki:multimodal-evidence:end -->"
@@ -564,7 +570,7 @@ class WikiPipeline:
         limit: int | None = None,
         *,
         unbounded: bool = False,
-    ) -> tuple[list[dict[str, str]], dict[str, Any]]:
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         effective_limit = (
             10**9
             if unbounded
@@ -572,17 +578,27 @@ class WikiPipeline:
             or _bounded_env_int("MMWIKI_MAX_BUILD_IMAGES", 8, 1, 16)
         )
         effective_limit = max(1, min(int(effective_limit), 10**9))
-        payloads: list[dict[str, str]] = []
+        payloads: list[dict[str, Any]] = []
         used: set[str] = set()
         candidates = 0
+        skipped = 0
+        policy_counts: dict[str, int] = {}
+        caption_planned = 0
+        ocr_planned = 0
         for item in package.items:
             if not item.searchable:
-                continue
-            if item.item_type.casefold() in {"equation", "formula"}:
                 continue
             evidence_id = self._item_evidence_id(package, item.item_id)
             if evidence_ids is not None and evidence_id not in evidence_ids:
                 continue
+            policy = resolve_visual_processing_policy(
+                item_type=item.item_type,
+                has_structured_table=bool(item.table),
+                has_latex=bool(item.equation),
+                caption=item.caption,
+                breadcrumb=item.breadcrumb,
+                metadata=item.metadata,
+            )
             for asset_id in item.asset_ids:
                 asset = assets.get(asset_id, {})
                 vault_path = str(asset.get("vault_path") or "")
@@ -602,6 +618,14 @@ class WikiPipeline:
                     continue
                 candidates += 1
                 used.add(vault_path)
+                policy_counts[policy.resource_type] = (
+                    policy_counts.get(policy.resource_type, 0) + 1
+                )
+                if not policy.run_caption and not policy.run_ocr:
+                    skipped += 1
+                    continue
+                caption_planned += int(policy.run_caption)
+                ocr_planned += int(policy.run_ocr)
                 if len(payloads) >= effective_limit:
                     continue
                 payloads.append(
@@ -613,13 +637,21 @@ class WikiPipeline:
                         or hashlib.sha256(target.read_bytes()).hexdigest(),
                         "data_url": f"data:{mime};base64,"
                         + base64.b64encode(target.read_bytes()).decode("ascii"),
+                        "processing_policy": policy.as_dict(),
+                        "resource_type": policy.resource_type,
+                        "run_caption": policy.run_caption,
+                        "run_ocr": policy.run_ocr,
                     }
                 )
         return payloads, {
             "candidate_images": candidates,
             "analyzed_images": len(payloads),
+            "policy_counts": policy_counts,
+            "caption_planned": caption_planned,
+            "ocr_planned": ocr_planned,
+            "skipped_by_policy": skipped,
             "max_images": None if unbounded else effective_limit,
-            "truncated": candidates > len(payloads),
+            "truncated": (candidates - skipped) > len(payloads),
         }
 
     def _visual_parent_refs(
@@ -645,6 +677,32 @@ class WikiPipeline:
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
+    def _visual_build_contract(self) -> tuple[dict[str, Any], str]:
+        """Describe the persistent visual-Evidence build without storing secrets."""
+
+        ocr = QwenOCRProvider(self.root)
+        vision = OpenAICompatibleProvider(self.root, "vision")
+        contract = {
+            "schema_version": "visual-evidence-build-v2",
+            "prompt_version": VISUAL_ANNOTATION_PROMPT_VERSION,
+            "ocr": {
+                "configured": bool(ocr.configured),
+                "model": str(ocr.model),
+                "task": str(ocr.task),
+                "min_pixels": int(getattr(ocr, "min_pixels", 0) or 0),
+                "max_pixels": int(getattr(ocr, "max_pixels", 0) or 0),
+            },
+            "caption": {
+                "configured": bool(vision.configured),
+                "model": str(vision.model),
+            },
+        }
+        serialized = json.dumps(
+            contract, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        )
+        signature = hashlib.sha256(serialized.encode("utf-8")).hexdigest()[:16]
+        return contract, signature
+
     def _load_visual_cache(self, path: Path) -> dict[str, Any]:
         if not path.is_file():
             return {}
@@ -662,8 +720,9 @@ class WikiPipeline:
         state: dict[str, Any],
         schema: str,
         vision_llm: OpenAICompatibleProvider,
+        precomputed_analysis: dict[str, Any] | None = None,
     ) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any], int]:
-        """Build OCR/Caption child Evidence and batched visual Wiki analysis."""
+        """Build OCR/Caption child Evidence, reusing an existing visual analysis when given."""
 
         payloads, stats = self._builder_image_payloads(
             package,
@@ -671,7 +730,7 @@ class WikiPipeline:
             evidence_ids={str(value["id"]) for value in evidence},
             unbounded=True,
         )
-        unique_payloads: list[dict[str, str]] = []
+        unique_payloads: list[dict[str, Any]] = []
         seen_hashes: set[str] = set()
         for payload in payloads:
             sha256 = str(payload["sha256"])
@@ -687,6 +746,7 @@ class WikiPipeline:
         usage: dict[str, Any] = {}
         for payload in unique_payloads:
             sha256 = str(payload["sha256"])
+            processing_policy = dict(payload.get("processing_policy") or {})
             cache_path = self._visual_cache_path(sha256)
             cache = self._load_visual_cache(cache_path)
             valid = (
@@ -696,11 +756,21 @@ class WikiPipeline:
                 and cache.get("caption_model")
                 == (vision_llm.model if vision_llm.configured else "")
                 and cache.get("prompt_version") == VISUAL_ANNOTATION_PROMPT_VERSION
+                and cache.get("processing_policy") == processing_policy
             )
             caches[sha256] = cache if valid else {"sha256": sha256}
             record = caches[sha256]
             ocr_result = record.get("ocr") if isinstance(record.get("ocr"), dict) else {}
-            if ocr_result.get("status") != "ready":
+            if not bool(payload.get("run_ocr")):
+                ocr_result = {
+                    "status": "skipped",
+                    "text": "",
+                    "reason": str(processing_policy.get("reason") or "成本策略未启用 OCR"),
+                    "model": ocr.model,
+                    "task": ocr.task,
+                }
+                record["ocr"] = ocr_result
+            elif ocr_result.get("status") != "ready":
                 if ocr.configured:
                     try:
                         text, ocr_usage = ocr.recognize(payload["data_url"])
@@ -736,15 +806,75 @@ class WikiPipeline:
                     "ocr_task": ocr.task,
                     "caption_model": vision_llm.model if vision_llm.configured else "",
                     "prompt_version": VISUAL_ANNOTATION_PROMPT_VERSION,
+                    "processing_policy": processing_policy,
                     "generated_at": utc_now(),
                 }
             )
 
         analyses: list[dict[str, Any]] = []
         visual_batches: list[dict[str, Any]] = []
-        if vision_llm.configured:
-            for start in range(0, len(unique_payloads), batch_size):
-                batch = unique_payloads[start : start + batch_size]
+        caption_payloads = [
+            payload for payload in unique_payloads if bool(payload.get("run_caption"))
+        ]
+        for payload in unique_payloads:
+            if bool(payload.get("run_caption")):
+                continue
+            sha = str(payload["sha256"])
+            caches[sha]["caption"] = {
+                "status": "skipped",
+                "text": "",
+                "reason": str(
+                    (payload.get("processing_policy") or {}).get("reason")
+                    or "成本策略未启用 Caption"
+                ),
+                "model": vision_llm.model,
+            }
+        if precomputed_analysis is not None:
+            analysis = validate_wiki_analysis(
+                dict(precomputed_analysis),
+                {str(item["id"]) for item in evidence},
+                caption_payloads,
+            )
+            annotation_by_asset = {
+                str(item.get("asset_id") or ""): item
+                for item in analysis.get("image_annotations", [])
+            }
+            batch_shas = [str(item["sha256"]) for item in caption_payloads]
+            for payload in caption_payloads:
+                sha = str(payload["sha256"])
+                annotation = annotation_by_asset.get(str(payload["asset_id"]))
+                existing_caption = (
+                    caches[sha].get("caption")
+                    if isinstance(caches[sha].get("caption"), dict)
+                    else {}
+                )
+                if annotation:
+                    caches[sha]["caption"] = {
+                        "status": "ready",
+                        "text": str(annotation.get("caption") or "").strip(),
+                        "model": vision_llm.model,
+                    }
+                elif existing_caption.get("status") != "ready":
+                    caches[sha]["caption"] = {
+                        "status": "missing",
+                        "text": "",
+                        "error": "页面级 VLM 分析未返回该图片的 Image Caption",
+                        "model": vision_llm.model,
+                    }
+                caches[sha]["analysis"] = analysis
+                caches[sha]["batch_shas"] = batch_shas
+            analyses.append(analysis)
+            visual_batches.append(
+                {
+                    "asset_count": len(caption_payloads),
+                    "cached": True,
+                    "reused_analysis": True,
+                    "model": vision_llm.model,
+                }
+            )
+        elif vision_llm.configured:
+            for start in range(0, len(caption_payloads), batch_size):
+                batch = caption_payloads[start : start + batch_size]
                 batch_shas = [str(item["sha256"]) for item in batch]
                 cached_analysis = None
                 if all(
@@ -827,6 +957,21 @@ class WikiPipeline:
                         "model": vision_llm.model,
                     }
                 )
+        else:
+            for payload in caption_payloads:
+                sha = str(payload["sha256"])
+                current = (
+                    caches[sha].get("caption")
+                    if isinstance(caches[sha].get("caption"), dict)
+                    else {}
+                )
+                if current.get("status") != "ready":
+                    caches[sha]["caption"] = {
+                        "status": "missing",
+                        "text": "",
+                        "error": "VLM Caption API 尚未配置",
+                        "model": vision_llm.model,
+                    }
 
         visual_evidence: list[dict[str, Any]] = []
         for payload in payloads:
@@ -861,6 +1006,9 @@ class WikiPipeline:
                         "parent_chunk_ids": chunk_ids,
                         "page_refs": pages,
                         "provenance": provenance,
+                        "processing_policy": dict(
+                            payload.get("processing_policy") or {}
+                        ),
                         "status": status,
                         "searchable": status == "ready" and bool(text),
                         **({"error": str(result.get("error") or "")} if result.get("error") else {}),
@@ -967,6 +1115,8 @@ class WikiPipeline:
         batch_records: list[dict[str, Any]] = []
         total_candidates = 0
         total_analyzed = 0
+        total_ocr_planned = 0
+        policy_counts: dict[str, int] = {}
         catalog = self._wiki_catalog(
             state, package.package_id, stage="multimodal"
         )
@@ -979,15 +1129,18 @@ class WikiPipeline:
         cache_root.mkdir(parents=True, exist_ok=True)
         for page, page_evidence in sorted(by_page.items()):
             allowed = {str(record["id"]) for record in page_evidence}
-            images, image_stats = self._builder_image_payloads(
+            planned_images, image_stats = self._builder_image_payloads(
                 package,
                 assets,
                 evidence_ids=allowed,
                 limit=32,
             )
-            if image_stats["candidate_images"] and not vision_llm.configured:
+            images = [
+                image for image in planned_images if bool(image.get("run_caption"))
+            ]
+            if images and not vision_llm.configured:
                 raise PipelineError(
-                    "完整多模态构建发现视觉资源，但视觉分析模型未配置"
+                    "完整多模态构建发现需要 Caption 的视觉资源，但视觉分析模型未配置"
                 )
             if image_stats["truncated"]:
                 raise PipelineError(
@@ -1046,13 +1199,20 @@ class WikiPipeline:
                 )
             analyses.append(analysis)
             total_candidates += int(image_stats["candidate_images"])
-            total_analyzed += int(image_stats["analyzed_images"])
+            total_analyzed += len(images)
+            total_ocr_planned += int(image_stats.get("ocr_planned") or 0)
+            for resource_type, count in image_stats.get("policy_counts", {}).items():
+                policy_counts[str(resource_type)] = (
+                    policy_counts.get(str(resource_type), 0) + int(count)
+                )
             batch_records.append(
                 {
                     "page": page,
                     "evidence_items": len(page_evidence),
                     "candidate_images": image_stats["candidate_images"],
-                    "analyzed_images": image_stats["analyzed_images"],
+                    "analyzed_images": len(images),
+                    "ocr_planned": image_stats.get("ocr_planned", 0),
+                    "policy_counts": image_stats.get("policy_counts", {}),
                     "model": analyzer.model,
                     "cached": cached,
                 }
@@ -1067,6 +1227,8 @@ class WikiPipeline:
                 "max_images": None,
                 "truncated": False,
                 "used_actual_images": total_analyzed > 0,
+                "ocr_planned": total_ocr_planned,
+                "policy_counts": policy_counts,
                 "full_scale": True,
                 "batch_count": len(batch_records),
                 "batches": batch_records,
@@ -1955,12 +2117,33 @@ class WikiPipeline:
         current = state["sources"].get(package.package_id)
         same_version = bool(current and current.get("checksum") == package.checksum)
         stages = dict(current.get("stages", {})) if same_version else {}
+        text_item_ids = {item.item_id for item in package.items}
+        multimodal_item_ids = {
+            item.item_id for item in package.items if _is_multimodal_item(item)
+        }
+        visual_build_contract: dict[str, Any] = {}
+        visual_build_signature = ""
+        if (
+            stage == "multimodal"
+            and provider == "api"
+            and self.features.enable_vlm
+            and multimodal_item_ids
+        ):
+            visual_build_contract, visual_build_signature = (
+                self._visual_build_contract()
+            )
         previous_stage = stages.get(stage, {})
         if not force and previous_stage:
+            same_visual_build = (
+                not visual_build_signature
+                or previous_stage.get("visual_build_signature")
+                == visual_build_signature
+            )
             same_configuration = (
                 previous_stage.get("status") in {"completed", "not_applicable"}
                 and previous_stage.get("provider") == provider
                 and bool(previous_stage.get("full_scale")) == bool(full_scale)
+                and same_visual_build
             )
             if same_configuration:
                 return {
@@ -1978,16 +2161,15 @@ class WikiPipeline:
                         "updated_pages": 0,
                         "multimodal_items_added": 0,
                         "idempotent_reuse": True,
+                        "visual_build_signature": (
+                            previous_stage.get("visual_build_signature") or ""
+                        ),
                     },
                 }
 
         # A fair text LLM Wiki baseline keeps textual proxies (OCR, captions and
         # linearized chunk text) for every item, but withholds structured tables,
         # equations, assets and visual semantics until the multimodal stage.
-        text_item_ids = {item.item_id for item in package.items}
-        multimodal_item_ids = {
-            item.item_id for item in package.items if _is_multimodal_item(item)
-        }
         if stage == "multimodal":
             legacy_text_ready = bool(
                 same_version and current and current.get("wiki_path")
@@ -2104,7 +2286,9 @@ class WikiPipeline:
         }
         visual_evidence: list[dict[str, Any]] = (
             list(current.get("visual_evidence", []))
-            if current and isinstance(current.get("visual_evidence"), list)
+            if same_version
+            and current
+            and isinstance(current.get("visual_evidence"), list)
             else []
         )
         analysis_usage: dict[str, Any] | list[dict[str, Any]] = {}
@@ -2128,8 +2312,10 @@ class WikiPipeline:
                 raise PipelineError(f"{stage} 阶段没有可供 Wiki 编译的 Evidence")
             schema = self._wiki_instructions()
             analysis_started = time.perf_counter()
+            persistent_visual_analysis: dict[str, Any] | None = None
+            visual_result: dict[str, Any] = {}
             if full_scale:
-                analysis, visual_analysis, analysis_model = (
+                analysis, page_visual_analysis, analysis_model = (
                     self._analyze_wiki_full_scale(
                         package,
                         evidence,
@@ -2140,16 +2326,39 @@ class WikiPipeline:
                         vision_llm,
                     )
                 )
-                analysis_usage = analysis.get("batch_usage", [])
+                if stage == "multimodal" and self.features.enable_vlm:
+                    (
+                        visual_evidence,
+                        persistent_visual_analysis,
+                        visual_result,
+                        visual_api_calls,
+                    ) = self._build_visual_evidence(
+                        package,
+                        evidence,
+                        assets,
+                        state,
+                        schema,
+                        vision_llm,
+                        precomputed_analysis=analysis,
+                    )
+                    api_calls += visual_api_calls
+                visual_analysis = {
+                    **page_visual_analysis,
+                    "persistent_evidence": persistent_visual_analysis or {},
+                }
+                analysis_usage = _merge_usage(
+                    visual_result.get("usage", {}),
+                    analysis.get("batch_usage", []),
+                )
                 api_calls += sum(
                     not bool(batch.get("cached"))
-                    for batch in visual_analysis.get("batches", [])
+                    for batch in page_visual_analysis.get("batches", [])
                 )
             else:
                 if stage == "multimodal" and self.features.enable_vlm:
                     (
                         visual_evidence,
-                        visual_analysis,
+                        persistent_visual_analysis,
                         visual_result,
                         visual_api_calls,
                     ) = self._build_visual_evidence(
@@ -2161,6 +2370,8 @@ class WikiPipeline:
                         vision_llm,
                     )
                     api_calls += visual_api_calls
+                if persistent_visual_analysis is not None:
+                    visual_analysis = persistent_visual_analysis
                     analysis = visual_result.get("analysis") or {}
                     if analysis.get("summary"):
                         analysis_model = vision_llm.model
@@ -2250,6 +2461,22 @@ class WikiPipeline:
         if stage == "text":
             stages.pop("multimodal", None)
 
+        effective_visual_build_contract = (
+            visual_build_contract
+            or (
+                previous_stage.get("visual_build_contract", {})
+                if stage == "multimodal"
+                else {}
+            )
+        )
+        effective_visual_build_signature = (
+            visual_build_signature
+            or (
+                str(previous_stage.get("visual_build_signature") or "")
+                if stage == "multimodal"
+                else ""
+            )
+        )
         build_metrics = {
             "elapsed_ms": 0.0,
             "timings": timings,
@@ -2292,6 +2519,7 @@ class WikiPipeline:
             "active_chunks": len(active_chunks),
             "active_assets": len(assets),
             "idempotent_reuse": False,
+            "visual_build_signature": effective_visual_build_signature,
         }
         stages[stage] = {
             "status": "completed",
@@ -2302,6 +2530,8 @@ class WikiPipeline:
             "completed_at": utc_now(),
             "evidence_items": len(stage_item_ids),
             "generated_paths": generated_paths,
+            "visual_build_contract": effective_visual_build_contract,
+            "visual_build_signature": effective_visual_build_signature,
             "build_metrics": build_metrics,
         }
         source_record = {
@@ -2313,6 +2543,8 @@ class WikiPipeline:
             "model": model,
             "analysis_model": analysis_model,
             "visual_analysis": visual_analysis,
+            "visual_build_contract": effective_visual_build_contract,
+            "visual_build_signature": effective_visual_build_signature,
             "full_scale": full_scale,
             "representation": "text+multimodal" if stage == "multimodal" else "text",
             "representation_layers": (
@@ -2960,9 +3192,12 @@ class WikiPipeline:
                 "retrieval": {
                     "requested_mode": retrieval_mode,
                     "mode": "lexical",
+                    "initial_mode": "lexical",
                     "channels": [],
                     "models": {},
                     "fallback_reason": None,
+                    "routing_reason": "问题为空，未执行检索",
+                    "visual_intent": detect_visual_intent("").as_dict(),
                     "usage": {},
                 },
             }
@@ -2971,16 +3206,29 @@ class WikiPipeline:
         if not 1 <= top_k <= 20:
             raise PipelineError("top_k 必须在 1 到 20 之间")
         state = self._load_state()
-        visual_intent = any(
-            word in question.casefold()
-            for word in ("图", "图片", "图表", "figure", "chart", "image")
-        )
+        visual_intent = detect_visual_intent(question)
         effective_mode = resolve_query_mode(
             retrieval_mode,
-            visual_intent=visual_intent,
+            visual_intent=visual_intent.is_visual,
             config=self.features,
         )
         fallback_reason = None
+        if retrieval_mode == "lexical":
+            routing_reason = "用户明确指定 Lexical"
+        elif not self.features.enable_vector_retrieval:
+            routing_reason = "向量检索开关关闭，使用低成本 Lexical"
+        elif retrieval_mode == "hybrid":
+            routing_reason = "用户明确指定 Hybrid"
+        elif retrieval_mode == "multimodal":
+            routing_reason = (
+                "用户明确指定 Multimodal"
+                if self.features.enable_vlm
+                else "用户指定 Multimodal，但 VLM 开关关闭"
+            )
+        elif visual_intent.is_visual and self.features.enable_vlm:
+            routing_reason = f"{visual_intent.reason}，进入 Multimodal"
+        else:
+            routing_reason = "Caption-first：普通事实问题优先使用 Hybrid"
         if effective_mode != retrieval_mode:
             if not self.features.enable_vector_retrieval:
                 fallback_reason = "向量检索已关闭，已回退到 BM25 + MinerU Caption"
@@ -3017,10 +3265,13 @@ class WikiPipeline:
             trace = {
                 "requested_mode": retrieval_mode,
                 "mode": "lexical",
+                "initial_mode": effective_mode,
                 "channels": (["wiki_navigation"] if wiki_navigation else [])
                 + ["bm25"],
                 "models": {},
                 "fallback_reason": fallback_reason,
+                "routing_reason": routing_reason,
+                "visual_intent": visual_intent.as_dict(),
                 "usage": {},
                 "wiki_navigation_strategy": "wiki-page-bm25->evidence",
             }
@@ -3038,6 +3289,9 @@ class WikiPipeline:
                 provider,
             )
             trace["requested_mode"] = retrieval_mode
+            trace["initial_mode"] = effective_mode
+            trace["routing_reason"] = routing_reason
+            trace["visual_intent"] = visual_intent.as_dict()
             if fallback_reason and not trace.get("fallback_reason"):
                 trace["fallback_reason"] = fallback_reason
             semantic_pages = trace.get("wiki_semantic_navigation_pages", [])
@@ -3091,6 +3345,71 @@ class WikiPipeline:
             for item in source.get("items", []):
                 result[prefix + str(item["item_id"])] = (package_id, item)
         return result
+
+    def _select_query_evidence(
+        self,
+        hits: list[dict[str, Any]],
+        state: dict[str, Any],
+    ) -> tuple[list[dict[str, Any]], dict[str, Any], list[str]]:
+        """Resolve retrieved chunks to bounded, immutable Source Package items."""
+
+        lookup = self._item_lookup(state)
+        selected: list[dict[str, Any]] = []
+        for hit in hits:
+            for item_id in hit["item_ids"]:
+                evidence_id = (
+                    f"{hit['source_id']}@"
+                    f"{state['sources'].get(hit['source_id'], {}).get('source_version', '')}"
+                    f"#{item_id}"
+                )
+                value = lookup.get(evidence_id)
+                if value is None:
+                    continue
+                if not any(record["evidence_id"] == evidence_id for record in selected):
+                    selected.append(
+                        {
+                            "evidence_id": evidence_id,
+                            "package_id": value[0],
+                            "item": value[1],
+                        }
+                    )
+        candidate_count = len(selected)
+        evidence_limit = _bounded_env_int("MMWIKI_MAX_EVIDENCE_ITEMS", 8, 1, 20)
+        selected = selected[:evidence_limit]
+        selection = {
+            "candidate_items": candidate_count,
+            "selected_items": len(selected),
+            "max_items": evidence_limit,
+            "truncated": candidate_count > len(selected),
+        }
+        matched_visual_assets = list(
+            dict.fromkeys(
+                str(hit.get("matched_asset_path") or "")
+                for hit in hits
+                if hit.get("matched_asset_path")
+            )
+        )
+        return selected, selection, matched_visual_assets
+
+    @staticmethod
+    def _query_evidence_index(
+        selected: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        return [
+            {
+                "id": value["evidence_id"],
+                "type": value["item"]["item_type"],
+                "section": value["item"]["breadcrumb"],
+                "page": value["item"].get("page_start"),
+                "text": (
+                    value["item"].get("raw_text")
+                    or value["item"].get("caption")
+                    or value["item"].get("search_text")
+                )[:6000],
+                "table": value["item"].get("table"),
+            }
+            for value in selected
+        ]
 
     def _image_payloads(
         self,
@@ -3181,42 +3500,10 @@ class WikiPipeline:
             )[:top_k]
             retrieval_trace["query_rewrite_applied"] = True
         state = self._load_state()
-        lookup = self._item_lookup(state)
-        selected: list[dict[str, Any]] = []
-        for hit in hits:
-            for item_id in hit["item_ids"]:
-                evidence_id = (
-                    f"{hit['source_id']}@"
-                    f"{state['sources'].get(hit['source_id'], {}).get('source_version', '')}"
-                    f"#{item_id}"
-                )
-                value = lookup.get(evidence_id)
-                matches = (
-                    [(evidence_id, value[0], value[1])] if value is not None else []
-                )
-                if len(matches) != 1:
-                    continue
-                evidence_id, package_id, item = matches[0]
-                if not any(value["evidence_id"] == evidence_id for value in selected):
-                    selected.append(
-                        {"evidence_id": evidence_id, "package_id": package_id, "item": item}
-                    )
-        evidence_candidate_count = len(selected)
-        evidence_limit = _bounded_env_int("MMWIKI_MAX_EVIDENCE_ITEMS", 8, 1, 20)
-        selected = selected[:evidence_limit]
-        retrieval_trace["evidence_selection"] = {
-            "candidate_items": evidence_candidate_count,
-            "selected_items": len(selected),
-            "max_items": evidence_limit,
-            "truncated": evidence_candidate_count > len(selected),
-        }
-        matched_visual_assets = list(
-            dict.fromkeys(
-                str(hit.get("matched_asset_path") or "")
-                for hit in hits
-                if hit.get("matched_asset_path")
-            )
+        selected, selection_trace, matched_visual_assets = self._select_query_evidence(
+            hits, state
         )
+        retrieval_trace["evidence_selection"] = selection_trace
         retrieval_trace["matched_visual_assets"] = matched_visual_assets
         if not hits or not selected:
             answer = "无法从当前 Wiki 证据中确定。"
@@ -3225,36 +3512,108 @@ class WikiPipeline:
             answer_mode = "abstention"
             usage: dict[str, Any] = {}
         elif provider == "api":
-            answer_task = "vision" if self.features.enable_vlm else "answer"
-            llm = OpenAICompatibleProvider(self.root, answer_task)
-            evidence_index = [
-                {
-                    "id": value["evidence_id"],
-                    "type": value["item"]["item_type"],
-                    "section": value["item"]["breadcrumb"],
-                    "page": value["item"].get("page_start"),
-                    "text": (
-                        value["item"].get("raw_text")
-                        or value["item"].get("caption")
-                        or value["item"].get("search_text")
-                    )[:6000],
-                    "table": value["item"].get("table"),
-                }
-                for value in selected
-            ]
-            value = llm.answer(
-                question,
-                evidence_index,
-                self._image_payloads(selected, state, matched_visual_assets)
-                if self.features.enable_vlm
-                else [],
+            use_vision = (
+                retrieval_trace.get("mode") == "multimodal"
+                and self.features.enable_vlm
             )
+
+            def invoke_answer(
+                visual: bool,
+            ) -> tuple[dict[str, Any], OpenAICompatibleProvider]:
+                answer_llm = OpenAICompatibleProvider(
+                    self.root, "vision" if visual else "answer"
+                )
+                answer_value = answer_llm.answer(
+                    question,
+                    self._query_evidence_index(selected),
+                    self._image_payloads(selected, state, matched_visual_assets)
+                    if visual
+                    else [],
+                )
+                return answer_value, answer_llm
+
+            value, llm = invoke_answer(use_vision)
+            initial_answer_usage = value.get("_usage", {})
+            has_visual_candidate = any(
+                bool(record["item"].get("asset_ids"))
+                and resolve_visual_processing_policy(
+                    item_type=str(record["item"].get("item_type") or ""),
+                    has_structured_table=bool(record["item"].get("table")),
+                    has_latex=bool(record["item"].get("equation")),
+                    caption=str(record["item"].get("caption") or ""),
+                    breadcrumb=str(record["item"].get("breadcrumb") or ""),
+                    metadata=record["item"].get("metadata") or {},
+                ).resource_type
+                in {"natural_image", "diagram_chart", "page_screenshot"}
+                for record in selected
+            )
+            can_upgrade = (
+                not use_vision
+                and not bool(value.get("answerable"))
+                and retrieval_trace.get("mode") == "hybrid"
+                and retrieval_mode in {"auto", "hybrid"}
+                and has_visual_candidate
+                and self.features.enable_vlm
+                and self.features.enable_vector_retrieval
+            )
+            if can_upgrade:
+                upgrade_reason = (
+                    "Hybrid 文本证据不足且候选 Evidence 关联原图，自动升级到 Multimodal"
+                )
+                upgraded = self.search_with_trace(
+                    question, top_k, source_ids, "multimodal"
+                )
+                upgraded_trace = upgraded["retrieval"]
+                if upgraded_trace.get("mode") == "multimodal":
+                    initial_trace = retrieval_trace
+                    hits = upgraded["hits"]
+                    (
+                        selected,
+                        selection_trace,
+                        matched_visual_assets,
+                    ) = self._select_query_evidence(hits, state)
+                    retrieval_trace = upgraded_trace
+                    retrieval_trace.update(
+                        {
+                            "requested_mode": retrieval_mode,
+                            "initial_mode": str(initial_trace.get("mode") or "hybrid"),
+                            "routing_reason": upgrade_reason,
+                            "upgrade_reason": upgrade_reason,
+                            "mode_transition": [
+                                str(initial_trace.get("mode") or "hybrid"),
+                                "multimodal",
+                            ],
+                            "visual_intent": initial_trace.get("visual_intent", {}),
+                            "evidence_selection": selection_trace,
+                            "matched_visual_assets": matched_visual_assets,
+                            "initial_attempt": {
+                                "mode": initial_trace.get("mode"),
+                                "answerable": False,
+                                "models": initial_trace.get("models", {}),
+                            },
+                        }
+                    )
+                    value, llm = invoke_answer(True)
+                    use_vision = True
+                    value["_usage"] = _merge_usage(
+                        initial_answer_usage, value.get("_usage", {})
+                    )
+                else:
+                    retrieval_trace.update(
+                        {
+                            "upgrade_reason": upgrade_reason,
+                            "upgrade_attempted": True,
+                            "upgrade_result": "未获得可用的 Multimodal 索引，保留 Hybrid 拒答",
+                            "fallback_reason": upgraded_trace.get("fallback_reason")
+                            or "Multimodal 自动升级不可用",
+                        }
+                    )
             answer = value["answer"]
             cited = value["evidence_refs"]
             model = llm.model
             answer_mode = (
                 "multimodal_generation"
-                if self.features.enable_vlm and value["answerable"]
+                if use_vision and value["answerable"]
                 else ("text_generation" if value["answerable"] else "abstention")
             )
             usage = value.get("_usage", {})
@@ -3284,6 +3643,7 @@ class WikiPipeline:
             "query_id": uuid.uuid4().hex[:16],
             "question": question,
             "answer": answer,
+            "evidence_refs": cited,
             "citations": citations,
             "created_at": utc_now(),
             "retriever": (

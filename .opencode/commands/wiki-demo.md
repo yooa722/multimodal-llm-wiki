@@ -5,7 +5,3 @@ subtask: false
 ---
 
 请展示多模态 LLM Wiki 的完整导览。
-
-<!-- mmwiki-action
-tool: wiki_tour
--->

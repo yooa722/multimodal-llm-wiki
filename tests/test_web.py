@@ -4,7 +4,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mmwiki.web import media_url, render_wiki_html, resolve_vault_path, wiki_view_url
+from mmwiki.web import (
+    media_url,
+    query_view_url,
+    render_query_html,
+    render_wiki_html,
+    resolve_vault_path,
+    wiki_view_url,
+)
 
 
 class WikiWebTests(unittest.TestCase):
@@ -14,6 +21,55 @@ class WikiWebTests(unittest.TestCase):
         self.assertTrue(wiki.startswith("http://127.0.0.1:19828/wiki/view?path="))
         self.assertIn("%E6%99%BA", wiki)
         self.assertIn("example%20image.jpg", media)
+
+    def test_query_workspace_places_answer_left_and_wiki_right(self) -> None:
+        evidence_id = "source@v1#item-1"
+        record = {
+            "query_id": "query-test",
+            "question": "预算是多少？",
+            "answer": f"预算为300万元〔{evidence_id}〕。",
+            "evidence_refs": [evidence_id],
+            "citations": [
+                {
+                    "source_id": "source",
+                    "title": "工期与预算",
+                    "evidence_ids": [evidence_id],
+                    "item_ids": ["item-1"],
+                    "pages": [1],
+                    "modalities": ["table"],
+                    "path": "wiki/sources/source.md",
+                    "wiki_paths": ["wiki/analyses/项目分析.md"],
+                }
+            ],
+            "retrieval": {
+                "mode": "hybrid",
+                "wiki_navigation": [
+                    {
+                        "path": "wiki/analyses/项目分析.md",
+                        "title": "项目分析",
+                    }
+                ],
+            },
+            "model": "test-model",
+        }
+
+        rendered = render_query_html(
+            record,
+            "http://127.0.0.1:19828",
+            evidence=1,
+            view="wiki",
+        ).decode("utf-8")
+
+        self.assertIn("grid-template-columns", rendered)
+        self.assertIn("问答与证据核验", rendered)
+        self.assertIn("预算为300万元", rendered)
+        self.assertIn("Evidence 1", rendered)
+        self.assertIn("项目分析", rendered)
+        self.assertIn("<iframe", rendered)
+        self.assertIn("wiki/analyses/%E9%A1%B9%E7%9B%AE%E5%88%86%E6%9E%90.md", rendered)
+        self.assertIn("Wiki 页面", rendered)
+        self.assertIn("原始 Evidence", rendered)
+        self.assertIn("/query/view?id=query-test", query_view_url("query-test"))
 
     def test_resolve_vault_path_rejects_escape_and_wrong_prefix(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

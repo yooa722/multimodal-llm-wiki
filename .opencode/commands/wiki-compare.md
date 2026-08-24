@@ -5,7 +5,3 @@ subtask: false
 ---
 
 请展示文本 LLM Wiki 基线与多模态增量方案的效果和成本对比。
-
-<!-- mmwiki-action
-tool: wiki_compare
--->

@@ -6,6 +6,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from .config import detect_visual_intent
 from .models import SearchHit
 from .visual_evidence import iter_retrieval_chunks
 
@@ -250,9 +251,7 @@ class Retriever:
     ) -> list[SearchHit]:
         query_tokens = tokens(query)
         query_labels = reference_labels(query)
-        visual_intent = any(
-            word in query.casefold() for word in ("图", "图片", "图表", "figure", "chart", "image")
-        )
+        visual_intent = detect_visual_intent(query).is_visual
         table_intent = any(
             word in query.casefold() for word in ("表", "表格", "table", "行", "列")
         )

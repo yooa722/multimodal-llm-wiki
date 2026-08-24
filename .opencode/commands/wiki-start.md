@@ -5,7 +5,3 @@ subtask: false
 ---
 
 请带我快速了解如何使用多模态 LLM Wiki。
-
-<!-- mmwiki-action
-tool: wiki_start
--->

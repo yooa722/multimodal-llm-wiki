@@ -13,7 +13,7 @@
 | 存储 | Markdown Wiki 页面、不可变 Raw、副本资源、运行状态、文本/视觉索引 |
 | 查询 | 先定位 Wiki 页面，再回读 Chunk、Item、Asset 原始 Evidence |
 | 交互 | OpenCode Desktop + `multimodal-wiki` Skill + 类型化 `wiki_*` 工具 |
-| 输出 | 结论、Wiki 定位、Evidence ID、完整表格/原图和运行信息 |
+| 输出 | 结论、知识入口、编号证据卡片、完整表格/原图和运行信息 |
 
 > OpenCode 是操作入口，不保存知识；Wiki 页面负责组织知识，原始 Evidence 负责证明答案。
 
@@ -118,7 +118,7 @@ flowchart LR
     O --> P["01  Wiki 页面定位<br/>Page BM25 · Page Embedding"]
     P --> E["02  Evidence 检索与原件回读<br/>BM25 · Vector · RRF · Rerank<br/>文字 · 表格 · 公式 · 原图"]
     E --> A["03  模型回答与引用校验<br/>Text LLM / VLM<br/>Evidence ID · Source Version"]
-    A --> X(["OpenCode 展示<br/>结论 · Wiki 定位 · Evidence · 运行信息"])
+    A --> X(["OpenCode 展示<br/>结论 · 知识入口 · 证据卡片 · 运行信息"])
     X -.-> H["点击查看<br/>Wiki 页面 · 原图<br/>127.0.0.1:19828"]
 
     class U,H neutral
@@ -140,7 +140,7 @@ flowchart LR
 | 组件 | 职责 | 不负责 |
 |---|---|---|
 | OpenCode | 接收自然语言和 `/wiki-*` 命令 | 不保存 Wiki，不直接实现检索 |
-| Skill 与 `wiki-presenter` | 选择类型化工具、约束调用顺序和展示格式 | 不生成事实，不改写工具结果 |
+| Skill 与 Presenter Agent | 自由问答由专用 Agent 调用类型化工具，其余演示命令由通用 Agent 处理 | 不展示底层路由参数，不生成事实，不改写工具结果 |
 | 类型化 `wiki_*` 工具 | 校验参数并安全调用 Python | 不用 Shell 拼接用户问题 |
 | Python Wiki Pipeline | 构建页面、维护状态、检索 Evidence、调用模型 | 不修改上游 Source Package |
 | Wiki 页面 | 组织概念、实体、分析和页面关系 | 不作为最终事实证明 |
@@ -181,7 +181,8 @@ flowchart LR
 ├── .opencode/
 │   ├── skills/multimodal-wiki/    # OpenCode 项目级 Skill
 │   ├── commands/                  # /wiki-* 中文命令（统一使用 auto）
-│   ├── agents/wiki-presenter.md   # 低温度，只调用类型化 Wiki 工具
+│   ├── agents/wiki-query-presenter.md # /wiki-ask 专用，用户气泡只保留问题
+│   ├── agents/wiki-presenter.md   # 其余演示命令的低温度工具 Agent
 │   ├── plugins/wiki-result-passthrough.ts # 最终 Markdown 确定性透传
 │   └── tools/wiki.ts              # 类型化 OpenCode 工具
 ├── evaluation/                    # 检索与问答评测集
@@ -347,7 +348,17 @@ python3 app.py build-index --source-id <package-id> \
   --vlm on --vector-retrieval on
 ```
 
-当 `--vlm on` 时，普通 `multimodal` 阶段会对非公式图片执行串行 OCR，并让现有视觉模型按 `MMWIKI_VISION_BATCH_SIZE` 分批生成 Image Caption。结果保存为 `state.sources[package_id].visual_evidence`，并在 Evidence 页的原始 Caption 下展示：
+当 `--vlm on` 时，`multimodal` 阶段先识别资源类型，再按成本策略生成持久表示。普通构建由视觉模型按 `MMWIKI_VISION_BATCH_SIZE` 分批处理；`--full-scale` 直接复用页面级视觉分析中的图片注释，不额外重复调用一次视觉模型。处理计划和结果保存到 `state.sources[package_id].visual_evidence`，并在 Evidence 页的原始 Caption 下展示：
+
+| 资源类型 | 主表示 | 持久处理策略 |
+|---|---|---|
+| 自然图片 | VLM Caption | Caption 优先；OCR 默认按需，不在构建时调用 |
+| 流程图、图表 | OCR + VLM Caption | 同时提取图中文字与整体结构语义 |
+| 表格截图 | `rows/cells/html` 结构化表格 | 结构化结果优先；OCR 仅辅助核对，不默认生成普通 Caption |
+| 公式 | LaTeX | 不默认生成普通 Caption 或 OCR |
+| 页面截图 | OCR + VLM Caption | 同时保留页面文字和版面语义 |
+
+类型优先读取 Source Package 的 `metadata.visual_type/resource_type/image_type`；未提供时再根据 Item 类型、Caption 和 breadcrumb 做保守判断。每条派生 Evidence 均记录 `processing_policy`，运行统计会给出各类型数量、计划 OCR 数和计划 Caption 数。
 
 ```markdown
 **原始 Caption：** (b) ReToken achieves more than 3x recall...
@@ -361,7 +372,7 @@ Layer 14 附近的 Recall@1 约为 6.8%。
 
 `Image Caption` 和 `Image OCR` 会作为图片的派生子 Evidence 进入 BM25；配置文本向量模型并开启向量检索后，也会进入文本向量索引，但不会重复建立视觉向量。查询 `6.8` 时命中的派生记录仍通过父级 Item、Chunk 和 Asset 返回原图。
 
-图片内容按 SHA-256 缓存在 `runtime/build-cache/visual/`。相同图片、模型、任务和提示词版本不重复调用 OCR/VLM；单张图片或单个批次失败会保留失败状态，不阻断其他图片处理。`--vlm off` 时不调用 OCR 或 VLM，默认关闭向量检索也不会删除已有索引。
+图片内容按 SHA-256 缓存在 `runtime/build-cache/visual/`。相同图片、模型、任务和提示词版本不重复调用 OCR/VLM；单张图片或单个批次失败会保留失败状态，不阻断其他图片处理。Pipeline 还会保存不含密钥的视觉构建契约与签名；同一来源先以 `--vlm off` 构建、再切换为 `--vlm on` 时会补建派生视觉 Evidence，而不会被错误判定为 `unchanged`。默认关闭向量检索不会删除已有索引。
 
 验证图片证据检索：
 
@@ -371,7 +382,7 @@ python3 app.py search "哪个图片提到了6.8" \
   --top-k 5
 ```
 
-当前 OCR Evidence 接入以普通 `multimodal` 构建路径为主；`--full-scale` 仍使用原有按页视觉分析流程，不额外重复发起 OCR/VLM 请求。
+`--full-scale` 按页读取全部原图并统一编译 Wiki，同时将页面级分析结果复用为持久 Caption 子 Evidence；OCR 独立执行，但不再为 Caption 增加第二轮视觉模型调用。重复执行相同来源版本和构建签名时直接返回 `unchanged`，模型调用为 0。
 
 如果现有 Evidence 索引完整、只缺少独立 Wiki 页面向量，执行：
 
@@ -411,10 +422,12 @@ python3 app.py build-wiki-index --vector-retrieval on
 
 正式回答固定包含：
 
-1. **结论**：直接回答，或明确说明证据不足。
-2. **Wiki 定位**：展示用于确定知识位置的页面。
-3. **原始 Evidence**：展示 Evidence ID、完整表格或命中的原图。
+1. **结论**：直接回答，或明确说明证据不足；事实后使用 `〔1〕` 短引用。
+2. **知识入口**：只展示最多两个最相关的 Wiki 页面，不显示内部检索通道和长摘要。
+3. **证据依据**：正文中的 `〔1〕` 直接对应下方 `〔1〕` 证据卡片，不再增加重复的引用索引。卡片集中展示来源、页码、类型、Evidence ID、Wiki/原图链接和完整表格；图片卡片先展示原图，再分别标注 VLM 理解、OCR 文字和 MinerU 原始 Caption 及其来源。
 4. **运行信息**：展示检索模式、模型、回退、延迟和 Token。
+
+OpenCode 对话是默认的完整问答页面，用户不离开 OpenCode 也能看完结论、证据、表格和图片。双栏核验页可在“Wiki 页面”和“原始 Evidence”之间切换，并可在多个证据编号之间切换，但它只是可选的进一步核验入口。
 
 更详细的桌面版操作说明见 [OPENCODE_START_HERE.md](OPENCODE_START_HERE.md)。
 
@@ -426,7 +439,7 @@ python3 app.py build-wiki-index --vector-retrieval on
 | `hybrid` | Wiki 页面语义导航、文本向量、RRF 和文本 Rerank | 显式开启向量后的文字、事实、表格语义和跨语言问题 |
 | `multimodal` | Hybrid、视觉融合向量和视觉 Rerank | 颜色、布局、箭头、曲线、形状和像素细节 |
 
-Hybrid 在检索阶段不读取图片像素，但最终回答仍可回读命中 Evidence 关联的原图。Multimodal 从召回和重排阶段开始使用视觉信息，因此成本和延迟通常更高。
+Hybrid 在检索与回答阶段都优先使用文本、结构化表格、OCR 和 Caption，不读取图片像素；Multimodal 才会在召回、重排和回答阶段使用视觉信息，因此成本和延迟通常更高。`auto` 统一识别颜色/深浅、位置/方向、箭头/连接、曲线/趋势、物体/场景及视觉数量/空间关系：明确视觉问题直接进入 Multimodal，普通文字、数字和表格问题进入 Hybrid。若 Hybrid 回答明确判断证据不足、候选 Evidence 又关联原图，系统可再自动升级一次 Multimodal。运行信息会同时记录请求模式、初始模式、实际模式、路由依据、升级链路和回退原因。
 
 ## CLI 与本地 API
 
@@ -449,6 +462,7 @@ python3 app.py api --host 127.0.0.1 --port 19828
 |---|---|---|
 | `GET` | `/api/v1/health` | 模型与索引状态 |
 | `GET` | `/api/v1/sources` | 已摄入来源 |
+| `GET` | `/query/view?id=...&evidence=1` | 左侧问答、右侧 Wiki/Evidence 的双栏核验页 |
 | `GET` | `/wiki/view?path=wiki/...md` | 渲染 Wiki 页面和 WikiLink |
 | `GET` | `/api/v1/media/assets/...` | 返回原始视觉 Evidence |
 | `POST` | `/api/v1/search` | Wiki 导航与 Evidence 检索 |

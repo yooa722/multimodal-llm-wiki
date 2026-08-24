@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 from pathlib import Path
 
+from mmwiki.config import FeatureConfig
 from mmwiki.contracts import load_package
 from mmwiki.pipeline import PipelineError, WikiPipeline
 
@@ -152,7 +153,140 @@ def make_package(root: Path) -> Path:
     return package
 
 
+class FakeVisualBuildProvider:
+    calls = 0
+
+    def __init__(self, root: Path, task: str):
+        self.task = task
+        self.model = f"fake-{task}"
+        self.configured = True
+
+    def analyze_wiki(self, title, evidence, catalog, schema, images, stage):
+        type(self).calls += 1
+        return {
+            "summary": f"{title} 分析",
+            "claims": [],
+            "entities": [],
+            "concepts": [],
+            "contradictions": [],
+            "page_actions": [],
+            "image_annotations": [
+                {
+                    "asset_id": image["asset_id"],
+                    "evidence_id": image["evidence_id"],
+                    "caption": "架构图包含输入和输出",
+                }
+                for image in images
+            ],
+            "_usage": {"total_tokens": 1},
+        }
+
+    def compile_wiki(
+        self,
+        title,
+        analysis,
+        evidence,
+        existing_pages,
+        schema,
+        **kwargs,
+    ):
+        type(self).calls += 1
+        return {
+            "summary": f"{title} 编译",
+            "pages": [],
+            "_usage": {"total_tokens": 1},
+        }
+
+
+class FakeVisualOCRProvider:
+    calls = 0
+    model = "fake-ocr"
+    task = "text_recognition"
+    configured = True
+    min_pixels = 3072
+    max_pixels = 8388608
+
+    def __init__(self, root: Path):
+        pass
+
+    def recognize(self, data_url):
+        type(self).calls += 1
+        return "输入 输出", {"total_tokens": 1}
+
+
 class StagedIngestTests(unittest.TestCase):
+    def test_natural_image_skips_persistent_ocr_but_keeps_caption(self) -> None:
+        class NeverOCR:
+            calls = 0
+            model = "fake-ocr"
+            task = "text_recognition"
+            configured = True
+
+            def __init__(self, root):
+                pass
+
+            def recognize(self, data_url):
+                type(self).calls += 1
+                return "不应调用", {"total_tokens": 1}
+
+        class CaptionVision:
+            calls = 0
+            configured = True
+            model = "fake-vlm"
+
+            def analyze_wiki(self, title, evidence, catalog, schema, images, stage):
+                type(self).calls += 1
+                return {
+                    "summary": "自然图片摘要",
+                    "claims": [],
+                    "entities": [],
+                    "concepts": [],
+                    "contradictions": [],
+                    "page_actions": [],
+                    "image_annotations": [
+                        {
+                            "asset_id": images[0]["asset_id"],
+                            "evidence_id": images[0]["evidence_id"],
+                            "caption": "草地上的奶牛与车辆",
+                        }
+                    ],
+                }
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_path = make_package(root)
+            records = [
+                json.loads(line)
+                for line in (package_path / "items.jsonl").read_text(
+                    encoding="utf-8"
+                ).splitlines()
+            ]
+            records[-1]["content"]["caption"] = "A cow beside a vehicle"
+            records[-1]["content"]["search_text"] = "A cow beside a vehicle"
+            write_jsonl(package_path / "items.jsonl", records)
+            package = load_package(package_path)
+            pipeline = WikiPipeline(root)
+            assets = pipeline._copy_assets(package, {"asset-1"})
+            evidence = pipeline._builder_evidence(package, {"image-1"})
+            with patch("mmwiki.pipeline.QwenOCRProvider", NeverOCR):
+                visual_evidence, stats, _, api_calls = pipeline._build_visual_evidence(
+                    package,
+                    evidence,
+                    assets,
+                    {"pages": {}},
+                    "schema",
+                    CaptionVision(),
+                )
+
+        by_kind = {record["kind"]: record for record in visual_evidence}
+        self.assertEqual(NeverOCR.calls, 0)
+        self.assertEqual(CaptionVision.calls, 1)
+        self.assertEqual(api_calls, 1)
+        self.assertEqual(by_kind["image_ocr"]["status"], "skipped")
+        self.assertFalse(by_kind["image_ocr"]["searchable"])
+        self.assertEqual(by_kind["image_caption"]["status"], "ready")
+        self.assertEqual(stats["policy_counts"], {"natural_image": 1})
+
     def test_visual_evidence_builds_ocr_and_caption_once_per_asset(self) -> None:
         class FakeOCR:
             calls = 0
@@ -333,6 +467,105 @@ class StagedIngestTests(unittest.TestCase):
             unchanged = pipeline.ingest(package, stage="multimodal")
             self.assertEqual(unchanged["status"], "unchanged")
             self.assertEqual(unchanged["build_metrics"]["api_calls"], 0)
+
+    def test_full_scale_also_persists_ocr_and_caption_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = make_package(root)
+            pipeline = WikiPipeline(
+                root,
+                FeatureConfig(enable_vlm=True, enable_vector_retrieval=False),
+            )
+            pipeline.ingest(package, stage="text")
+            FakeVisualBuildProvider.calls = 0
+            FakeVisualOCRProvider.calls = 0
+
+            with (
+                patch(
+                    "mmwiki.pipeline.OpenAICompatibleProvider",
+                    FakeVisualBuildProvider,
+                ),
+                patch("mmwiki.pipeline.QwenOCRProvider", FakeVisualOCRProvider),
+            ):
+                result = pipeline.ingest(
+                    package,
+                    provider="api",
+                    stage="multimodal",
+                    full_scale=True,
+                )
+                repeated = pipeline.ingest(
+                    package,
+                    provider="api",
+                    stage="multimodal",
+                    full_scale=True,
+                )
+
+            source = pipeline._load_state()["sources"]["staged-demo"]
+            self.assertEqual(result["status"], "ingested")
+            self.assertEqual(repeated["status"], "unchanged")
+            self.assertEqual(repeated["build_metrics"]["api_calls"], 0)
+            self.assertEqual(len(source["visual_evidence"]), 2)
+            self.assertTrue(
+                all(record["status"] == "ready" for record in source["visual_evidence"])
+            )
+            self.assertTrue(source["visual_build_signature"])
+            self.assertEqual(
+                source["visual_analysis"]["persistent_evidence"]["analyzed_images"],
+                1,
+            )
+            self.assertEqual(FakeVisualOCRProvider.calls, 1)
+            # One page-level analysis plus one final compilation: the persistent
+            # Caption must reuse the page analysis instead of calling the VLM again.
+            self.assertEqual(FakeVisualBuildProvider.calls, 2)
+
+    def test_enabling_vlm_rebuilds_same_api_multimodal_stage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = make_package(root)
+            pipeline = WikiPipeline(
+                root,
+                FeatureConfig(enable_vlm=False, enable_vector_retrieval=False),
+            )
+            pipeline.ingest(package, stage="text")
+            FakeVisualBuildProvider.calls = 0
+            FakeVisualOCRProvider.calls = 0
+
+            with patch(
+                "mmwiki.pipeline.OpenAICompatibleProvider",
+                FakeVisualBuildProvider,
+            ):
+                first = pipeline.ingest(
+                    package,
+                    provider="api",
+                    stage="multimodal",
+                )
+            first_source = pipeline._load_state()["sources"]["staged-demo"]
+            self.assertEqual(first["status"], "ingested")
+            self.assertEqual(first_source["visual_evidence"], [])
+            self.assertEqual(first_source["visual_build_signature"], "")
+
+            pipeline.features = FeatureConfig(
+                enable_vlm=True,
+                enable_vector_retrieval=False,
+            )
+            with (
+                patch(
+                    "mmwiki.pipeline.OpenAICompatibleProvider",
+                    FakeVisualBuildProvider,
+                ),
+                patch("mmwiki.pipeline.QwenOCRProvider", FakeVisualOCRProvider),
+            ):
+                enhanced = pipeline.ingest(
+                    package,
+                    provider="api",
+                    stage="multimodal",
+                )
+
+            enhanced_source = pipeline._load_state()["sources"]["staged-demo"]
+            self.assertEqual(enhanced["status"], "ingested")
+            self.assertTrue(enhanced_source["visual_build_signature"])
+            self.assertEqual(len(enhanced_source["visual_evidence"]), 2)
+            self.assertEqual(FakeVisualOCRProvider.calls, 1)
 
 
 if __name__ == "__main__":

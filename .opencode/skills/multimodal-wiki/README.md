@@ -12,7 +12,7 @@
 |---|---|
 | OpenCode | 接收自然语言和 `/wiki-*` 命令，承载 Agent 与工具调用 |
 | `multimodal-wiki` Skill | 对外封装 Wiki 能力，定义工作流、工具选择、证据要求、安全边界和结果格式 |
-| `wiki-presenter` Agent | 根据命令和 Skill 约束调用一个类型化 `wiki_*` 工具 |
+| Presenter Agent | `wiki-query-presenter` 处理自由问答；`wiki-presenter` 处理其余演示命令 |
 | 类型化工具 | 校验结构化参数，安全调用 Python，不使用 Shell 拼接用户问题 |
 | Python Wiki 管线 | 执行构建、页面导航、Evidence 检索、模型调用和 Citation 校验 |
 | Wiki 页面与 Evidence | 分别承担知识组织和事实证明 |
@@ -30,7 +30,7 @@ flowchart LR
     P --> W["Wiki 页面定位<br/>Page BM25 · Page Embedding"]
     W --> E["原始 Evidence 回读<br/>Chunk · Item · Asset"]
     E --> M["模型回答与引用校验<br/>Text LLM / VLM · Citation"]
-    M --> R(["结果透传 → OpenCode 展示<br/>结论 · Wiki 定位 · Evidence · 运行信息"])
+    M --> R(["结果透传 → OpenCode 展示<br/>结论 · 知识入口 · 证据卡片 · 运行信息"])
 
     class U neutral
     class O,P,W core
@@ -61,7 +61,8 @@ flowchart LR
 │   ├── scripts/demo.sh           # CLI 演示与本地服务入口
 │   └── agents/openai.yaml        # Skill 元数据
 ├── commands/wiki-*.md            # 用户可见的中文斜杠命令
-├── agents/wiki-presenter.md      # 只调用工具、不得重写结果的 Agent
+├── agents/wiki-query-presenter.md # /wiki-ask 专用；命令气泡只显示用户问题
+├── agents/wiki-presenter.md      # 其余演示命令的工具调用 Agent
 ├── tools/wiki.ts                 # 类型化 wiki_* 工具
 └── plugins/wiki-result-passthrough.ts # 最终结果确定性透传
 ```
@@ -84,14 +85,14 @@ runtime/raw/                 # 不可变来源副本
 
 以 `/wiki-ask 请解释 Figure 4 的数据流` 为例：
 
-1. `/wiki-ask` 展示自然语言问题，同时用不可见的 `mmwiki-action` 注释指定 `wiki_query`、`mode=auto` 和 `provider=api`。
-2. `wiki-presenter` 读取路由信息，只调用 `wiki_query`，不把问题拼成 Bash 命令。
+1. `/wiki-ask` 的命令正文只有用户输入，因此对话气泡只展示自然语言问题，不展示工具名、模式或 Provider。
+2. 专用 `wiki-query-presenter` 在系统指令中固定调用 `wiki_query`，并以结构化参数传入完整问题、`mode=auto` 和 `provider=api`；不把问题拼成 Bash 命令。
 3. `wiki_query` 通过结构化参数把完整问题传给 `tools/opencode_demo.py`，必要时启动 `127.0.0.1:19828` 本地展示服务。
 4. Python 管线先检索持久 Wiki 页面，得到相关知识范围和来源范围。
-5. 系统再检索 Chunk、Item 和 Asset Evidence。图片 OCR 与语义 Caption 作为派生子 Evidence 参与 BM25 和文本向量检索；命中后仍回到父级 Item、Chunk、Asset 和原图。普通事实与表格问题通常进入 Hybrid；颜色、箭头、布局和图内关系问题进入 Multimodal。
+5. 系统再检索 Chunk、Item 和 Asset Evidence。图片 OCR 与语义 Caption 作为派生子 Evidence 参与 BM25 和文本向量检索；命中后仍回到父级 Item、Chunk、Asset 和原图。普通事实与表格问题进入 Hybrid；颜色/深浅、位置/方向、箭头/连接、曲线/趋势、物体/场景以及视觉数量/空间关系问题进入 Multimodal。Hybrid 明确证据不足且命中原图时，允许自动升级一次 Multimodal。
 6. 模型只能依据候选 Evidence 生成答案。Citation 必须属于本次候选集合，否则查询失败。
-7. 后端生成完整 Markdown，固定包含“结论、Wiki 定位、原始 Evidence、运行信息”。
-8. `wiki-result-passthrough` 用工具原始输出替换模型的二次表述，OpenCode 最终展示完整表格、原图和可点击链接。
+7. 后端生成完整 Markdown：正文事实使用 `〔1〕` 短引用，并直接对应同一条 OpenCode 回答中的 `〔1〕` 证据卡片，不再重复生成引用索引。
+8. 图片 Evidence 使用标准 Markdown 直接在 OpenCode 回答中展示原图，无需先点击链接；同时将 MinerU Caption、Image OCR、VLM Caption 及来源标签分开展示，`wiki-result-passthrough` 保证这些内容不会被二次改写或删减。浏览器双栏页只作为可选的深度核验入口。
 
 ```mermaid
 %%{init: {"theme":"base","sequence":{"diagramMarginX":20,"actorMargin":32,"messageMargin":24},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
@@ -145,6 +146,7 @@ flowchart LR
 - 文本阶段不得读取图片像素或使用完整表格单元格；
 - 多模态阶段复用同一 `source_id + source_version + item_id`，不建立平行知识库；
 - OCR 与 Image Caption 只补充图片的可检索表示，不替代原始图片 Evidence，也不机械创建新 Wiki 页面；
+- 构建端按资源类型控制成本：自然图片 Caption 优先、OCR 按需；流程图/图表和页面截图执行 OCR + Caption；表格以结构化数据为主、OCR 辅助；公式以 LaTeX 为主；
 - 派生视觉 Evidence 存入 `runtime/state.json`，按图片 SHA-256 缓存于 `runtime/build-cache/visual/`；
 - 相同来源版本重复导入返回 `unchanged`，不重复调用模型；
 - 查询只追加运行日志，不自动把答案写入稳定知识页；
@@ -165,6 +167,8 @@ flowchart LR
 | `/wiki-image` | `wiki_query` | 演示原图理解 |
 | `/wiki-refuse` | `wiki_query` | 演示证据不足拒答 |
 | `/wiki-ask <问题>` | `wiki_query` | 自由图文问答 |
+
+斜杠命令正文只保留用户可读的自然语言；工具名、检索模式和 Provider 等路由规则由 Presenter Agent 在后台处理，不写入命令正文，因此不会出现在 OpenCode 的用户消息气泡中。
 
 `wiki_import` 没有固定演示命令，用于只读导入已有 Markdown Wiki，并结合 MinerU Source Package 中的 Caption 生成派生视图。
 

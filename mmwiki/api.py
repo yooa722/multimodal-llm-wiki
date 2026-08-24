@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import mimetypes
+import os
+import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -9,7 +11,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from .pipeline import PipelineError, WikiPipeline
 from .provider import OpenAICompatibleProvider, ProviderError
-from .web import render_wiki_html, resolve_vault_path
+from .web import render_query_html, render_wiki_html, resolve_vault_path
 
 
 def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> None:
@@ -21,6 +23,9 @@ def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> Non
         provider = OpenAICompatibleProvider(project_root, task)
         return {
             "status": "ok" if provider.configured else "needs_configuration",
+            "presentation_version": "split-query-v1",
+            "project_root": str(project_root.resolve()),
+            "server_pid": os.getpid(),
             "mode": "online_multimodal_qa" if pipeline.features.enable_vlm else "online_text_qa",
             "configured": provider.configured,
             "model": provider.model or None,
@@ -62,6 +67,35 @@ def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> Non
                 self._send(200 if value["configured"] else 503, value)
             elif request.path == "/api/v1/sources":
                 self._send(200, {"sources": pipeline.sources()})
+            elif request.path == "/query/view":
+                try:
+                    values = parse_qs(request.query)
+                    query_id = (values.get("id") or [""])[0]
+                    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", query_id):
+                        raise ValueError("Query ID 格式错误")
+                    evidence = int((values.get("evidence") or ["1"])[0])
+                    view = (values.get("view") or ["wiki"])[0]
+                    state = pipeline._load_state()
+                    record = next(
+                        (
+                            value
+                            for value in reversed(state.get("queries", []))
+                            if str(value.get("query_id") or "") == query_id
+                        ),
+                        None,
+                    )
+                    if record is None:
+                        raise FileNotFoundError(query_id)
+                    host = self.headers.get("Host", "127.0.0.1:19828")
+                    payload = render_query_html(
+                        record,
+                        f"http://{host}",
+                        evidence=evidence,
+                        view=view,
+                    )
+                    self._send_bytes(200, payload, "text/html; charset=utf-8")
+                except (ValueError, FileNotFoundError, OSError) as exc:
+                    self._send(404, {"error": "query_not_found", "message": str(exc)})
             elif request.path.startswith("/api/v1/media/"):
                 try:
                     relative = request.path.removeprefix("/api/v1/media/")

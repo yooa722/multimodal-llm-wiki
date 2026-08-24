@@ -4,6 +4,10 @@ import http from "node:http"
 import path from "path"
 
 
+const WIKI_SERVER_URL = "http://127.0.0.1:19828"
+const PRESENTATION_VERSION = "split-query-v1"
+
+
 function markdownResult(
   context: { metadata(input: { title?: string; metadata?: Record<string, unknown> }): void },
   title: string,
@@ -86,23 +90,123 @@ async function runCli(
 }
 
 
-async function wikiServerReady(): Promise<boolean> {
+async function wikiServerStatus(
+  worktree: string,
+): Promise<"ready" | "outdated" | "offline"> {
   return new Promise((resolve) => {
-    const request = http.get("http://127.0.0.1:19828/api/v1/health", (response) => {
-      response.resume()
-      resolve(response.statusCode === 200 || response.statusCode === 503)
+    const request = http.get(`${WIKI_SERVER_URL}/api/v1/health`, (response) => {
+      let body = ""
+      response.setEncoding("utf8")
+      response.on("data", (chunk: string) => {
+        body += chunk
+      })
+      response.on("end", () => {
+        if (response.statusCode !== 200 && response.statusCode !== 503) {
+          resolve("offline")
+          return
+        }
+        try {
+          const value = JSON.parse(body) as {
+            presentation_version?: string
+            project_root?: string
+          }
+          const currentProject = value.project_root
+            ? path.resolve(value.project_root)
+            : ""
+          resolve(
+            value.presentation_version === PRESENTATION_VERSION &&
+              currentProject === path.resolve(worktree)
+              ? "ready"
+              : "outdated",
+          )
+        } catch {
+          resolve("outdated")
+        }
+      })
     })
     request.setTimeout(500, () => {
       request.destroy()
-      resolve(false)
+      resolve("offline")
     })
-    request.on("error", () => resolve(false))
+    request.on("error", () => resolve("offline"))
   })
 }
 
 
+async function capture(command: string, args: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      shell: false,
+      stdio: ["ignore", "pipe", "pipe"],
+    })
+    let stdout = ""
+    let stderr = ""
+    child.stdout.setEncoding("utf8")
+    child.stderr.setEncoding("utf8")
+    child.stdout.on("data", (chunk: string) => {
+      stdout += chunk
+    })
+    child.stderr.on("data", (chunk: string) => {
+      stderr += chunk
+    })
+    child.on("error", reject)
+    child.on("close", (exitCode) => {
+      if (exitCode !== 0 && !stdout.trim()) {
+        reject(new Error(stderr.trim() || `${command} exited with ${exitCode}`))
+        return
+      }
+      resolve(stdout.trim())
+    })
+  })
+}
+
+
+async function stopOutdatedWikiServer(worktree: string): Promise<void> {
+  let listeners = ""
+  try {
+    listeners = await capture("lsof", ["-tiTCP:19828", "-sTCP:LISTEN"])
+  } catch {
+    throw new Error("检测到旧版 Wiki 展示服务，但无法定位其进程。请退出旧服务后重试。")
+  }
+  const pids = listeners
+    .split(/\s+/)
+    .map((value) => Number.parseInt(value, 10))
+    .filter((value) => Number.isInteger(value) && value > 0)
+  let stopped = false
+  for (const pid of pids) {
+    let cwd = ""
+    try {
+      const details = await capture("lsof", ["-a", "-p", String(pid), "-d", "cwd", "-Fn"])
+      const cwdLine = details.split("\n").find((line) => line.startsWith("n"))
+      cwd = cwdLine ? cwdLine.slice(1) : ""
+    } catch {
+      continue
+    }
+    if (!cwd || path.resolve(cwd) !== path.resolve(worktree)) continue
+    try {
+      process.kill(pid, "SIGTERM")
+      stopped = true
+    } catch (error) {
+      throw new Error(`无法结束本项目的旧版 Wiki 展示服务（PID ${pid}）：${String(error)}`)
+    }
+  }
+  if (!stopped) {
+    throw new Error("端口 19828 被其他目录的服务占用，已停止自动替换以保护其他项目。")
+  }
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    if (await wikiServerStatus(worktree) === "offline") return
+  }
+  throw new Error("本项目的旧版 Wiki 展示服务未能正常退出。")
+}
+
+
 async function ensureWikiServer(worktree: string): Promise<void> {
-  if (await wikiServerReady()) return
+  const initialStatus = await wikiServerStatus(worktree)
+  if (initialStatus === "ready") return
+  if (initialStatus === "outdated") {
+    await stopOutdatedWikiServer(worktree)
+  }
   const child = spawn(
     "python3",
     ["app.py", "api", "--host", "127.0.0.1", "--port", "19828"],
@@ -116,7 +220,7 @@ async function ensureWikiServer(worktree: string): Promise<void> {
   child.unref()
   for (let attempt = 0; attempt < 30; attempt += 1) {
     await new Promise((resolve) => setTimeout(resolve, 100))
-    if (await wikiServerReady()) return
+    if (await wikiServerStatus(worktree) === "ready") return
   }
   throw new Error("无法启动本地 Wiki 展示服务 127.0.0.1:19828")
 }

@@ -73,19 +73,23 @@ Use `python3 app.py wiki-status` for `wiki_status`. CLI flags `--vlm on|off` and
    python3 app.py build-index --source-id <package-id> --vlm on --vector-retrieval on
    ```
 
-   During the normal multimodal stage, Qwen3.5-OCR extracts visible text and numbers while the configured vision model generates semantic Image Captions. The derived records are stored in `state.sources[package_id].visual_evidence`, exposed as child Evidence for BM25/text embeddings, and mapped back to the parent Item, Chunk, Asset, and original image. Do not build duplicate visual vectors for these text records. Reuse the SHA-256 cache under `runtime/build-cache/visual/`.
+   During a VLM-enabled multimodal stage, resolve a cost-aware policy before calling a model: natural images use VLM Caption first and persistent OCR only when parser metadata requests it; diagrams/charts and page screenshots use OCR + VLM Caption; table screenshots keep structured rows/cells/html as the primary representation and use OCR only as a check; formulas keep LaTeX and do not receive an ordinary Caption by default. The derived records and their `processing_policy` are stored in `state.sources[package_id].visual_evidence`, exposed as child Evidence for BM25/text embeddings, and mapped back to the parent Item, Chunk, Asset, and original image. Do not build duplicate visual vectors for these text records. Reuse the SHA-256 cache under `runtime/build-cache/visual/`.
 
 4. Report the stage metrics returned by the commands: elapsed time, API calls, token usage, page impact scope, active item/chunk/asset counts, and reused/new Wiki-page, Evidence-text and visual index records.
 
 If a valid Evidence index already exists and only the independent page-level index is missing or stale, run `python3 app.py build-wiki-index --vector-retrieval on`. This command must preserve all existing text and visual Evidence vectors and embed only changed Wiki pages.
 
-Use `--full-scale` only on the multimodal stage when every page image must be analyzed. The current `--full-scale` path keeps its page-level visual analysis and does not additionally run the OCR/Caption child-Evidence builder. Repeating the same source version should return `unchanged` with zero model calls.
+Use `--full-scale` only on the multimodal stage when every page image must be analyzed. It persists the same OCR/Caption child Evidence as the normal multimodal path, but reuses page-level image annotations for Caption instead of issuing a duplicate vision-model call. The stage records a secret-free visual-build contract and signature, so enabling VLM after a text-only/API build triggers the missing visual representation; repeating the same source version and signature returns `unchanged` with zero model calls.
 
 ## Query with evidence
 
 In OpenCode, call the typed `wiki_query` tool with `question`, `mode`, and `provider`. Never concatenate a user question into a shell command.
 
-The typed tool returns a titled result whose `output` is presentation-ready final Markdown. The `wiki-presenter` agent calls the tool, and the project-level `wiki-result-passthrough` plugin replaces the completed assistant text with that exact output. Do not summarize, rewrite, reorder, translate, or reconstruct it. Never drop its Wiki HTTP links, Evidence IDs, evidence excerpts, complete tables, image links/previews, or runtime table. This passthrough rule applies to every question type, not only demo cases.
+Use `auto` unless the user explicitly selects a mode. The backend owns the single visual-intent classifier: color/depth, left/right/up/down/position, arrows/connections, curves/bars/trends, objects/people/scenes, and visual quantity/spatial relations select Multimodal; ordinary text, number and structured-table facts select Hybrid. Hybrid answers must stay text-only. Only when the answer model declares the Hybrid evidence insufficient and a candidate Item has an original image may the pipeline upgrade once to Multimodal.
+
+Every `/wiki-*` command body must contain only user-facing natural language. Do not place tool names, parameters, `mmwiki-action` comments or other routing metadata in command bodies because OpenCode may display the expanded command as the user message. Keep tool selection and safety rules in the presenter agents. For `/wiki-ask`, the dedicated `wiki-query-presenter` calls `wiki_query` once with the complete question, `mode=auto`, and `provider=api`; never expose these internal parameters to the user or execute the question through Bash.
+
+The typed tool returns a titled result whose `output` is presentation-ready final Markdown. The presenter agent calls the tool, and the project-level `wiki-result-passthrough` plugin replaces the completed assistant text with that exact output. OpenCode is the primary answer surface: short citations such as `〔1〕` map directly to the matching `〔1〕` evidence card in the same assistant message, without a separate citation-index section. Each evidence card exposes source title, page, type, full Evidence ID, Wiki location and original-asset link. Image cards render the original image inline before the derived descriptions, and separately label VLM understanding, Image OCR and MinerU Caption with their provenance. The localhost split workspace is optional deep verification only; it is never required to read the answer or see its evidence. Do not summarize, rewrite, reorder, translate, or reconstruct this output. Never drop its Wiki HTTP links, Evidence IDs, evidence excerpts, complete tables, image links/previews, derived-description labels, or runtime table. This passthrough rule applies to every question type, not only demo cases.
 
 Run directly through the CLI:
 
@@ -100,15 +104,15 @@ Or start the localhost API for an interactive OpenCode demo:
 bash .opencode/skills/multimodal-wiki/scripts/demo.sh serve
 ```
 
-Always show the answer, Evidence IDs, source version, retrieval mode, model, latency, and whether fallback occurred. Never turn a query answer into a stable Wiki page automatically.
+Always show the answer, Evidence IDs, source version, requested/actual retrieval mode, routing or upgrade reason, model, latency, and whether fallback occurred. Never turn a query answer into a stable Wiki page automatically.
 
 The query order is fixed: rank persistent Wiki pages first (`page_bm25` and, when built, `page_embedding`), derive the relevant source scope, then retrieve Chunk/Item Evidence. A high-scoring Wiki page is orientation, not proof; the final answer must still cite raw Evidence.
 
 Use this fixed presentation order for every answer:
 
 1. **结论** — answer or explicit insufficient-evidence refusal.
-2. **Wiki 定位** — the stable/source/evidence-map pages used for orientation.
-3. **原始 Evidence** — Evidence IDs plus complete table rows/cells or original image links/previews.
+2. **知识入口** — at most two stable/source/evidence-map pages used for orientation; do not expose retrieval-channel names or long internal summaries.
+3. **证据依据** — numbered cards that directly match inline `〔n〕` citations and include source/page/type, full Evidence IDs, complete table rows/cells, and original image links/previews; visual cards show the original image first, then keep VLM understanding, OCR and MinerU Caption as separate labeled representations.
 4. **运行信息** — requested/actual retrieval mode, model, fallback, latency, and token usage.
 
 Do not present a caption as if it were the original image, or linearized text as if it were the complete table. For visual questions, preserve the exact matched image instead of substituting another asset from the same item.

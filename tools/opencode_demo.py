@@ -21,7 +21,7 @@ from mmwiki.provider import (
     ProviderError,
     normalize_math_markdown,
 )
-from mmwiki.web import media_url, wiki_view_url
+from mmwiki.web import media_url, query_view_url, wiki_view_url
 
 
 DEMO_CASES = {
@@ -72,6 +72,266 @@ def wiki_link(label: str, relative_path: str) -> str:
 def evidence_image(label: str, relative_path: str) -> str:
     url = media_url(relative_path)
     return f"[在浏览器中打开原图]({url})\n\n![{label}]({url})"
+
+
+def evidence_thumbnail(label: str, relative_path: str) -> str:
+    """Render an inline image preview that OpenCode can display directly."""
+
+    url = media_url(relative_path)
+    return f"![{label}]({url})"
+
+
+def _evidence_type(item: dict[str, Any], citation: dict[str, Any]) -> str:
+    raw = str(item.get("item_type") or "")
+    if not raw:
+        raw = str((citation.get("modalities") or ["未知"])[0])
+    return {
+        "paragraph": "文本",
+        "title": "标题",
+        "table": "表格",
+        "equation": "公式",
+        "formula": "公式",
+        "image": "图片",
+        "figure": "图片",
+        "chart": "图表",
+        "page_number": "页码",
+    }.get(raw, raw or "未知")
+
+
+def _evidence_page(item: dict[str, Any], citation: dict[str, Any]) -> str:
+    start = item.get("page_start")
+    end = item.get("page_end")
+    if start in (None, ""):
+        pages = citation.get("pages") or []
+        start = pages[0] if pages else None
+        end = pages[-1] if pages else None
+    if start in (None, ""):
+        return "未记录"
+    if end not in (None, "") and str(end) != str(start):
+        return f"第 {start}–{end} 页"
+    return f"第 {start} 页"
+
+
+def _supporting_pages(
+    state: dict[str, Any], source_id: str, evidence_id: str
+) -> list[dict[str, Any]]:
+    pages = []
+    for path, page in state.get("pages", {}).items():
+        if source_id not in set(map(str, page.get("source_ids", []))):
+            continue
+        if evidence_id not in set(map(str, page.get("evidence_ids", []))):
+            continue
+        pages.append({**page, "path": str(page.get("path") or path)})
+    return pages
+
+
+def _human_source_title(
+    state: dict[str, Any], source_id: str, evidence_id: str
+) -> str:
+    pages = _supporting_pages(state, source_id, evidence_id)
+    priority = {"entity": 0, "analysis": 1, "concept": 2}
+    if pages:
+        pages.sort(
+            key=lambda page: (
+                priority.get(str(page.get("kind") or ""), 9),
+                str(page.get("title") or ""),
+            )
+        )
+        if pages[0].get("title"):
+            return str(pages[0]["title"])
+    source = state.get("sources", {}).get(source_id, {})
+    return str(source.get("title") or source_id or "未记录")
+
+
+def _wiki_location(
+    state: dict[str, Any], citation: dict[str, Any], evidence_id: str, item_id: str
+) -> str:
+    source_id = str(citation.get("source_id") or "")
+    supporting = {
+        str(page.get("path") or ""): page
+        for page in _supporting_pages(state, source_id, evidence_id)
+    }
+    for path in citation.get("wiki_paths", []):
+        if str(path) in supporting:
+            return wiki_view_url(str(path))
+    path = str(citation.get("path") or "")
+    url = wiki_view_url(path)
+    if item_id:
+        url += "#" + quote(item_id, safe="-_.:")
+    return url
+
+
+def _visual_asset(
+    source: dict[str, Any], item: dict[str, Any], citation: dict[str, Any]
+) -> tuple[str, str]:
+    assets = source.get("assets", {})
+    item_asset_ids = [str(value) for value in item.get("asset_ids", [])]
+    preferred = str(citation.get("matched_asset_id") or "")
+    asset_id = preferred if preferred in item_asset_ids else ""
+    if not asset_id and item_asset_ids:
+        asset_id = item_asset_ids[0]
+    asset_path = str(assets.get(asset_id, {}).get("vault_path") or "")
+    if not asset_path:
+        asset_path = str(citation.get("matched_asset_path") or "")
+    if not asset_path:
+        asset_path = str(((citation.get("asset_paths") or [""])[0]))
+    if not asset_id and asset_path:
+        asset_id = next(
+            (
+                str(candidate_id)
+                for candidate_id, record in assets.items()
+                if str(record.get("vault_path") or "") == asset_path
+            ),
+            "",
+        )
+    return asset_id, asset_path
+
+
+def _derived_visual_record(
+    source: dict[str, Any], asset_id: str, kind: str
+) -> dict[str, Any]:
+    return next(
+        (
+            record
+            for record in source.get("visual_evidence", [])
+            if str(record.get("asset_id") or "") == asset_id
+            and str(record.get("kind") or "") == kind
+        ),
+        {},
+    )
+
+
+def _derived_source_label(record: dict[str, Any], fallback: str) -> str:
+    provenance = record.get("provenance") or {}
+    model = str(provenance.get("model") or "")
+    task = str(provenance.get("task") or "")
+    details = " · ".join(value for value in (fallback, model, task) if value)
+    return details or "未记录"
+
+
+def _derived_visual_text(record: dict[str, Any]) -> str:
+    text = str(record.get("text") or "").strip()
+    if text:
+        return text
+    if not record:
+        return "尚未构建"
+    status = str(record.get("status") or "").strip().lower()
+    policy = record.get("processing_policy") or {}
+    reason = str(
+        record.get("reason")
+        or record.get("skip_reason")
+        or policy.get("reason")
+        or ""
+    ).strip()
+    error = str(record.get("error") or "").strip()
+    if status == "skipped":
+        return f"按处理策略未执行：{reason}" if reason else "按处理策略未执行"
+    if status == "error":
+        return f"生成失败：{error}" if error else "生成失败"
+    if status == "missing":
+        return f"暂不可用：{error}" if error else "暂不可用"
+    return "尚未构建"
+
+
+def _answer_with_numbered_citations(
+    answer: str, evidence_ids: list[str]
+) -> str:
+    rendered = answer
+    mapped: set[int] = set()
+    for index, evidence_id in enumerate(evidence_ids, start=1):
+        # OpenCode Desktop delegates HTTP links to the operating system. Keep
+        # the primary citation-to-Evidence reading path inside the answer.
+        marker = f"〔{index}〕"
+        variants = (
+            f"〔{evidence_id}〕",
+            f"【{evidence_id}】",
+            f"`{evidence_id}`",
+            evidence_id,
+        )
+        for variant in variants:
+            if variant in rendered:
+                rendered = rendered.replace(variant, marker)
+                mapped.add(index)
+    missing = [
+        f"〔{index}〕"
+        for index in range(1, len(evidence_ids) + 1)
+        if index not in mapped
+    ]
+    if len(missing) == 1 and len(evidence_ids) == 1:
+        rendered = rendered.rstrip() + missing[0]
+    elif missing:
+        rendered = rendered.rstrip() + "\n\n**引用：** " + " ".join(missing)
+    return rendered
+
+
+def _evidence_label(entry: dict[str, Any]) -> str:
+    item = entry.get("item") or {}
+    citation = entry.get("citation") or {}
+    item_type = str(item.get("item_type") or "")
+    if item_type in {"image", "figure", "chart"}:
+        caption = str(item.get("caption") or "").strip()
+        for separator in ("：", ":"):
+            head, found, _ = caption.partition(separator)
+            if found and 1 <= len(head.strip()) <= 60:
+                return head.strip()
+    title = str(citation.get("title") or "").strip()
+    if " > " in title:
+        title = title.rsplit(" > ", 1)[-1].strip()
+    if title:
+        return title if len(title) <= 60 else title[:57].rstrip() + "…"
+    return str(entry.get("source_title") or "原始证据")
+
+
+def _quote_block(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return "> 未提供"
+    return "\n".join(f"> {line}" if line else ">" for line in text.splitlines())
+
+
+def _evidence_entries(
+    result: dict[str, Any], state: dict[str, Any]
+) -> list[dict[str, Any]]:
+    citations = result.get("citations", [])
+    cited_order = [str(value) for value in result.get("evidence_refs", [])]
+    if not cited_order:
+        cited_order = [
+            str(evidence_id)
+            for citation in citations
+            for evidence_id in citation.get("evidence_ids", [])
+        ]
+    cited_order = list(dict.fromkeys(value for value in cited_order if value))
+    entries: list[dict[str, Any]] = []
+    for evidence_id in cited_order:
+        citation = next(
+            (
+                value
+                for value in citations
+                if evidence_id in set(map(str, value.get("evidence_ids", [])))
+            ),
+            {},
+        )
+        source_id = str(citation.get("source_id") or evidence_id.partition("@")[0])
+        item_id = evidence_id.partition("#")[2].partition("#")[0]
+        source = state.get("sources", {}).get(source_id, {})
+        item = find_item(state, source_id, item_id)
+        asset_id, asset_path = _visual_asset(source, item, citation)
+        entries.append(
+            {
+                "evidence_id": evidence_id,
+                "citation": citation,
+                "source": source,
+                "source_title": _human_source_title(state, source_id, evidence_id),
+                "item": item,
+                "item_id": item_id,
+                "page": _evidence_page(item, citation),
+                "type": _evidence_type(item, citation),
+                "wiki_url": _wiki_location(state, citation, evidence_id, item_id),
+                "asset_id": asset_id,
+                "asset_path": asset_path,
+            }
+        )
+    return entries
 
 
 def api_health() -> dict[str, Any]:
@@ -471,72 +731,119 @@ def render_live_result(result: dict[str, Any]) -> str:
     retrieval = result.get("retrieval", {})
     navigation = retrieval.get("wiki_navigation", [])
     citations = result.get("citations", [])
+    state = WikiPipeline(PROJECT_ROOT)._load_state() if citations else {}
+    evidence_entries = _evidence_entries(result, state) if citations else []
     answer = normalize_math_markdown(str(result.get("answer") or "未生成回答"))
+    answer = _answer_with_numbered_citations(
+        answer,
+        [str(entry["evidence_id"]) for entry in evidence_entries],
+    )
     lines = [
-        "# 多模态 Wiki 现场问答",
+        "# 多模态 Wiki 回答",
         "",
         f"> **问题：** {question}",
         "",
-        f"## 结论（最终回答）\n\n{answer}",
+        f"## 结论\n\n{answer}",
         "",
-        "## Wiki 定位",
+        "## 知识入口",
         "",
     ]
     if navigation:
-        for page in navigation[:4]:
-            channels = ", ".join(page.get("navigation_channels", []))
-            channel_text = f" · `{channels}`" if channels else ""
-            lines.append(
-                f"- {wiki_link(page.get('title', page.get('path', 'Wiki 页面')), page.get('path', ''))}"
-                f"{channel_text}：{page.get('summary', '')}"
+        lines.append(
+            "　·　".join(
+                wiki_link(
+                    str(page.get("title") or page.get("path") or "Wiki 页面"),
+                    str(page.get("path") or ""),
+                )
+                for page in navigation[:2]
             )
+        )
+        lines.extend(
+            ["", "> Wiki 页面用于定位知识；下方证据卡片用于核验答案。"]
+        )
     else:
-        lines.append("- 未返回 Wiki 导航页。")
+        lines.append("未定位到可展示的 Wiki 页面；答案仍须以下方原始证据为准。")
 
-    lines.extend(["", "## 原始 Evidence", ""])
-    if citations:
-        state = WikiPipeline(PROJECT_ROOT)._load_state()
-        shown_assets: set[str] = set()
-        for index, citation in enumerate(citations[:8], start=1):
-            evidence_ids = citation.get("evidence_ids", [])
-            evidence = evidence_ids[0] if evidence_ids else citation.get("chunk_id", "")
-            source_id = citation.get("source_id", "")
-            item_id = (citation.get("item_ids") or [""])[0]
-            item = find_item(state, source_id, item_id)
-            evidence_url = wiki_view_url(citation.get("path", ""))
-            if item_id:
-                evidence_url += "#" + quote(item_id, safe="-_.:")
+    lines.extend(
+        [
+            "",
+            "## 证据依据",
+            "",
+        ]
+    )
+    if evidence_entries:
+        for index, entry in enumerate(evidence_entries, start=1):
+            citation = entry["citation"]
+            item = entry["item"]
+            asset_path = str(entry["asset_path"] or "")
+            label = _evidence_label(entry)
+            heading_parts = [label]
+            source_title = str(entry["source_title"] or "未记录")
+            if source_title.casefold() != label.casefold():
+                heading_parts.append(source_title)
+            heading_parts.extend([str(entry["page"]), str(entry["type"])])
             lines.extend(
                 [
-                    f"### Evidence {index}",
-                    "",
-                    f"- ID：`{evidence}`",
-                    f"- 类型：`{','.join(citation.get('modalities', []))}`",
-                    f"- 位置：[{citation.get('title', '打开原始 Evidence')}]({evidence_url})",
+                    f"### 〔{index}〕 " + "｜".join(heading_parts),
                 ]
             )
+            if result.get("query_id"):
+                detail_url = query_view_url(str(result["query_id"]), index)
+                actions = [f"[查看 Wiki 与证据]({detail_url})"]
+            else:
+                actions = [f"[查看 Wiki]({entry['wiki_url']})"]
+            if asset_path:
+                actions.append(f"[打开原图]({media_url(asset_path)})")
+            lines.extend(["", "　".join(actions)])
             normalized_snippet = normalize_math_markdown(
                 str(citation.get("snippet") or "")
             )
             snippet = normalize_math_markdown(" ".join(normalized_snippet.split()))
-            if snippet:
-                lines.extend(["", f"> 证据摘录：{snippet[:800]}"])
-            if item.get("table"):
-                lines.extend(["", markdown_table(item["table"]), ""])
-            asset = citation.get("matched_asset_path") or (
-                (citation.get("asset_paths") or [""])[0]
-            )
-            if asset and asset not in shown_assets and len(shown_assets) < 4:
-                shown_assets.add(asset)
+            visual_item = str(item.get("item_type") or "") in {
+                "image",
+                "figure",
+                "chart",
+            }
+            if visual_item and asset_path:
+                source = entry["source"]
+                asset_id = str(entry["asset_id"] or "")
+                ocr = _derived_visual_record(source, asset_id, "image_ocr")
+                vlm = _derived_visual_record(source, asset_id, "image_caption")
+                mineru_caption = str(item.get("caption") or "").strip()
                 lines.extend(
-                    ["", evidence_image(f"Evidence {index} 原始视觉内容", asset), ""]
+                    [
+                        "",
+                        evidence_thumbnail(f"〔{index}〕 {label} 原图", asset_path),
+                        "",
+                        "#### 图片解析",
+                        "",
+                        f"**VLM 理解**　`来源：{_derived_source_label(vlm, 'VLM')}`",
+                        "",
+                        _quote_block(_derived_visual_text(vlm)),
+                        "",
+                        f"**OCR 文字**　`来源：{_derived_source_label(ocr, 'OCR')}`",
+                        "",
+                        _quote_block(_derived_visual_text(ocr)),
+                        "",
+                        "**原始 Caption**　`来源：MinerU / Source Package`",
+                        "",
+                        _quote_block(mineru_caption or "未提供"),
+                        "",
+                    ]
                 )
-            lines.append("")
+            elif item.get("table"):
+                lines.extend(["", markdown_table(item["table"]), ""])
+            elif snippet:
+                lines.extend(["", f"> **证据摘录：** {snippet[:800]}"])
+            lines.extend(["", f"**Evidence ID：** `{entry['evidence_id']}`", ""])
     else:
         lines.append("- 没有足够 Evidence；不应把无依据内容写成确定事实。")
 
     usage = result.get("usage", {})
     fallback = retrieval.get("fallback_reason") or "无"
+    route_reason = retrieval.get("routing_reason") or "未记录"
+    transition = retrieval.get("mode_transition") or []
+    transition_text = " → ".join(map(str, transition)) if transition else "无"
     lines.extend(
         [
             "",
@@ -545,6 +852,8 @@ def render_live_result(result: dict[str, Any]) -> str:
             "| 字段 | 值 |",
             "|---|---|",
             f"| 检索模式 | 请求 `{retrieval.get('requested_mode', '')}` / 实际 `{retrieval.get('mode', '')}` |",
+            f"| 路由依据 | {route_reason} |",
+            f"| 模式升级 | {transition_text} |",
             f"| 回答模型 | `{result.get('model', '')}` |",
             f"| Wiki 导航 | `{retrieval.get('wiki_navigation_strategy', '未记录')}` |",
             f"| 回退 | {fallback} |",
@@ -570,7 +879,7 @@ def render_live(
 - 问题：{question}
 - 检索模式：`{selected_mode}`
 - 回答 Provider：`{provider}`
-- 输出：Wiki 定位 → 原始 Evidence → 最终回答 → 模型与耗时
+- 输出：结论 → 知识入口 → 证据卡片 → 运行信息
 """
     try:
         result = pipeline.query(question, 5, provider, None, selected_mode)

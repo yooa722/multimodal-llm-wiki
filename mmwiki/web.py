@@ -4,6 +4,7 @@ import html
 import posixpath
 import re
 from pathlib import Path, PurePosixPath
+from typing import Any
 from urllib.parse import quote, unquote
 
 
@@ -18,6 +19,177 @@ def wiki_view_url(relative_path: str, base_url: str = DEFAULT_DEMO_BASE_URL) -> 
 def media_url(relative_path: str, base_url: str = DEFAULT_DEMO_BASE_URL) -> str:
     encoded = quote(relative_path, safe="/")
     return f"{base_url.rstrip('/')}/api/v1/media/{encoded}"
+
+
+def query_view_url(
+    query_id: str,
+    evidence: int = 1,
+    view: str = "wiki",
+    base_url: str = DEFAULT_DEMO_BASE_URL,
+) -> str:
+    return (
+        f"{base_url.rstrip('/')}/query/view?id={quote(str(query_id), safe='-_.')}"
+        f"&evidence={max(1, int(evidence))}&view={'evidence' if view == 'evidence' else 'wiki'}"
+    )
+
+
+def _query_evidence_entries(record: dict[str, Any]) -> list[dict[str, Any]]:
+    citations = record.get("citations", [])
+    evidence_ids = [str(value) for value in record.get("evidence_refs", [])]
+    if not evidence_ids:
+        evidence_ids = [
+            str(evidence_id)
+            for citation in citations
+            for evidence_id in citation.get("evidence_ids", [])
+        ]
+    entries = []
+    for evidence_id in dict.fromkeys(value for value in evidence_ids if value):
+        citation = next(
+            (
+                value
+                for value in citations
+                if evidence_id in set(map(str, value.get("evidence_ids", [])))
+            ),
+            {},
+        )
+        item_id = evidence_id.partition("#")[2].partition("#")[0]
+        entries.append(
+            {
+                "evidence_id": evidence_id,
+                "item_id": item_id,
+                "citation": citation,
+            }
+        )
+    return entries
+
+
+def _query_answer_html(
+    answer: str, query_id: str, entries: list[dict[str, Any]], base_url: str
+) -> str:
+    rendered = html.escape(str(answer or "未生成回答"))
+    cited: set[int] = set()
+    for index, entry in enumerate(entries, start=1):
+        evidence_id = html.escape(str(entry["evidence_id"]))
+        link = html.escape(query_view_url(query_id, index, "wiki", base_url), quote=True)
+        marker = f'<a class="cite" href="{link}">〔{index}〕</a>'
+        for variant in (
+            f"〔{evidence_id}〕",
+            f"【{evidence_id}】",
+            f"`{evidence_id}`",
+            evidence_id,
+        ):
+            if variant in rendered:
+                rendered = rendered.replace(variant, marker)
+                cited.add(index)
+    rendered = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", rendered)
+    rendered = re.sub(r"`([^`]+)`", r"<code>\1</code>", rendered)
+    paragraphs = [value.strip() for value in rendered.split("\n\n") if value.strip()]
+    body = "".join(f"<p>{value.replace(chr(10), '<br>')}</p>" for value in paragraphs)
+    missing = [index for index in range(1, len(entries) + 1) if index not in cited]
+    if missing:
+        links = " ".join(
+            f'<a class="cite" href="{html.escape(query_view_url(query_id, index, "wiki", base_url), quote=True)}">〔{index}〕</a>'
+            for index in missing
+        )
+        body += f'<p class="answer-refs"><strong>引用：</strong>{links}</p>'
+    return body
+
+
+def render_query_html(
+    record: dict[str, Any], base_url: str, evidence: int = 1, view: str = "wiki"
+) -> bytes:
+    """Render a split query workspace with the answer left and Wiki right."""
+
+    query_id = str(record.get("query_id") or "")
+    entries = _query_evidence_entries(record)
+    selected_index = min(max(1, int(evidence)), max(1, len(entries)))
+    selected = entries[selected_index - 1] if entries else {}
+    citation = selected.get("citation") or {}
+    item_id = str(selected.get("item_id") or "")
+    raw_path = str(citation.get("path") or "")
+    raw_url = wiki_view_url(raw_path, base_url)
+    if item_id:
+        raw_url += "#" + quote(item_id, safe="-_.:")
+
+    retrieval = record.get("retrieval") or {}
+    navigation = retrieval.get("wiki_navigation") or []
+    wiki_paths = set(map(str, citation.get("wiki_paths", [])))
+    selected_page = next(
+        (page for page in navigation if str(page.get("path") or "") in wiki_paths),
+        None,
+    )
+    if selected_page is None:
+        selected_page = next(
+            (
+                {"path": path, "title": Path(path).stem}
+                for path in citation.get("wiki_paths", [])
+                if "/evidence/" not in str(path) and "/sources/" not in str(path)
+            ),
+            None,
+        )
+    wiki_path = str((selected_page or {}).get("path") or raw_path)
+    wiki_url = wiki_view_url(wiki_path, base_url)
+    active_view = "evidence" if view == "evidence" else "wiki"
+    panel_url = raw_url if active_view == "evidence" else wiki_url
+    panel_title = (
+        "原始 Evidence"
+        if active_view == "evidence"
+        else str((selected_page or {}).get("title") or "Wiki 页面")
+    )
+
+    evidence_tabs = "".join(
+        f'<a class="evidence-tab{" active" if index == selected_index else ""}" '
+        f'href="{html.escape(query_view_url(query_id, index, active_view, base_url), quote=True)}">'
+        f"Evidence {index}</a>"
+        for index in range(1, len(entries) + 1)
+    ) or '<span class="empty">没有可展示的 Evidence</span>'
+    wiki_switch = query_view_url(query_id, selected_index, "wiki", base_url)
+    evidence_switch = query_view_url(query_id, selected_index, "evidence", base_url)
+    answer_html = _query_answer_html(
+        str(record.get("answer") or ""), query_id, entries, base_url
+    )
+    page = str((citation.get("pages") or ["未记录"])[0])
+    modality = "、".join(map(str, citation.get("modalities", []))) or "未记录"
+    evidence_id = str(selected.get("evidence_id") or "未记录")
+    question = html.escape(str(record.get("question") or ""))
+    safe_panel_url = html.escape(panel_url, quote=True)
+    document = f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>问答核验 · 多模态 LLM Wiki</title>
+<style>
+:root{{--blue:#1769d2;--navy:#12345a;--ink:#152238;--muted:#607086;--line:#dbe5f1;--paper:#f4f7fb}}
+*{{box-sizing:border-box}}html,body{{height:100%}}body{{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}}
+.shell{{display:grid;grid-template-columns:minmax(360px,42%) minmax(520px,58%);height:100vh}}
+.answer-pane{{padding:30px 34px;overflow:auto;background:#fff;border-right:1px solid var(--line)}}
+.wiki-pane{{display:flex;min-width:0;flex-direction:column;overflow:hidden}}
+.eyebrow{{color:var(--blue);font-size:13px;font-weight:750;letter-spacing:.08em}}h1{{font-size:25px;line-height:1.3;margin:8px 0 22px}}h2{{font-size:17px;margin:28px 0 10px}}
+.question{{padding:14px 16px;background:#f2f7ff;border-left:4px solid var(--blue);border-radius:8px}}.answer{{font-size:17px}}
+.cite{{display:inline-flex;align-items:center;justify-content:center;color:var(--blue);font-weight:750;text-decoration:none;margin:0 2px}}code{{background:#edf3fb;padding:2px 5px;border-radius:5px}}
+.run{{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;color:var(--muted);font-size:13px}}.run strong{{color:var(--ink)}}
+.panel-head{{padding:16px 20px;background:#fff;border-bottom:1px solid var(--line)}}.panel-row{{display:flex;align-items:center;justify-content:space-between;gap:16px}}.panel-title{{font-size:17px;font-weight:750}}
+.tabs,.switch{{display:flex;gap:7px;flex-wrap:wrap}}.evidence-tab,.switch a{{padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none;background:#fff}}.evidence-tab.active,.switch a.active{{color:#fff;background:var(--blue);border-color:var(--blue)}}
+.meta{{margin-top:10px;color:var(--muted);font-size:13px;word-break:break-all}}iframe{{width:100%;height:100%;border:0;background:#fff}}.empty{{color:var(--muted)}}
+@media(max-width:900px){{.shell{{display:block;height:auto}}.answer-pane{{border-right:0;border-bottom:1px solid var(--line)}}.wiki-pane{{height:72vh}}}}
+</style>
+</head>
+<body><div class="shell">
+<section class="answer-pane">
+<div class="eyebrow">MULTIMODAL LLM WIKI</div>
+<h1>问答与证据核验</h1>
+<div class="question"><strong>问题</strong><br>{question}</div>
+<h2>结论</h2><div class="answer">{answer_html}</div>
+<h2>运行信息</h2>
+<div class="run"><strong>检索模式</strong><span>请求 {html.escape(str(retrieval.get('requested_mode') or '未记录'))} / 实际 {html.escape(str(retrieval.get('mode') or '未记录'))}</span><strong>路由依据</strong><span>{html.escape(str(retrieval.get('routing_reason') or '未记录'))}</span><strong>回退原因</strong><span>{html.escape(str(retrieval.get('fallback_reason') or '无'))}</span><strong>回答模型</strong><span>{html.escape(str(record.get('model') or '未记录'))}</span><strong>Query ID</strong><span>{html.escape(query_id)}</span></div>
+</section>
+<section class="wiki-pane" id="evidence-panel">
+<div class="panel-head"><div class="panel-row"><div class="panel-title">{html.escape(panel_title)}</div><div class="switch"><a class="{'active' if active_view == 'wiki' else ''}" href="{html.escape(wiki_switch, quote=True)}">Wiki 页面</a><a class="{'active' if active_view == 'evidence' else ''}" href="{html.escape(evidence_switch, quote=True)}">原始 Evidence</a></div></div><div class="tabs">{evidence_tabs}</div><div class="meta">Evidence ID：{html.escape(evidence_id)}　·　第 {html.escape(page)} 页　·　{html.escape(modality)}</div></div>
+<iframe title="{html.escape(panel_title, quote=True)}" src="{safe_panel_url}"></iframe>
+</section>
+</div></body></html>"""
+    return document.encode("utf-8")
 
 
 def resolve_vault_path(
