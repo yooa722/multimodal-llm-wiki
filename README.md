@@ -152,7 +152,7 @@ flowchart LR
 
 - 两阶段、可幂等的文本 Wiki → 多模态增量构建。
 - Wiki 页面优先、原始 Evidence 兜底的分层查询。
-- 图片原始 Caption、OCR 和语义 Caption 的并行表示。
+- 按资源类型组合原始 Caption、OCR、VLM Caption、结构化表格和 LaTeX，避免无差别调用高成本模型。
 - BM25、页面向量、文本向量、视觉向量和 Rerank 的分级启用。
 - 完整表格与命中原图回读，不用压缩文本代理冒充原始证据。
 - Evidence ID、来源版本、模型、延迟、回退状态完整保留。
@@ -409,10 +409,13 @@ python3 app.py build-wiki-index --vector-retrieval on
 | `/wiki-check` | 检查数据、索引、模型和本地展示服务 | 否 |
 | `/wiki-demo` | 展示 Wiki 构建链路和原始多模态 Evidence | 否 |
 | `/wiki-compare` | 展示文本基线与多模态增量指标 | 否 |
+| `/wiki-questions` | 展示适合现场演示的问题清单 | 否 |
 | `/wiki-table` | 演示完整表格回读 | 是 |
 | `/wiki-image` | 演示原图理解 | 是 |
 | `/wiki-refuse` | 演示证据不足拒答 | 是 |
 | `/wiki-ask <问题>` | 以 `auto` 查询；默认 Caption-first，增强能力按开关启用 | 是 |
+
+所有 `/wiki-*` 命令正文只保留用户可读的自然语言。`/wiki-ask` 由专用 `wiki-query-presenter` 调用 `wiki_query`，其余固定演示命令由 `wiki-presenter` 选择对应的类型化工具；工具名、检索模式和 Provider 等底层路由参数仅存在于 Agent 配置中，不会出现在用户消息气泡里。修改 `.opencode` 后必须完全退出并重新打开 OpenCode Desktop，已有历史消息不会自动重新渲染。
 
 自由问题示例：
 

@@ -44,11 +44,14 @@ python3 app.py validate \
 PACKAGE=data/source_packages/论文_002_cs_LG/1d9dabf3e92b
 
 python3 app.py ingest "$PACKAGE" --provider api --stage text
-python3 app.py build-index --text-only
+python3 app.py build-index --text-only --vector-retrieval on
 
-python3 app.py ingest "$PACKAGE" --provider api --stage multimodal
-python3 app.py build-index --source-id 论文_002_cs_LG
+python3 app.py ingest "$PACKAGE" --provider api --stage multimodal --vlm on
+python3 app.py build-index --source-id 论文_002_cs_LG \
+  --vlm on --vector-retrieval on
 ```
+
+`.env.example` 默认关闭 VLM 和向量检索，以避免无意产生外部模型成本。上面的命令显式打开增强能力，用于复现完整的 OCR/VLM Caption、文本向量和视觉向量链路；如果只验证低成本文本 Wiki，可以保留默认开关并省略这些参数。
 
 同一 Package 和同一版本重复摄入应返回 `unchanged`。不要直接修改已经摄入到 `runtime/raw/` 的副本；如需更新数据，应生成新的 Source Package 和新的版本校验和。
 

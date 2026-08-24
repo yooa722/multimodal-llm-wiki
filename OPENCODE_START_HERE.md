@@ -28,14 +28,17 @@ MMWIKI_ENABLE_VECTOR_RETRIEVAL=true
 
 开启后，`auto` 对普通问题使用 Hybrid，对明确的图片问题使用 Multimodal；关闭时沿用低成本的 Page BM25、Evidence BM25 与 MinerU Caption 路径。
 
-## 五个主要命令
+## 常用命令
 
 | 命令 | 用途 |
 |---|---|
 | `/wiki-start` | 解释 OpenCode、Wiki 页面和 Evidence 的分工 |
 | `/wiki-check` | 检查 Wiki、模型、索引和本地展示服务 |
 | `/wiki-demo` | 查看构建路线、查询路线和原始多模态 Evidence |
+| `/wiki-compare` | 查看文本 Wiki 基线与多模态增量的效果和成本 |
+| `/wiki-questions` | 查看适合现场演示的问题清单 |
 | `/wiki-table` / `/wiki-image` | 分别演示完整表格和原图问答 |
+| `/wiki-refuse` | 演示证据不足时拒答 |
 | `/wiki-ask <问题>` | 以 Auto 查询；默认 BM25 + Caption，增强能力按开关启用 |
 
 ## 如何提问
@@ -52,9 +55,9 @@ MMWIKI_ENABLE_VECTOR_RETRIEVAL=true
 /wiki-ask 请结合 Figure 4 原图，按顺序解释箭头表示的数据流，并给出 Evidence ID。
 ```
 
-系统会优先定位 Wiki 页面，再检索和回读原始 Evidence。`wiki-presenter` Agent 只负责调用类型化工具；`wiki-result-passthrough` 插件在最终显示阶段直接采用工具的原始 Markdown，防止模型复述时改动链接、表格、公式、Evidence ID 或模型名。完整回答应包含“结论—Wiki 定位—原始 Evidence—运行信息”四部分。
+系统会优先定位 Wiki 页面，再检索和回读原始 Evidence。自由问答由专用 `wiki-query-presenter` 调用 `wiki_query`，其余固定演示命令由 `wiki-presenter` 选择对应工具；两个 Agent 都不负责重新生成事实。`wiki-result-passthrough` 插件在最终显示阶段直接采用工具返回的 Markdown，防止模型复述时改动链接、表格、公式、Evidence ID 或模型名。正式问答固定展示“结论—知识入口—证据依据—运行信息”：正文 `〔1〕` 直接对应下方 `〔1〕` 证据卡片，图片卡片先显示原图，再分别展示 VLM 理解、OCR 文字和 MinerU 原始 Caption。
 
-斜杠命令本质上是 OpenCode 的提示词模板，因此命令内容会作为一条用户消息出现。项目已将可见部分改成面向用户的自然语言，工具名和运行参数放在不渲染的隐藏注释中；如果仍看到 `wiki_query`、`mode` 或 `provider` 等底层参数，说明 Desktop 尚未重新加载 `.opencode`，请完全退出应用后重新打开仓库。
+斜杠命令本质上是 OpenCode 的提示词模板，因此命令正文会作为一条用户消息出现。项目中的全部 `/wiki-*` 命令正文只保留用户可读的自然语言；工具名、`mode` 和 `provider` 等路由规则写在 Presenter Agent 配置中，不使用会出现在消息气泡里的 HTML 注释。如果仍看到旧的 `mmwiki-action`、`wiki_query`、`mode` 或 `provider`，说明正在查看历史消息或 Desktop 尚未重新加载 `.opencode`：请完全退出应用、重新打开仓库并重新执行命令。
 
 ## 蓝色链接或原图无法打开
 
