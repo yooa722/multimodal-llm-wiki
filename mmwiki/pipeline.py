@@ -794,7 +794,7 @@ class WikiPipeline:
                     ocr_result = {
                         "status": "missing",
                         "text": "",
-                        "error": "Qwen3.5-OCR API 尚未配置",
+                        "error": f"{ocr.model or 'OCR'} API 尚未配置",
                         "model": ocr.model,
                         "task": ocr.task,
                     }
@@ -985,7 +985,7 @@ class WikiPipeline:
                 (
                     "image_ocr",
                     "ocr",
-                    {"source": "qwen3.5-ocr", "model": ocr.model, "task": ocr.task},
+                    {"source": ocr.model, "model": ocr.model, "task": ocr.task},
                 ),
             ):
                 result = cache.get(key) if isinstance(cache.get(key), dict) else {}

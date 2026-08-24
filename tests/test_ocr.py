@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from mmwiki.ocr import (
+    ProviderError,
     QwenOCRProvider,
     build_ocr_payload,
     derive_ocr_url,
@@ -56,6 +57,10 @@ class QwenOcrTests(unittest.TestCase):
             "Layer 14\nRecall@1 6.8%",
         )
 
+    def test_empty_text_error_includes_configured_model(self) -> None:
+        with self.assertRaisesRegex(ProviderError, "custom-ocr 返回了空文本"):
+            extract_ocr_text({}, "custom-ocr")
+
     def test_provider_posts_native_request_with_bearer_header(self) -> None:
         class Response:
             def __enter__(self):
@@ -76,6 +81,9 @@ class QwenOcrTests(unittest.TestCase):
                 ).encode("utf-8")
 
         with tempfile.TemporaryDirectory() as directory:
+            Path(directory, ".env").write_text(
+                "MMWIKI_OCR_MODEL=custom-ocr\n", encoding="utf-8"
+            )
             with patch.dict(
                 os.environ,
                 {
@@ -92,12 +100,24 @@ class QwenOcrTests(unittest.TestCase):
         request = post.call_args.args[0]
         body = json.loads(request.data.decode("utf-8"))
         self.assertEqual(text, "6.8%")
+        self.assertEqual(body["model"], "custom-ocr")
         self.assertEqual(
             request.full_url,
             "https://workspace.cn-beijing.maas.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
         )
         self.assertEqual(request.headers["Authorization"], "Bearer test-key")
         self.assertEqual(body["parameters"]["ocr_options"]["task"], "text_recognition")
+
+    def test_missing_configuration_error_includes_model_from_dotenv(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            Path(directory, ".env").write_text(
+                "MMWIKI_OCR_MODEL=custom-ocr\n", encoding="utf-8"
+            )
+            with patch.dict(os.environ, {}, clear=True):
+                provider = QwenOCRProvider(Path(directory))
+
+            with self.assertRaisesRegex(ProviderError, "custom-ocr API 尚未配置"):
+                provider.recognize("data:image/png;base64,abc")
 
 
 if __name__ == "__main__":
