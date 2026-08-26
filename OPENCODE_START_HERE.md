@@ -55,7 +55,7 @@ MMWIKI_ENABLE_VECTOR_RETRIEVAL=true
 /wiki-ask 请结合 Figure 4 原图，按顺序解释箭头表示的数据流，并给出 Evidence ID。
 ```
 
-系统会优先定位 Wiki 页面，再检索和回读原始 Evidence。自由问答由专用 `wiki-query-presenter` 调用 `wiki_query`，其余固定演示命令由 `wiki-presenter` 选择对应工具；两个 Agent 都不负责重新生成事实。`wiki-result-passthrough` 插件在最终显示阶段直接采用工具返回的 Markdown，防止模型复述时改动链接、表格、公式、Evidence ID 或模型名。正式问答固定展示“结论—知识入口—证据依据—运行信息”：正文 `〔1〕` 直接对应下方 `〔1〕` 证据卡片，图片卡片先显示原图，再分别展示 VLM 理解、OCR 文字和 MinerU 原始 Caption。
+系统会优先定位 Wiki 页面，再检索和回读原始 Evidence。自由问答由专用 `wiki-query-presenter` 调用 `wiki_query`，其余固定演示命令由 `wiki-presenter` 选择对应工具；两个 Agent 都不负责重新生成事实。`wiki-result-passthrough` 插件在最终显示阶段直接采用工具返回的 Markdown，防止模型复述时改动链接、表格、公式、Evidence ID 或模型名。正式问答固定展示“结论—知识入口—证据依据—运行信息”：正文 `〔1〕` 直接对应下方 `〔1〕` 证据卡片；卡片可直接进入 Wiki 页面或原始 Evidence 锚点，图片卡片还会直接显示原图，并分别展示 VLM 理解、OCR 文字和 MinerU 原始 Caption。
 
 斜杠命令本质上是 OpenCode 的提示词模板，因此命令正文会作为一条用户消息出现。项目中的全部 `/wiki-*` 命令正文只保留用户可读的自然语言；工具名、`mode` 和 `provider` 等路由规则写在 Presenter Agent 配置中，不使用会出现在消息气泡里的 HTML 注释。如果仍看到旧的 `mmwiki-action`、`wiki_query`、`mode` 或 `provider`，说明正在查看历史消息或 Desktop 尚未重新加载 `.opencode`：请完全退出应用、重新打开仓库并重新执行命令。
 

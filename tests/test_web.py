@@ -12,9 +12,13 @@ from mmwiki.web import (
     resolve_vault_path,
     wiki_view_url,
 )
+from mmwiki.api import PRESENTATION_VERSION
 
 
 class WikiWebTests(unittest.TestCase):
+    def test_api_advertises_current_presentation_version(self) -> None:
+        self.assertEqual(PRESENTATION_VERSION, "split-query-v2")
+
     def test_urls_are_http_and_quote_unicode_paths(self) -> None:
         wiki = wiki_view_url("wiki/analyses/智慧交通项目评审分析.md")
         media = media_url("assets/中文_006/example image.jpg")
@@ -29,6 +33,15 @@ class WikiWebTests(unittest.TestCase):
             "question": "预算是多少？",
             "answer": f"预算为300万元〔{evidence_id}〕。",
             "evidence_refs": [evidence_id],
+            "evidence_locations": [
+                {
+                    "evidence_id": evidence_id,
+                    "page_number": 1,
+                    "paragraph_index": None,
+                    "location_label": "第 1 页 · 表格区域",
+                    "breadcrumb": "项目实施 > 工期与预算",
+                }
+            ],
             "citations": [
                 {
                     "source_id": "source",
@@ -69,6 +82,8 @@ class WikiWebTests(unittest.TestCase):
         self.assertIn("wiki/analyses/%E9%A1%B9%E7%9B%AE%E5%88%86%E6%9E%90.md", rendered)
         self.assertIn("Wiki 页面", rendered)
         self.assertIn("原始 Evidence", rendered)
+        self.assertIn("第 1 页 · 表格区域", rendered)
+        self.assertIn("项目实施 &gt; 工期与预算", rendered)
         self.assertIn("/query/view?id=query-test", query_view_url("query-test"))
 
     def test_resolve_vault_path_rejects_escape_and_wrong_prefix(self) -> None:

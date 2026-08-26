@@ -28,7 +28,7 @@ flowchart LR
     U(["用户问题"]) --> O["OpenCode Skill 能力包<br/>Command · Agent · wiki_* Tool"]
     O --> P["Python Wiki 管线<br/>opencode_demo.py · app.py · mmwiki/*"]
     P --> W["Wiki 页面定位<br/>Page BM25 · Page Embedding"]
-    W --> E["原始 Evidence 回读<br/>Chunk · Item · Asset"]
+    W --> E["原始 Evidence 回读<br/>Chunk · Item · Asset<br/>Page Index · 段落/区域"]
     E --> M["模型回答与引用校验<br/>Text LLM / VLM · Citation"]
     M --> R(["结果透传 → OpenCode 展示<br/>结论 · 知识入口 · 证据卡片 · 运行信息"])
 
@@ -73,12 +73,14 @@ flowchart LR
 app.py                       # Wiki CLI 与本地 API
 tools/opencode_demo.py       # OpenCode 演示适配层
 mmwiki/pipeline.py           # 构建与查询主流程
+mmwiki/provenance.py         # 通用 Page Index 与段落/区域定位器
 mmwiki/retrieval.py          # 页面导航和 Evidence 检索
 mmwiki/ocr.py                # Qwen3.5-OCR 图片文字提取
 mmwiki/visual_evidence.py    # OCR/Caption 子 Evidence 与父级原图映射
 mmwiki/contracts.py          # mmwiki-0.1 输入校验
 runtime/vault/               # Wiki 页面、索引和运行状态
 runtime/raw/                 # 不可变来源副本
+runtime/page-index.json      # 用户数据的页码、段落/区域和 bbox 派生索引
 ```
 
 ## 4. 一次查询如何执行
@@ -89,10 +91,10 @@ runtime/raw/                 # 不可变来源副本
 2. 专用 `wiki-query-presenter` 在系统指令中固定调用 `wiki_query`，并以结构化参数传入完整问题、`mode=auto` 和 `provider=api`；不把问题拼成 Bash 命令。
 3. `wiki_query` 通过结构化参数把完整问题传给 `tools/opencode_demo.py`，必要时启动 `127.0.0.1:19828` 本地展示服务。
 4. Python 管线先检索持久 Wiki 页面，得到相关知识范围和来源范围。
-5. 系统再检索 Chunk、Item 和 Asset Evidence。图片 OCR 与语义 Caption 作为派生子 Evidence 参与 BM25 和文本向量检索；命中后仍回到父级 Item、Chunk、Asset 和原图。普通事实与表格问题进入 Hybrid；颜色/深浅、位置/方向、箭头/连接、曲线/趋势、物体/场景以及视觉数量/空间关系问题进入 Multimodal。Hybrid 明确证据不足且命中原图时，允许自动升级一次 Multimodal。
+5. 系统再检索 Chunk、Item 和 Asset Evidence，并通过 Page Index 将命中 Item 还原到页码、段落/区域、bbox 和 MinerU 原始位置。图片 OCR 与语义 Caption 作为派生子 Evidence 参与 BM25 和文本向量检索；命中后仍回到父级 Item、Chunk、Asset 和原图。普通事实与表格问题进入 Hybrid；颜色/深浅、位置/方向、箭头/连接、曲线/趋势、物体/场景以及视觉数量/空间关系问题进入 Multimodal。Hybrid 明确证据不足且命中原图时，允许自动升级一次 Multimodal。
 6. 模型只能依据候选 Evidence 生成答案。Citation 必须属于本次候选集合，否则查询失败。
-7. 后端生成完整 Markdown：正文事实使用 `〔1〕` 短引用，并直接对应同一条 OpenCode 回答中的 `〔1〕` 证据卡片，不再重复生成引用索引。
-8. 图片 Evidence 使用标准 Markdown 直接在 OpenCode 回答中展示原图，无需先点击链接；同时将 MinerU Caption、Image OCR、VLM Caption 及来源标签分开展示，`wiki-result-passthrough` 保证这些内容不会被二次改写或删减。浏览器双栏页只作为可选的深度核验入口。
+7. 后端生成完整 Markdown：正文事实使用 `〔1〕` 短引用，并直接对应同一条 OpenCode 回答中的 `〔1〕` 证据卡片；卡片展示来源、页码、段落/区域、章节和原文摘录，不再重复生成引用索引。
+8. 证据卡片直接链接正式 Wiki 页面和来源页中的 Evidence 锚点，不经过重复展示问答的中间页。图片 Evidence 使用标准 Markdown 直接在 OpenCode 回答中展示原图，并将 MinerU Caption、Image OCR、VLM Caption 及来源标签分开展示；`wiki-result-passthrough` 保证这些内容不会被二次改写或删减。浏览器双栏路由只为旧链接和内部调试保留。
 
 ```mermaid
 %%{init: {"theme":"base","sequence":{"diagramMarginX":20,"actorMargin":32,"messageMargin":24},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
@@ -110,7 +112,7 @@ sequenceDiagram
     P->>K: 先定位 Wiki 页面
     K-->>P: 页面与来源范围
     P->>K: 再读取原始 Evidence
-    K-->>P: 文字 / 完整表格 / 原图
+    K-->>P: 文字 / 完整表格 / 原图 / 精确位置
     P-->>T: 已排版最终 Markdown
     T-->>X: 工具输出
     X-->>O: 原样替换最终文本
@@ -125,7 +127,7 @@ Skill 规定新 Source Package 按两个阶段构建，便于复用文本结果�
 %%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":38},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 flowchart LR
     A["mmwiki-0.1 Source Package<br/>Item · Chunk · Asset · provenance"] --> B["01  校验与不可变归档<br/>Schema · 引用 · Path · SHA-256<br/>runtime/raw"]
-    B -->|"阶段一"| C["02  文本 Wiki 主干<br/>正文 · 上游文本代理<br/>来源页 · 知识页 · WikiLink"]
+    B -->|"阶段一"| C["02  文本 Wiki 主干<br/>来源页 · 知识页 · WikiLink<br/>Page Index · 段落/区域"]
     C -->|"阶段二"| D["03  多模态增量<br/>完整表格 · 公式 · 原图<br/>Qwen3.5-OCR · Image Caption"]
     D --> E[("04  局部更新<br/>受影响页面 · 父级原图映射<br/>文本 / 视觉索引")]
     E --> F["Lint · Status · Maintenance"]
@@ -145,6 +147,7 @@ flowchart LR
 
 - 文本阶段不得读取图片像素或使用完整表格单元格；
 - 多模态阶段复用同一 `source_id + source_version + item_id`，不建立平行知识库；
+- Page Index 从每个用户 Source Package 的 `page_start`、`bbox`、`provenance.raw_ref` 和 Item 顺序确定性生成，不包含内置测试来源特例，也不修改上游 Item；
 - OCR 与 Image Caption 只补充图片的可检索表示，不替代原始图片 Evidence，也不机械创建新 Wiki 页面；
 - 构建端按资源类型控制成本：自然图片 Caption 优先、OCR 按需；流程图/图表和页面截图执行 OCR + Caption；表格以结构化数据为主、OCR 辅助；公式以 LaTeX 为主；
 - 派生视觉 Evidence 存入 `runtime/state.json`，按图片 SHA-256 缓存于 `runtime/build-cache/visual/`；

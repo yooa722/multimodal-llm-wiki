@@ -16,12 +16,13 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from mmwiki.pipeline import PipelineError, WikiPipeline
+from mmwiki.provenance import build_evidence_page_index, evidence_locator_lookup
 from mmwiki.provider import (
     OpenAICompatibleProvider,
     ProviderError,
     normalize_math_markdown,
 )
-from mmwiki.web import media_url, query_view_url, wiki_view_url
+from mmwiki.web import media_url, wiki_view_url
 
 
 DEMO_CASES = {
@@ -112,6 +113,13 @@ def _evidence_page(item: dict[str, Any], citation: dict[str, Any]) -> str:
     return f"第 {start} 页"
 
 
+def _evidence_location(
+    locator: dict[str, Any], item: dict[str, Any], citation: dict[str, Any]
+) -> str:
+    label = str(locator.get("location_label") or "").strip()
+    return label or _evidence_page(item, citation)
+
+
 def _supporting_pages(
     state: dict[str, Any], source_id: str, evidence_id: str
 ) -> list[dict[str, Any]]:
@@ -155,6 +163,18 @@ def _wiki_location(
         if str(path) in supporting:
             return wiki_view_url(str(path))
     path = str(citation.get("path") or "")
+    url = wiki_view_url(path)
+    if item_id:
+        url += "#" + quote(item_id, safe="-_.:")
+    return url
+
+
+def _evidence_url(citation: dict[str, Any], item_id: str) -> str:
+    """Link directly to the immutable source record for one Evidence item."""
+
+    path = str(citation.get("path") or "")
+    if not path:
+        return ""
     url = wiki_view_url(path)
     if item_id:
         url += "#" + quote(item_id, safe="-_.:")
@@ -274,7 +294,14 @@ def _evidence_label(entry: dict[str, Any]) -> str:
             head, found, _ = caption.partition(separator)
             if found and 1 <= len(head.strip()) <= 60:
                 return head.strip()
+    breadcrumb = str(
+        item.get("breadcrumb") or (entry.get("location") or {}).get("breadcrumb") or ""
+    ).strip()
+    if item_type == "table" and breadcrumb:
+        return breadcrumb.rsplit(" > ", 1)[-1].strip()
     title = str(citation.get("title") or "").strip()
+    if title in {"图片派生证据", "视觉派生证据", "原始证据"} and breadcrumb:
+        return breadcrumb.rsplit(" > ", 1)[-1].strip()
     if " > " in title:
         title = title.rsplit(" > ", 1)[-1].strip()
     if title:
@@ -301,6 +328,12 @@ def _evidence_entries(
             for evidence_id in citation.get("evidence_ids", [])
         ]
     cited_order = list(dict.fromkeys(value for value in cited_order if value))
+    provided_locations = {
+        str(value.get("evidence_id") or ""): value
+        for value in result.get("evidence_locations", [])
+        if isinstance(value, dict) and value.get("evidence_id")
+    }
+    derived_locations = evidence_locator_lookup(build_evidence_page_index(state))
     entries: list[dict[str, Any]] = []
     for evidence_id in cited_order:
         citation = next(
@@ -315,6 +348,9 @@ def _evidence_entries(
         item_id = evidence_id.partition("#")[2].partition("#")[0]
         source = state.get("sources", {}).get(source_id, {})
         item = find_item(state, source_id, item_id)
+        locator = provided_locations.get(evidence_id) or derived_locations.get(
+            evidence_id, {}
+        )
         asset_id, asset_path = _visual_asset(source, item, citation)
         entries.append(
             {
@@ -325,8 +361,11 @@ def _evidence_entries(
                 "item": item,
                 "item_id": item_id,
                 "page": _evidence_page(item, citation),
+                "location": locator,
+                "location_label": _evidence_location(locator, item, citation),
                 "type": _evidence_type(item, citation),
                 "wiki_url": _wiki_location(state, citation, evidence_id, item_id),
+                "evidence_url": _evidence_url(citation, item_id),
                 "asset_id": asset_id,
                 "asset_path": asset_path,
             }
@@ -347,6 +386,7 @@ def api_health() -> dict[str, Any]:
 
 def collect_snapshot(pipeline: WikiPipeline) -> dict[str, Any]:
     state = pipeline._load_state()
+    page_index = load_json(pipeline.page_index_path)
     lint = pipeline.lint()
     retrieval = pipeline.retrieval_status()
     sources = list(state.get("sources", {}).values())
@@ -376,6 +416,7 @@ def collect_snapshot(pipeline: WikiPipeline) -> dict[str, Any]:
         "assets": assets or retrieval.get("visual_records", 0),
         "lint": lint,
         "retrieval": retrieval,
+        "page_index": page_index.get("stats", {}),
         "api": api_health(),
         "models": {
             "opencode": config.get("model", "未配置"),
@@ -438,8 +479,17 @@ def render_status(pipeline: WikiPipeline) -> str:
     retrieval = snapshot["retrieval"]
     api = snapshot["api"]
     api_online = api.get("status") not in {"offline", "error", None}
+    page_index = snapshot.get("page_index", {})
+    located_items = int(page_index.get("located_items") or 0)
+    total_items = int(page_index.get("items") or 0)
+    location_ready = total_items == 0 or located_items == total_items
     checks = [
         ("Wiki 数据与页面", snapshot["data_ready"], f"{snapshot['sources']} 来源 / {snapshot['pages']} 知识页"),
+        (
+            "页码与段落定位",
+            location_ready,
+            f"{located_items}/{total_items} 个 Evidence 可精确定位",
+        ),
         ("Wiki 页面语义索引", retrieval.get("wiki_semantic_ready"), f"{retrieval.get('wiki_records', 0)} 页"),
         (
             "文本检索索引",
@@ -484,7 +534,7 @@ def render_status(pipeline: WikiPipeline) -> str:
     ]
     for name, ok, detail in checks:
         lines.append(f"| {name} | {'✅' if ok else '⚠️'} | {detail} |")
-    optional_checks = {"Wiki 页面语义索引"}
+    optional_checks = {"Wiki 页面语义索引", "页码与段落定位"}
     blocking = [
         name
         for name, ok, _ in checks[:-1]
@@ -777,21 +827,24 @@ def render_live_result(result: dict[str, Any]) -> str:
             item = entry["item"]
             asset_path = str(entry["asset_path"] or "")
             label = _evidence_label(entry)
-            heading_parts = [label]
             source_title = str(entry["source_title"] or "未记录")
-            if source_title.casefold() != label.casefold():
-                heading_parts.append(source_title)
-            heading_parts.extend([str(entry["page"]), str(entry["type"])])
+            locator = entry.get("location") or {}
             lines.extend(
                 [
-                    f"### 〔{index}〕 " + "｜".join(heading_parts),
+                    f"### 〔{index}〕 {label}",
+                    "",
+                    f"- **来源：** {source_title}",
+                    f"- **位置：** {entry['location_label']}",
+                    f"- **类型：** {entry['type']}",
                 ]
             )
-            if result.get("query_id"):
-                detail_url = query_view_url(str(result["query_id"]), index)
-                actions = [f"[查看 Wiki 与证据]({detail_url})"]
-            else:
-                actions = [f"[查看 Wiki]({entry['wiki_url']})"]
+            breadcrumb = str(locator.get("breadcrumb") or item.get("breadcrumb") or "")
+            if breadcrumb:
+                lines.append(f"- **章节：** {breadcrumb}")
+            actions = [f"[查看 Wiki 页面]({entry['wiki_url']})"]
+            evidence_url = str(entry.get("evidence_url") or "")
+            if evidence_url and evidence_url != str(entry["wiki_url"]):
+                actions.append(f"[定位原始 Evidence]({evidence_url})")
             if asset_path:
                 actions.append(f"[打开原图]({media_url(asset_path)})")
             lines.extend(["", "　".join(actions)])
@@ -833,8 +886,12 @@ def render_live_result(result: dict[str, Any]) -> str:
                 )
             elif item.get("table"):
                 lines.extend(["", markdown_table(item["table"]), ""])
-            elif snippet:
-                lines.extend(["", f"> **证据摘录：** {snippet[:800]}"])
+            else:
+                quote = normalize_math_markdown(
+                    str(locator.get("quote") or item.get("raw_text") or snippet)
+                ).strip()
+                if quote:
+                    lines.extend(["", "**原文摘录：**", "", _quote_block(quote[:1200])])
             lines.extend(["", f"**Evidence ID：** `{entry['evidence_id']}`", ""])
     else:
         lines.append("- 没有足够 Evidence；不应把无依据内容写成确定事实。")

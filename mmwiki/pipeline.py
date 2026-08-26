@@ -33,6 +33,7 @@ from .provider import (
     validate_wiki_analysis,
     validate_wiki_compilation,
 )
+from .provenance import build_evidence_page_index, evidence_locator_lookup
 from .ocr import QwenOCRProvider
 from .visual_evidence import visual_evidence_id
 from .retrieval import (
@@ -239,6 +240,7 @@ class WikiPipeline:
         self.runtime = self.root / "runtime"
         self.vault = self.runtime / "vault"
         self.state_path = self.runtime / "state.json"
+        self.page_index_path = self.runtime / "page-index.json"
         self.query_path = self.runtime / "queries.jsonl"
         self.curation_log_path = self.runtime / "curation-log.jsonl"
         self.retrieval_index_path = self.runtime / "retrieval-index.json"
@@ -327,6 +329,8 @@ class WikiPipeline:
                 changed = True
         if changed:
             self._save_state(state)
+        else:
+            self._write_page_index(state)
         self._write_navigation(state)
 
     def _wiki_instructions(self) -> str:
@@ -379,6 +383,23 @@ class WikiPipeline:
                 self.state_path,
                 json.dumps(state, ensure_ascii=False, indent=2) + "\n",
             )
+            self._write_page_index(state)
+
+    def _write_page_index(self, state: dict[str, Any]) -> None:
+        content = (
+            json.dumps(
+                build_evidence_page_index(state),
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n"
+        )
+        if (
+            self.page_index_path.is_file()
+            and self.page_index_path.read_text(encoding="utf-8") == content
+        ):
+            return
+        _atomic_write_text(self.page_index_path, content)
 
     @staticmethod
     def _wiki_coverage(state: dict[str, Any]) -> dict[str, Any]:
@@ -3354,6 +3375,7 @@ class WikiPipeline:
         """Resolve retrieved chunks to bounded, immutable Source Package items."""
 
         lookup = self._item_lookup(state)
+        locator_lookup = evidence_locator_lookup(build_evidence_page_index(state))
         selected: list[dict[str, Any]] = []
         for hit in hits:
             for item_id in hit["item_ids"]:
@@ -3371,6 +3393,7 @@ class WikiPipeline:
                             "evidence_id": evidence_id,
                             "package_id": value[0],
                             "item": value[1],
+                            "locator": locator_lookup.get(evidence_id, {}),
                         }
                     )
         candidate_count = len(selected)
@@ -3407,6 +3430,7 @@ class WikiPipeline:
                     or value["item"].get("search_text")
                 )[:6000],
                 "table": value["item"].get("table"),
+                "location": value.get("locator", {}),
             }
             for value in selected
         ]
@@ -3638,12 +3662,29 @@ class WikiPipeline:
             ]
             if not hit_refs:
                 continue
-            citations.append({**hit, "evidence_ids": hit_refs})
+            citations.append(
+                {
+                    **hit,
+                    "evidence_ids": hit_refs,
+                    "evidence_locations": [
+                        value.get("locator", {})
+                        for value in selected
+                        if value["evidence_id"] in hit_refs
+                    ],
+                }
+            )
+        evidence_locations = [
+            value.get("locator", {})
+            for evidence_id in cited
+            for value in selected
+            if value["evidence_id"] == evidence_id
+        ]
         record = {
             "query_id": uuid.uuid4().hex[:16],
             "question": question,
             "answer": answer,
             "evidence_refs": cited,
+            "evidence_locations": evidence_locations,
             "citations": citations,
             "created_at": utc_now(),
             "retriever": (
