@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import sys
 import urllib.error
@@ -253,34 +254,83 @@ def _derived_visual_text(record: dict[str, Any]) -> str:
     return "尚未构建"
 
 
+_EVIDENCE_ID_RE = re.compile(r"(?<![\w@])[\w.-]+@[\w.-]+#[\w.-]+")
+
+
+def _citation_variants(evidence_id: str) -> tuple[str, ...]:
+    return (
+        f"〔{evidence_id}〕",
+        f"【{evidence_id}】",
+        f"[{evidence_id}]",
+        f"（{evidence_id}）",
+        f"({evidence_id})",
+        f"`{evidence_id}`",
+        evidence_id,
+    )
+
+
+def _evidence_id_position(answer: str, evidence_id: str) -> int | None:
+    positions = [
+        answer.find(variant)
+        for variant in _citation_variants(evidence_id)
+        if answer.find(variant) >= 0
+    ]
+    return min(positions) if positions else None
+
+
+def _order_evidence_entries(
+    answer: str, entries: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Put evidence cards in the order their IDs first appear in the answer."""
+
+    positions = {
+        str(entry.get("evidence_id") or ""): _evidence_id_position(
+            answer, str(entry.get("evidence_id") or "")
+        )
+        for entry in entries
+    }
+    if not any(position is not None for position in positions.values()):
+        return entries
+    return [
+        entry
+        for _, entry in sorted(
+            enumerate(entries),
+            key=lambda pair: (
+                positions.get(str(pair[1].get("evidence_id") or "")) is None,
+                positions.get(str(pair[1].get("evidence_id") or ""))
+                if positions.get(str(pair[1].get("evidence_id") or "")) is not None
+                else len(answer),
+                pair[0],
+            ),
+        )
+    ]
+
+
 def _answer_with_numbered_citations(
     answer: str, evidence_ids: list[str]
 ) -> str:
     rendered = answer
-    mapped: set[int] = set()
-    for index, evidence_id in enumerate(evidence_ids, start=1):
+    number_by_id = {
+        evidence_id: f"〔{index}〕"
+        for index, evidence_id in enumerate(dict.fromkeys(evidence_ids), start=1)
+        if evidence_id
+    }
+    # Replace longer IDs first so a short ID cannot consume the prefix of a
+    # longer ID. The number itself still follows the evidence-card order.
+    replacements = sorted(number_by_id.items(), key=lambda item: len(item[0]), reverse=True)
+    for evidence_id, marker in replacements:
         # OpenCode Desktop delegates HTTP links to the operating system. Keep
         # the primary citation-to-Evidence reading path inside the answer.
-        marker = f"〔{index}〕"
-        variants = (
-            f"〔{evidence_id}〕",
-            f"【{evidence_id}】",
-            f"`{evidence_id}`",
-            evidence_id,
-        )
-        for variant in variants:
+        for variant in _citation_variants(evidence_id):
             if variant in rendered:
                 rendered = rendered.replace(variant, marker)
-                mapped.add(index)
-    missing = [
-        f"〔{index}〕"
-        for index in range(1, len(evidence_ids) + 1)
-        if index not in mapped
-    ]
-    if len(missing) == 1 and len(evidence_ids) == 1:
-        rendered = rendered.rstrip() + missing[0]
-    elif missing:
-        rendered = rendered.rstrip() + "\n\n**引用：** " + " ".join(missing)
+
+    # A model may return an ID that is not present in the selected evidence
+    # cards. Never leak that machine identifier into the user-facing answer.
+    rendered = _EVIDENCE_ID_RE.sub(
+        lambda match: number_by_id.get(match.group(0), ""), rendered
+    )
+    rendered = re.sub(r"〔\s*〕|【\s*】|\[\s*\]|（\s*）|\(\s*\)", "", rendered)
     return rendered
 
 
@@ -321,12 +371,11 @@ def _evidence_entries(
 ) -> list[dict[str, Any]]:
     citations = result.get("citations", [])
     cited_order = [str(value) for value in result.get("evidence_refs", [])]
-    if not cited_order:
-        cited_order = [
-            str(evidence_id)
-            for citation in citations
-            for evidence_id in citation.get("evidence_ids", [])
-        ]
+    cited_order.extend(
+        str(evidence_id)
+        for citation in citations
+        for evidence_id in citation.get("evidence_ids", [])
+    )
     cited_order = list(dict.fromkeys(value for value in cited_order if value))
     provided_locations = {
         str(value.get("evidence_id") or ""): value
@@ -784,6 +833,7 @@ def render_live_result(result: dict[str, Any]) -> str:
     state = WikiPipeline(PROJECT_ROOT)._load_state() if citations else {}
     evidence_entries = _evidence_entries(result, state) if citations else []
     answer = normalize_math_markdown(str(result.get("answer") or "未生成回答"))
+    evidence_entries = _order_evidence_entries(answer, evidence_entries)
     answer = _answer_with_numbered_citations(
         answer,
         [str(entry["evidence_id"]) for entry in evidence_entries],

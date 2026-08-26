@@ -91,12 +91,18 @@ Every `/wiki-*` command body must contain only user-facing natural language. Do 
 
 The typed tool returns a titled result whose `output` is presentation-ready final Markdown. The presenter agent calls the tool, and the project-level `wiki-result-passthrough` plugin replaces the completed assistant text with that exact output. OpenCode is the primary answer surface: short citations such as `〔1〕` map directly to the matching `〔1〕` evidence card in the same assistant message, without a separate citation-index section. Each evidence card exposes source title, page, paragraph or typed region, section, original excerpt and full Evidence ID, followed by direct links to the stable Wiki page, the immutable source Evidence anchor and the original asset when available. These locations come from the deterministic `runtime/page-index.json`, derived from the current user's Source Package rather than hard-coded demo sources. Do not expose the localhost split-query workspace as the primary evidence action; keep it only for backward compatibility and internal debugging. Image cards render the original image inline before the derived descriptions, and separately label VLM understanding, Image OCR and MinerU Caption with their provenance. Do not summarize, rewrite, reorder, translate, or reconstruct this output. Never drop its Wiki HTTP links, Evidence IDs, evidence excerpts, complete tables, image links/previews, derived-description labels, or runtime table. This passthrough rule applies to every question type, not only demo cases.
 
-Run directly through the CLI:
+For a user-facing fallback, use the same presentation renderer as the typed
+tool:
 
 ```bash
-python3 app.py query "<question>" --retrieval-mode auto --top-k 5
-python3 app.py query "<visual question>" --retrieval-mode multimodal --top-k 5
+python3 tools/opencode_demo.py live --question "<question>" --mode auto --provider api
+python3 tools/opencode_demo.py live --question "<visual question>" --mode multimodal --provider api
 ```
+
+`python3 app.py query ...` remains a machine-readable JSON/debugging interface;
+do not present its raw output as the final OpenCode answer. In the final answer,
+the conclusion may contain only short citations such as `〔1〕`. Full Evidence
+IDs belong only in the numbered evidence cards.
 
 Or start the localhost API for an interactive OpenCode demo:
 
@@ -104,7 +110,7 @@ Or start the localhost API for an interactive OpenCode demo:
 bash .opencode/skills/multimodal-wiki/scripts/demo.sh serve
 ```
 
-Always show the answer, Evidence IDs, source version, requested/actual retrieval mode, routing or upgrade reason, model, latency, and whether fallback occurred. Never turn a query answer into a stable Wiki page automatically.
+Always show the answer, source version, requested/actual retrieval mode, routing or upgrade reason, model, latency, and whether fallback occurred. Keep full Evidence IDs in the evidence cards for traceability, but never cite or expose them in the conclusion. Never turn a query answer into a stable Wiki page automatically.
 
 The query order is fixed: rank persistent Wiki pages first (`page_bm25` and, when built, `page_embedding`), derive the relevant source scope, then retrieve Chunk/Item Evidence. A high-scoring Wiki page is orientation, not proof; the final answer must still cite raw Evidence.
 

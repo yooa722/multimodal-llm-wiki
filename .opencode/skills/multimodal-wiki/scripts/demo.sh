@@ -39,7 +39,7 @@ case "${command_name}" in
     fi
     question="$1"
     mode="${2:-auto}"
-    exec python3 app.py query "${question}" --retrieval-mode "${mode}" --top-k 5
+    exec python3 tools/opencode_demo.py live --question "${question}" --mode "${mode}" --provider api
     ;;
   import)
     if [[ $# -lt 3 ]]; then
