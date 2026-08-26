@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 from tools.opencode_demo import (
     DEMO_CASES,
     _derived_visual_text,
+    _answer_with_numbered_citations,
     markdown_table,
     render_live,
     render_live_result,
@@ -86,6 +87,23 @@ class OpenCodeDemoTests(unittest.TestCase):
         self.assertIn('"*": deny', presenter)
         self.assertNotIn("mmwiki-action", presenter)
         self.assertIn("不得调用 Bash", presenter)
+        fallback_script = (
+            root / ".opencode/skills/multimodal-wiki/scripts/demo.sh"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            'exec python3 tools/opencode_demo.py live --question "${question}" --mode "${mode}" --provider api',
+            fallback_script,
+        )
+        self.assertNotIn(
+            'exec python3 app.py query "${question}"',
+            fallback_script,
+        )
+        skill = (root / ".opencode/skills/multimodal-wiki/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("machine-readable JSON/debugging interface", skill)
+        self.assertIn("Full Evidence", skill)
+        self.assertIn("belong only in the numbered evidence cards", skill)
         self.assertIn('markdownResult(context, "Wiki 完整回答"', tool_source)
         self.assertIn('PRESENTATION_VERSION = "split-query-v2"', tool_source)
         self.assertIn('"tool.execute.after"', passthrough)
@@ -160,6 +178,98 @@ class OpenCodeDemoTests(unittest.TestCase):
         self.assertIn("### 〔4〕", rendered)
         self.assertIn("第 4 条证据内容", rendered)
         self.assertIn("#item-4", rendered)
+
+    def test_inline_citations_follow_first_occurrence_and_cards_match(self) -> None:
+        evidence_ids = [f"source@v1#item-{index}" for index in range(1, 5)]
+        citations = [
+            {
+                "source_id": "source",
+                "chunk_id": f"chunk-{index}",
+                "title": f"证据 {index}",
+                "snippet": f"第 {index} 条证据内容",
+                "item_ids": [f"item-{index}"],
+                "evidence_ids": [evidence_ids[index - 1]],
+                "modalities": ["paragraph"],
+                "path": "wiki/sources/source.md",
+            }
+            for index in range(1, 5)
+        ]
+        state = {
+            "sources": {
+                "source": {
+                    "title": "测试来源",
+                    "items": [
+                        {
+                            "item_id": f"item-{index}",
+                            "item_type": "paragraph",
+                            "page_start": index,
+                            "page_end": index,
+                            "raw_text": f"第 {index} 条证据内容",
+                        }
+                        for index in range(1, 5)
+                    ],
+                }
+            },
+            "pages": {},
+        }
+        result = {
+            "question": "按正文顺序引用",
+            "answer": (
+                f"第三项〔{evidence_ids[2]}〕，第一项【{evidence_ids[0]}】；"
+                f"再次引用`{evidence_ids[2]}`。"
+            ),
+            "evidence_refs": evidence_ids,
+            "citations": citations,
+            "retrieval": {"requested_mode": "auto", "mode": "lexical"},
+            "model": "test-model",
+            "usage": {},
+        }
+
+        fake_pipeline = Mock()
+        fake_pipeline._load_state.return_value = state
+        with patch("tools.opencode_demo.WikiPipeline", return_value=fake_pipeline):
+            rendered = render_live_result(result)
+
+        conclusion = rendered.split("## 知识入口", 1)[0]
+        self.assertIn("第三项〔1〕", conclusion)
+        self.assertIn("第一项〔2〕", conclusion)
+        self.assertIn("再次引用〔1〕", conclusion)
+        self.assertNotIn("**引用：**", conclusion)
+        for evidence_id in evidence_ids:
+            self.assertNotIn(evidence_id, conclusion)
+            self.assertIn(evidence_id, rendered)
+
+        card_order = [
+            rendered.index("### 〔1〕 证据 3"),
+            rendered.index("### 〔2〕 证据 1"),
+            rendered.index("### 〔3〕 证据 2"),
+            rendered.index("### 〔4〕 证据 4"),
+        ]
+        self.assertEqual(card_order, sorted(card_order))
+
+    def test_inline_citation_variants_are_normalized_without_leaking_ids(self) -> None:
+        evidence_ids = ["source@v1#item-1", "source@v1#item-2"]
+        answer = (
+            f"A〔{evidence_ids[0]}〕 B【{evidence_ids[1]}】 "
+            f"C`{evidence_ids[0]}` D({evidence_ids[1]}) E[{evidence_ids[0]}]"
+        )
+
+        rendered = _answer_with_numbered_citations(answer, evidence_ids)
+
+        self.assertEqual(rendered.count("〔1〕"), 3)
+        self.assertEqual(rendered.count("〔2〕"), 2)
+        for evidence_id in evidence_ids:
+            self.assertNotIn(evidence_id, rendered)
+
+    def test_refusal_answer_keeps_numbered_citation_only(self) -> None:
+        evidence_id = "source@v1#item-1"
+
+        rendered = _answer_with_numbered_citations(
+            f"证据不足，无法确认〔{evidence_id}〕。", [evidence_id]
+        )
+
+        self.assertEqual(rendered, "证据不足，无法确认〔1〕。")
+        self.assertNotIn(evidence_id, rendered)
 
     def test_live_result_maps_inline_ids_to_numbered_evidence_cards(self) -> None:
         evidence_id = "source@v1#item-1"
