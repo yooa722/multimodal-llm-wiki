@@ -49,7 +49,7 @@ OpenCode 的类型化工具会按需自动启动本地展示服务；只有独�
 flowchart LR
     SRC["mmwiki-0.1<br/>Source Package"] -->|"构建"| BASE["文本 Wiki 主干<br/>页面 · WikiLink"]
     BASE -->|"增量"| MM["多模态 Evidence<br/>表格 · 公式 · 原图 · OCR · Caption"]
-    MM --> STORE[("Wiki 存储<br/>Markdown · Evidence · Index")]
+    MM --> STORE[("Wiki 存储<br/>Markdown · Evidence · Page Index")]
     STORE --> PAGE
     PAGE["Wiki 页面定位"] --> EVIDENCE["原始 Evidence 回读"]
     EVIDENCE --> ANSWER(["带引用的<br/>图文答案"])
@@ -81,7 +81,7 @@ flowchart LR
 %%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":38},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 flowchart LR
     A["Source Package<br/>Item · Chunk · Asset · provenance"] --> B["01  校验与归档<br/>Schema · 引用 · Path · SHA-256<br/>runtime/raw"]
-    B -->|"阶段一"| C["02  文本 Wiki 主干<br/>来源页 · 知识页 · WikiLink<br/>Page / Evidence 文本索引"]
+    B -->|"阶段一"| C["02  文本 Wiki 主干<br/>来源页 · 知识页 · WikiLink<br/>页码 · 段落/区域 · bbox"]
     C -->|"阶段二"| D["03  多模态增量<br/>完整表格 · 公式 · 原图<br/>Qwen3.5-OCR · Image Caption"]
     D --> E[("04  局部发布<br/>更新受影响页面与索引<br/>复用未变化向量")]
 
@@ -106,6 +106,7 @@ flowchart LR
 | Wiki 页面 | `runtime/vault/wiki/` | 保存来源页、知识页、证据地图和 WikiLink |
 | 原始资源 | `runtime/vault/assets/` | 保存查询时回读的图片和视觉 Evidence |
 | 来源与派生 Evidence 状态 | `runtime/state.json` | 保存版本、Item/Chunk/Asset 和 `visual_evidence` |
+| Evidence Page Index | `runtime/page-index.json` | 由 Item 自动生成页码、段落/区域、bbox 和 MinerU 原始位置映射 |
 | OCR/VLM 构建缓存 | `runtime/build-cache/visual/` | 相同图片、模型和提示词版本不重复调用 |
 | 检索索引 | `runtime/retrieval-index.json` | 保存页面、文本 Evidence 和视觉 Evidence 向量 |
 
@@ -116,7 +117,7 @@ flowchart LR
 flowchart LR
     U(["用户问题"]) --> O["OpenCode 调用层<br/>/wiki-* · Skill · wiki_* Tool"]
     O --> P["01  Wiki 页面定位<br/>Page BM25 · Page Embedding"]
-    P --> E["02  Evidence 检索与原件回读<br/>BM25 · Vector · RRF · Rerank<br/>文字 · 表格 · 公式 · 原图"]
+    P --> E["02  Evidence 检索与原件回读<br/>BM25 · Vector · RRF · Rerank<br/>页码 · 段落/区域 · 原文 · 原图"]
     E --> A["03  模型回答与引用校验<br/>Text LLM / VLM<br/>Evidence ID · Source Version"]
     A --> X(["OpenCode 展示<br/>结论 · 知识入口 · 证据卡片 · 运行信息"])
     X -.-> H["点击查看<br/>Wiki 页面 · 原图<br/>127.0.0.1:19828"]
@@ -155,7 +156,7 @@ flowchart LR
 - 按资源类型组合原始 Caption、OCR、VLM Caption、结构化表格和 LaTeX，避免无差别调用高成本模型。
 - BM25、页面向量、文本向量、视觉向量和 Rerank 的分级启用。
 - 完整表格与命中原图回读，不用压缩文本代理冒充原始证据。
-- Evidence ID、来源版本、模型、延迟、回退状态完整保留。
+- Evidence ID、来源版本、页码、段落/区域、bbox、模型与回退状态完整保留。
 - WikiLink 图谱、页面版本、维护检查和证据不足拒答。
 
 ## 代码结构
@@ -168,6 +169,7 @@ flowchart LR
 │   ├── models.py                  # Source、Item、Chunk、Asset 数据模型
 │   ├── pipeline.py                # 构建、增量更新、查询与 Wiki 治理
 │   ├── provider.py                # 文本/视觉模型调用与回答规范化
+│   ├── provenance.py              # 通用 Page Index 与段落/区域定位器
 │   ├── retrieval.py               # 页面/Evidence 向量、RRF、Rerank 与分级检索
 │   ├── search.py                  # Wiki 页面导航与 Evidence BM25
 │   ├── ocr.py                     # Qwen3.5-OCR 调用与结果规范化
@@ -280,12 +282,14 @@ Qwen3.5-OCR 不替代现有视觉模型：OCR 负责提取图片中的文字和�
 | 文件 | 职责 |
 |---|---|
 | `manifest.json` | 声明 `mmwiki-0.1`、来源、解析器和产物路径 |
-| `items.jsonl` | 保存原文、完整表格、公式、页码、资源引用和 provenance |
+| `items.jsonl` | 保存原文、完整表格、公式、页码、bbox、资源引用和 provenance |
 | `chunks.jsonl` | 保存检索单元，但不取代 Item 或原始资产 |
 | `assets.json` | 保存资源路径、媒体类型和 SHA-256 |
 | `assets/` | 保存图片、图表、表格截图和公式截图 |
 
 Source Package 中的绝对路径、`../` 路径逃逸、悬空 Item/Asset 引用和错误 SHA-256 会被拒绝。
+
+构建时会从每个 Item 的 `page_start`、`bbox`、`provenance.raw_ref` 和读取顺序自动生成 `runtime/page-index.json`。正文 Item 显示为“第 N 页 · 第 M 段”，图片、表格和公式显示为对应页面区域；没有页码的用户输入仍可进入 Wiki，但会在 `/wiki-check` 中明确列为不可精确定位，不会猜测页码。
 
 ## 接入用户已有 Markdown Wiki
 
@@ -311,7 +315,7 @@ python3 app.py query "图片中的系统架构是什么？" \
 
 ## 仓库内置构建数据
 
-`data/source_packages/` 提供当前活跃 Wiki 使用的 5 份 Source Package，共包含 212 个 Item、182 个 Chunk 和 28 个视觉 Asset，覆盖中文/英文文本、复杂表格、公式、图片和图表。
+`data/source_packages/` 中的 5 份 Source Package 仅作为框架回归测试数据，共包含 212 个 Item、182 个 Chunk 和 28 个视觉 Asset。实际使用时由用户提供符合 `mmwiki-0.1` 的数据包，构建、Page Index、检索和展示链路不依赖这 5 个来源的名称或内容。
 
 ```bash
 python3 app.py validate \
@@ -427,10 +431,10 @@ python3 app.py build-wiki-index --vector-retrieval on
 
 1. **结论**：直接回答，或明确说明证据不足；事实后使用 `〔1〕` 短引用。
 2. **知识入口**：只展示最多两个最相关的 Wiki 页面，不显示内部检索通道和长摘要。
-3. **证据依据**：正文中的 `〔1〕` 直接对应下方 `〔1〕` 证据卡片，不再增加重复的引用索引。卡片集中展示来源、页码、类型、Evidence ID、Wiki/原图链接和完整表格；图片卡片先展示原图，再分别标注 VLM 理解、OCR 文字和 MinerU 原始 Caption 及其来源。
+3. **证据依据**：正文中的 `〔1〕` 直接对应下方 `〔1〕` 证据卡片，不再增加重复的引用索引。卡片展示来源、页码、段落/区域、章节、原文摘录、Evidence ID 和完整表格，并分别提供“查看 Wiki 页面”“定位原始 Evidence”“打开原图”入口；图片卡片先展示原图，再分别标注 VLM 理解、OCR 文字和 MinerU 原始 Caption 及其来源。
 4. **运行信息**：展示检索模式、模型、回退、延迟和 Token。
 
-OpenCode 对话是默认的完整问答页面，用户不离开 OpenCode 也能看完结论、证据、表格和图片。双栏核验页可在“Wiki 页面”和“原始 Evidence”之间切换，并可在多个证据编号之间切换，但它只是可选的进一步核验入口。
+OpenCode 对话是默认的完整问答页面，用户不离开 OpenCode 也能看完结论、证据、表格和图片。用户点击证据卡片时直接进入对应 Wiki 页面或来源页中的 Evidence 锚点，不经过重复展示答案的中间页；双栏核验路由仅为旧链接和内部调试保留。
 
 更详细的桌面版操作说明见 [OPENCODE_START_HERE.md](OPENCODE_START_HERE.md)。
 
@@ -465,7 +469,7 @@ python3 app.py api --host 127.0.0.1 --port 19828
 |---|---|---|
 | `GET` | `/api/v1/health` | 模型与索引状态 |
 | `GET` | `/api/v1/sources` | 已摄入来源 |
-| `GET` | `/query/view?id=...&evidence=1` | 左侧问答、右侧 Wiki/Evidence 的双栏核验页 |
+| `GET` | `/query/view?id=...&evidence=1` | 兼容旧链接和内部调试的双栏核验页；不作为用户默认入口 |
 | `GET` | `/wiki/view?path=wiki/...md` | 渲染 Wiki 页面和 WikiLink |
 | `GET` | `/api/v1/media/assets/...` | 返回原始视觉 Evidence |
 | `POST` | `/api/v1/search` | Wiki 导航与 Evidence 检索 |

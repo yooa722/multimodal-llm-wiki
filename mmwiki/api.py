@@ -14,6 +14,9 @@ from .provider import OpenAICompatibleProvider, ProviderError
 from .web import render_query_html, render_wiki_html, resolve_vault_path
 
 
+PRESENTATION_VERSION = "split-query-v2"
+
+
 def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> None:
     pipeline = WikiPipeline(project_root)
     vault_root = project_root / "runtime/vault"
@@ -23,7 +26,7 @@ def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> Non
         provider = OpenAICompatibleProvider(project_root, task)
         return {
             "status": "ok" if provider.configured else "needs_configuration",
-            "presentation_version": "split-query-v1",
+            "presentation_version": PRESENTATION_VERSION,
             "project_root": str(project_root.resolve()),
             "server_pid": os.getpid(),
             "mode": "online_multimodal_qa" if pipeline.features.enable_vlm else "online_text_qa",

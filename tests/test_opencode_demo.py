@@ -87,6 +87,7 @@ class OpenCodeDemoTests(unittest.TestCase):
         self.assertNotIn("mmwiki-action", presenter)
         self.assertIn("不得调用 Bash", presenter)
         self.assertIn('markdownResult(context, "Wiki 完整回答"', tool_source)
+        self.assertIn('PRESENTATION_VERSION = "split-query-v2"', tool_source)
         self.assertIn('"tool.execute.after"', passthrough)
         self.assertIn('"experimental.text.complete"', passthrough)
         self.assertIn("output.text = wikiOutput", passthrough)
@@ -197,11 +198,25 @@ class OpenCodeDemoTests(unittest.TestCase):
             "question": "预算是多少",
             "answer": f"开发测试阶段预算为300万元〔{evidence_id}〕。",
             "evidence_refs": [evidence_id],
+            "evidence_locations": [
+                {
+                    "evidence_id": evidence_id,
+                    "page_index": 0,
+                    "page_number": 1,
+                    "block_index": 10,
+                    "paragraph_index": None,
+                    "location_label": "第 1 页 · 表格区域",
+                    "breadcrumb": "项目实施 > 工期与预算",
+                    "raw_ref": "content_list_v2[0][9]",
+                    "quote": "开发测试阶段工期120天，人力15人，预算300万元。",
+                    "bbox": {"values": [100, 200, 900, 700]},
+                }
+            ],
             "citations": [
                 {
                     "source_id": "source",
                     "chunk_id": "chunk-1",
-                    "title": "工期与预算",
+                    "title": "图片派生证据",
                     "snippet": "开发测试 300",
                     "item_ids": ["item-1"],
                     "evidence_ids": [evidence_id],
@@ -251,13 +266,17 @@ class OpenCodeDemoTests(unittest.TestCase):
             rendered,
         )
         self.assertNotIn("## 引用索引", rendered)
-        self.assertIn(
-            "### 〔1〕 工期与预算｜智慧交通管理平台建设方案｜第 1 页｜表格",
-            rendered,
-        )
+        self.assertIn("### 〔1〕 工期与预算", rendered)
+        self.assertIn("- **来源：** 智慧交通管理平台建设方案", rendered)
+        self.assertIn("- **位置：** 第 1 页 · 表格区域", rendered)
+        self.assertIn("- **类型：** 表格", rendered)
+        self.assertIn("- **章节：** 项目实施 > 工期与预算", rendered)
         self.assertIn(f"**Evidence ID：** `{evidence_id}`", rendered)
-        self.assertIn("[查看 Wiki 与证据]", rendered)
+        self.assertIn("[查看 Wiki 页面]", rendered)
+        self.assertIn("[定位原始 Evidence]", rendered)
         self.assertIn("[打开原图]", rendered)
+        self.assertIn("wiki/sources/source.md#item-1", rendered)
+        self.assertNotIn("/query/view", rendered)
         self.assertNotIn("[查看完整 Wiki 页面]", rendered)
         self.assertNotIn("[浏览器深度核验]", rendered)
         self.assertNotIn("[浏览器打开原图]", rendered)

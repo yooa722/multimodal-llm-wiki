@@ -35,6 +35,11 @@ def query_view_url(
 
 def _query_evidence_entries(record: dict[str, Any]) -> list[dict[str, Any]]:
     citations = record.get("citations", [])
+    locations = {
+        str(value.get("evidence_id") or ""): value
+        for value in record.get("evidence_locations", [])
+        if isinstance(value, dict) and value.get("evidence_id")
+    }
     evidence_ids = [str(value) for value in record.get("evidence_refs", [])]
     if not evidence_ids:
         evidence_ids = [
@@ -58,6 +63,15 @@ def _query_evidence_entries(record: dict[str, Any]) -> list[dict[str, Any]]:
                 "evidence_id": evidence_id,
                 "item_id": item_id,
                 "citation": citation,
+                "location": locations.get(evidence_id)
+                or next(
+                    (
+                        value
+                        for value in citation.get("evidence_locations", [])
+                        if str(value.get("evidence_id") or "") == evidence_id
+                    ),
+                    {},
+                ),
             }
         )
     return entries
@@ -149,6 +163,9 @@ def render_query_html(
         str(record.get("answer") or ""), query_id, entries, base_url
     )
     page = str((citation.get("pages") or ["未记录"])[0])
+    location = selected.get("location") or {}
+    location_label = str(location.get("location_label") or f"第 {page} 页")
+    breadcrumb = str(location.get("breadcrumb") or "")
     modality = "、".join(map(str, citation.get("modalities", []))) or "未记录"
     evidence_id = str(selected.get("evidence_id") or "未记录")
     question = html.escape(str(record.get("question") or ""))
@@ -185,7 +202,7 @@ def render_query_html(
 <div class="run"><strong>检索模式</strong><span>请求 {html.escape(str(retrieval.get('requested_mode') or '未记录'))} / 实际 {html.escape(str(retrieval.get('mode') or '未记录'))}</span><strong>路由依据</strong><span>{html.escape(str(retrieval.get('routing_reason') or '未记录'))}</span><strong>回退原因</strong><span>{html.escape(str(retrieval.get('fallback_reason') or '无'))}</span><strong>回答模型</strong><span>{html.escape(str(record.get('model') or '未记录'))}</span><strong>Query ID</strong><span>{html.escape(query_id)}</span></div>
 </section>
 <section class="wiki-pane" id="evidence-panel">
-<div class="panel-head"><div class="panel-row"><div class="panel-title">{html.escape(panel_title)}</div><div class="switch"><a class="{'active' if active_view == 'wiki' else ''}" href="{html.escape(wiki_switch, quote=True)}">Wiki 页面</a><a class="{'active' if active_view == 'evidence' else ''}" href="{html.escape(evidence_switch, quote=True)}">原始 Evidence</a></div></div><div class="tabs">{evidence_tabs}</div><div class="meta">Evidence ID：{html.escape(evidence_id)}　·　第 {html.escape(page)} 页　·　{html.escape(modality)}</div></div>
+<div class="panel-head"><div class="panel-row"><div class="panel-title">{html.escape(panel_title)}</div><div class="switch"><a class="{'active' if active_view == 'wiki' else ''}" href="{html.escape(wiki_switch, quote=True)}">Wiki 页面</a><a class="{'active' if active_view == 'evidence' else ''}" href="{html.escape(evidence_switch, quote=True)}">原始 Evidence</a></div></div><div class="tabs">{evidence_tabs}</div><div class="meta">{html.escape(location_label)}　·　{html.escape(modality)}{('　·　' + html.escape(breadcrumb)) if breadcrumb else ''}<br>Evidence ID：{html.escape(evidence_id)}</div></div>
 <iframe title="{html.escape(panel_title, quote=True)}" src="{safe_panel_url}"></iframe>
 </section>
 </div></body></html>"""

@@ -5,7 +5,7 @@ import path from "path"
 
 
 const WIKI_SERVER_URL = "http://127.0.0.1:19828"
-const PRESENTATION_VERSION = "split-query-v1"
+const PRESENTATION_VERSION = "split-query-v2"
 
 
 function markdownResult(
