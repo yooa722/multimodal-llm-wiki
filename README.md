@@ -195,6 +195,7 @@ flowchart LR
 │   ├── tools/wiki.ts              # 类型化 OpenCode 工具
 │   └── package.json               # OpenCode 启动时自动安装的工具依赖
 ├── evaluation/                    # 检索与问答评测集
+├── data/source_packages/          # 与当前演示对齐的 10 份标准构建输入
 ├── runtime/official-image-text/   # 新数据解析结果、Source Package 与活动 Wiki Runtime
 ├── tools/                         # 演示、评测、迁移与增量基准工具
 ├── tests/                         # 核心回归测试
@@ -372,16 +373,16 @@ python3 app.py query "图片中的系统架构是什么？" \
 
 开关关闭时不会调用 VLM、Embedding 或 Rerank，也不会删除已有向量索引。
 
-## 当前数据与历史回归样本
+## 当前数据
 
-当前演示只读取 `runtime/official-image-text/wiki-runtime/` 对应的 10 个新来源。`data/source_packages/` 中的旧版小样本仅用于单元测试和历史基准复现，不参与当前 OpenCode 问答、状态统计或演示问题。
+当前演示读取 `runtime/official-image-text/wiki-runtime/` 中已编译的 10 个来源；`data/source_packages/` 保存同一批来源对应的标准 `mmwiki-0.1` 构建输入。两处来源 ID、版本和校验和保持一致：前者用于直接启动 OpenCode 演示，后者用于验证协议、重新构建和增量回归。
 
 ```bash
 python3 app.py validate \
-  runtime/official-image-text/source-packages/104页-ERP财务供应链解决方案
+  'data/source_packages/104页-ERP财务供应链解决方案/386617a95792'
 ```
 
-完整数据清单、版本和使用边界见 [data/README.md](data/README.md)。合同、简历和财报等已排除来源不随仓库上传。
+完整数据清单、版本和使用边界见 [data/README.md](data/README.md)。旧五来源样例不再保留在 `data/`，合同、简历和财报等已排除来源也不随仓库上传。
 
 ## 从 Source Package 构建 Wiki
 
@@ -573,9 +574,12 @@ python3 app.py lint
 校验并运行评测：
 
 ```bash
-python3 tools/validate_evaluation_suite.py evaluation/multimodal_wiki_40.jsonl
+python3 tools/validate_evaluation_suite.py \
+  evaluation/official_image_text_10_verified.jsonl \
+  --runtime-root runtime/official-image-text/wiki-runtime
 python3 tools/evaluate_retrieval.py \
-  --suite evaluation/multimodal_wiki_40.jsonl \
+  --suite evaluation/official_image_text_10_verified.jsonl \
+  --runtime-root runtime/official-image-text/wiki-runtime \
   --retrieval-mode hybrid
 ```
 

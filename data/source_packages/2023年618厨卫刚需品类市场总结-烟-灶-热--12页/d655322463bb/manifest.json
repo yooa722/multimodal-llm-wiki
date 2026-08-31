@@ -1,0 +1,39 @@
+{
+  "schema_version": "mmwiki-0.1",
+  "package_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页",
+  "document": {
+    "title": "2023年618厨卫刚需品类市场总结（烟、灶、热）-12页",
+    "source": {
+      "filename": "2023年618厨卫刚需品类市场总结（烟、灶、热）-12页.pdf",
+      "structured_output": "raw/edf00c73-9fb3-4f25-afe2-495c8346c35a_content_list_v2.json",
+      "media_type": "application/pdf"
+    }
+  },
+  "parser": {
+    "name": "mineru",
+    "version": "mineru-cloud-vlm",
+    "structured_output": "content_list_v2"
+  },
+  "artifacts": {
+    "items": "items.jsonl",
+    "chunks": "chunks.jsonl",
+    "raw": "raw/",
+    "assets": "assets/",
+    "assets_index": "assets.json"
+  },
+  "counts": {
+    "records": 110,
+    "chunks": 78,
+    "assets": 43
+  },
+  "handoff": {
+    "text_index": "chunks.text",
+    "image_index": "chunks.asset_ids",
+    "table_index": "items.content.table",
+    "answer_citation": "chunks.provenance"
+  },
+  "quality": {
+    "semantic_enrichment": "adjacent-text-for-visual-retrieval",
+    "retrieval_proxy": "deterministic-mineru-adapter"
+  }
+}

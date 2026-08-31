@@ -28,6 +28,26 @@ class BundledDataTests(unittest.TestCase):
 
         self.assertEqual(totals, index["totals"])
 
+    def test_dataset_index_matches_bundled_demo_runtime(self) -> None:
+        data_root = PROJECT_ROOT / "data"
+        index = json.loads((data_root / "index.json").read_text(encoding="utf-8"))
+        state = json.loads(
+            (
+                PROJECT_ROOT
+                / "runtime/official-image-text/wiki-runtime/state.json"
+            ).read_text(encoding="utf-8")
+        )
+        indexed_versions = {
+            record["package_id"]: record["source_version"]
+            for record in index["packages"]
+        }
+        runtime_versions = {
+            source_id: source["source_version"]
+            for source_id, source in state["sources"].items()
+        }
+
+        self.assertEqual(indexed_versions, runtime_versions)
+
 
 if __name__ == "__main__":
     unittest.main()

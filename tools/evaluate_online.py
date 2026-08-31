@@ -79,7 +79,11 @@ def grouped_metrics(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="运行在线多模态问答冒烟评测")
-    parser.add_argument("--suite", type=Path, default=Path("evaluation/online_smoke.jsonl"))
+    parser.add_argument(
+        "--suite",
+        type=Path,
+        default=Path("evaluation/official_image_text_10_verified.jsonl"),
+    )
     parser.add_argument("--output", type=Path, default=Path("reports/online-smoke-results.json"))
     parser.add_argument(
         "--retrieval-mode", choices=("auto", *RETRIEVAL_MODES), default="hybrid"

@@ -1,0 +1,1067 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "需求释放不及预期，冰洗增长静等风来"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                134,
+                244,
+                847,
+                325
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "——冰洗市场Q1小结及五一、618预测"
+                    }
+                ]
+            },
+            "bbox": [
+                494,
+                372,
+                825,
+                414
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "奥维云网（AVC） 大家电事业部"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                512,
+                635,
+                555
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2023.01"
+                    }
+                ]
+            },
+            "bbox": [
+                465,
+                659,
+                530,
+                694
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/e4f779c5ee53a2174ca5bf8943f7d1be1964fa5d194030734227df476140633c.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                745,
+                716,
+                983,
+                975
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维 D  ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                83,
+                879,
+                338,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "对比22Q4成本压力开始显现，聚焦利润or聚焦规模值得思考"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                48,
+                681,
+                98
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "冰洗上游相关原材料价格指数走势图"
+                    }
+                ]
+            },
+            "bbox": [
+                120,
+                153,
+                358,
+                188
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/65d6b874fa247d76d3e5e890cd3d18452bab070bbbf9ee01ff0770c48eb2a3c6.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                52,
+                250,
+                418,
+                525
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6196e03f929bb9779efc93ff0f45904584fe0dab7d38645f5bb957d0ce668d33.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023W01-13线上10Kg洗衣机价格段结构"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                506,
+                162,
+                884,
+                420
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/cb6442240533144f7222ef1b21a61e3e77540e3ec79157bc235a1ba79b60fd29.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td>10kg产品均价</td><td>1315</td><td>2256</td><td>3164</td></tr><tr><td>10Kg产品均价同比</td><td>-7.6%</td><td>-4.5%</td><td>-5.0%</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                453,
+                425,
+                891,
+                501
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/be5a08286083a37e813d2bf09ece7a7847971e7e365948d5d39f24fb84ec8317.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                53,
+                609,
+                418,
+                864
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/1e81a8abb25dbca9fda482325ae52840711c9567657a997e98abed372d11575f.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023W01-13线上冰箱价格段结构"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                508,
+                555,
+                882,
+                838
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/452ec74a11d89689c61665b15f3b2a6ed72c22ee57b163733654cd586e728a7d.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网监测数据，部分整理自公开数据"
+                    }
+                ],
+                "html": "<table><tr><td>产品均价</td><td>3252</td><td>1539</td><td>4070</td></tr><tr><td>产品均价同比</td><td>-2.4%</td><td>-8.2%</td><td>-3.6%</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                491,
+                851,
+                872,
+                927
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                937,
+                132,
+                957
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "超高端人群基数增加，线下高端化趋势仍在延续"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                48,
+                556,
+                98
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/11e24ba64fe566b227e8678fb7e95ca5c4688c42389f2ffefea2776b8fc1523a.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "2021年中国财富家庭规模"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                34,
+                235,
+                578,
+                818
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/2a2649565819cef5d67af9e6939b66c16500c599425e1b854ee2af5a8b7d8f72.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023年线下市场滚筒价格结构"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                603,
+                188,
+                967,
+                550
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/9a4587121edd2ec3e4460a82920ff9f498d727892d839838b599481797d55345.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023年线下市场冰箱价格结构"
+                    }
+                ],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                609,
+                600,
+                973,
+                914
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                937,
+                131,
+                957
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "薄嵌、大容量、白色产品成23年产品的关键词"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                23,
+                46,
+                531,
+                100
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/801eb5675a721a9937065a6ed4d5f9094dd7f7bc6b095bb2105b48bf2f985db2.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023M01-13线上冰洗薄嵌产品零售额规模及同比"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                52,
+                255,
+                331,
+                885
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/5daadab4b25d4726eaddba59637a87745a1628552ee8007d137e9a5ffaddb12e.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023M01-13线上冰洗大容量产品零售额份额及同比"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                358,
+                272,
+                635,
+                800
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/8df22874ffe5c5ef1684b204fc34d8ebe9cf1e1b20e00f42594741330f6fe80a.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023M01-13白色冰箱产品零售额份额 及同比"
+                    }
+                ],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                661,
+                275,
+                938,
+                800
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                973,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                132,
+                957
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "企业发展逻辑有所转向，冰洗市场价格战苗头已现"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                23,
+                48,
+                582,
+                100
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/770b08a7ad0d5fc43956a6028e49e1bedc147d1d4a09735f5216b58b8991268a.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023M01-13线上市场冰洗细分品类价格同比"
+                    }
+                ],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                95,
+                209,
+                889,
+                816
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维    ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                937,
+                132,
+                957
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/3059d6079ca98b3dc284d8a65759fed5401329c70fe4ea8ad4382fb4c510ccf3.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）预测数据"
+                    }
+                ],
+                "html": "<table><tr><td rowspan=\"2\" colspan=\"2\">五一促销期:23W18-19(4月24日到5月7日)</td><td colspan=\"2\">线上(万台,亿元)</td><td colspan=\"2\">线下(万台,亿元)</td><td colspan=\"2\">全渠道(万台,亿元)</td></tr><tr><td>零售量</td><td>零售额</td><td>零售量</td><td>零售额</td><td>零售量</td><td>零售额</td></tr><tr><td rowspan=\"2\">冰箱</td><td>规模</td><td>106.7</td><td>22.4</td><td>52.6</td><td>34.8</td><td>159.3</td><td>57.3</td></tr><tr><td>同比</td><td>1.9%</td><td>2.5%</td><td>-2.6%</td><td>2.9%</td><td>0.3%</td><td>2.7%</td></tr><tr><td rowspan=\"2\">冷柜</td><td>规模</td><td>30.1</td><td>3.5</td><td>16.2</td><td>1.9</td><td>46.3</td><td>5.4</td></tr><tr><td>同比</td><td>8.4%</td><td>5.7%</td><td>-4.7%</td><td>-2.8%</td><td>3.4%</td><td>2.5%</td></tr><tr><td rowspan=\"2\">洗衣机</td><td>规模</td><td>76.9</td><td>12.2</td><td>53.2</td><td>19.8</td><td>130.1</td><td>32.0</td></tr><tr><td>同比</td><td>1.0%</td><td>3.9%</td><td>6.3%</td><td>8.0%</td><td>3.1%</td><td>6.4%</td></tr><tr><td rowspan=\"2\">干衣机</td><td>规模</td><td>2.9</td><td>1.1</td><td>3.1</td><td>2.5</td><td>6.0</td><td>3.6</td></tr><tr><td>同比</td><td>-15.6%</td><td>-17.5%</td><td>12.2%</td><td>7.0%</td><td>-3.4%</td><td>-2.0%</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                65,
+                179,
+                948,
+                888
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2023年五一促销期市场预测"
+                    }
+                ]
+            },
+            "bbox": [
+                23,
+                48,
+                330,
+                98
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                821,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                132,
+                957
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/dde4c7ecb14200547089fd9154c2a953f0df647d55c4e7f75d61b0affbfba1a5.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）预测数据"
+                    }
+                ],
+                "html": "<table><tr><td rowspan=\"2\" colspan=\"2\">618促销期:W23-25(5月29日到6月18日)</td><td colspan=\"2\">线上(万台,亿元)</td><td colspan=\"2\">线下(万台,亿元)</td><td colspan=\"2\">全渠道(万台,亿元)</td></tr><tr><td>零售量</td><td>零售额</td><td>零售量</td><td>零售额</td><td>零售量</td><td>零售额</td></tr><tr><td rowspan=\"2\">冰箱</td><td>规模</td><td>356.8</td><td>91.2</td><td>104.2</td><td>48.9</td><td>461.0</td><td>140.1</td></tr><tr><td>同比</td><td>3.8%</td><td>3.3%</td><td>-5.7%</td><td>-2.6%</td><td>1.5%</td><td>1.1%</td></tr><tr><td rowspan=\"2\">冷柜</td><td>规模</td><td>75.8</td><td>9.5</td><td>35.1</td><td>8.3</td><td>110.9</td><td>17.8</td></tr><tr><td>同比</td><td>6.5%</td><td>5.4%</td><td>1.1%</td><td>5.8%</td><td>4.7%</td><td>7.5%</td></tr><tr><td rowspan=\"2\">洗衣机</td><td>规模</td><td>346.1</td><td>47.5</td><td>70.1</td><td>25.7</td><td>416.2</td><td>73.2</td></tr><tr><td>同比</td><td>2.7%</td><td>-2.1%</td><td>2.4%</td><td>1.0%</td><td>2.7%</td><td>-1.0%</td></tr><tr><td rowspan=\"2\">干衣机</td><td>规模</td><td>6.7</td><td>2.5</td><td>6.1</td><td>5.1</td><td>12.9</td><td>7.6</td></tr><tr><td>同比</td><td>-13.2%</td><td>-19.4%</td><td>3.0%</td><td>3.7%</td><td>-6.0%</td><td>-5.2%</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                65,
+                188,
+                942,
+                875
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2023年618促销期市场预测"
+                    }
+                ]
+            },
+            "bbox": [
+                23,
+                48,
+                317,
+                98
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                821,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                132,
+                957
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "欢迎试用奥维微信小程序"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                137,
+                150,
+                534,
+                377
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/afa2479235e216117b0b7f780c0c277087431ca07347a210a96d1e05d0d1b37f.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": [
+                    {
+                        "type": "text",
+                        "content": "权威数据、报告尽在AVC微信"
+                    }
+                ]
+            },
+            "bbox": [
+                61,
+                535,
+                150,
+                740
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "奥维云网（证券代码：831101），是专注于垂直领域的大数据应用技术和解决方案服务商。公司以开放式大数据平台为核心资源，整合全产业链数据体系具备从数据采集处理、存储计算、挖掘分析、可视化和应用等核心环节的大数据技术能力，现阶段主要面向零售交易大数据、家庭互联网用户大数据、企业大数据、金融大数据、酒店及旅游大数据等领域，凭借自身数据、技术、服务和产业资源优势，为企业提供“数据＋技术＋服务”的全方位大数据解决方案"
+                    }
+                ]
+            },
+            "bbox": [
+                196,
+                551,
+                630,
+                744
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/cbc7011d8f070499aa920139c8d0335b6da1cc62e83e386b2855b11a3b234dd7.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                700,
+                77,
+                903,
+                440
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b207ae398ecca70839de7edcf1a87c543217c627b43680b994d86914112f5a0c.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                655,
+                625,
+                998,
+                972
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维 D  ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                91,
+                879,
+                346,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "解锁你的私人报告库，用数据解读行业微信订阅：51报告库"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                84,
+                162,
+                594,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "直接获取报告合集细分领域每日更新"
+                    }
+                ]
+            },
+            "bbox": [
+                101,
+                442,
+                517,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1、每日免费领取1份最新精选研究报告/数据分析/上市路演/营销资料"
+                    }
+                ]
+            },
+            "bbox": [
+                81,
+                557,
+                652,
+                598
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2、加入社群获取100+行业细分领域年度报告合集"
+                    }
+                ]
+            },
+            "bbox": [
+                81,
+                618,
+                491,
+                657
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3、加入社群获取每周700+最新行业报告"
+                    }
+                ]
+            },
+            "bbox": [
+                81,
+                677,
+                417,
+                718
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4、加入后赠送PDF编辑转换软件"
+                    }
+                ]
+            },
+            "bbox": [
+                81,
+                738,
+                353,
+                777
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "涵盖国内外各大机构 100+细分行业全网最全"
+                    }
+                ]
+            },
+            "bbox": [
+                83,
+                814,
+                453,
+                853
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/86ef6064792e70e788a387a812fa1680a116a2943e8d3d8e410b351daecc5676.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                746,
+                118,
+                925,
+                435
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "识别二维码立即关注"
+                    }
+                ]
+            },
+            "bbox": [
+                738,
+                474,
+                926,
+                516
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/58575fe6784360684da72dcca17c5b022350e47b462ec7d2040638e3381ba87d.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                714,
+                666,
+                958,
+                977
+            ]
+        }
+    ]
+]

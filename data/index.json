@@ -1,57 +1,122 @@
 {
   "schema_version": "mmwiki-dataset-index-0.1",
-  "description": "Source Packages used by the OpenCode multimodal LLM Wiki demo",
+  "description": "Current 10-source Source Package dataset aligned with the bundled OpenCode multimodal LLM Wiki Runtime",
   "totals": {
-    "packages": 5,
-    "items": 212,
-    "chunks": 182,
-    "assets": 28
+    "packages": 10,
+    "items": 5121,
+    "chunks": 4376,
+    "assets": 1082
   },
   "packages": [
     {
-      "package_id": "中文_006_chinese_mixed",
-      "source_version": "52790e363edc",
-      "checksum": "52790e363edc473afbbb54926621647df7ca09645a70dab6f769868c1fdeff0b",
-      "path": "source_packages/中文_006_chinese_mixed/52790e363edc",
-      "items": 13,
-      "chunks": 12,
-      "assets": 1
+      "package_id": "104页-ERP财务供应链解决方案",
+      "title": "104页-ERP财务供应链解决方案",
+      "source_version": "386617a95792",
+      "checksum": "386617a95792830d6975978d4143d29ffa21982ebe76ffcb15c4c549038766e8",
+      "path": "source_packages/104页-ERP财务供应链解决方案/386617a95792",
+      "items": 784,
+      "chunks": 665,
+      "assets": 158,
+      "modalities": ["image", "page_footer", "page_number", "paragraph", "table", "title"]
     },
     {
-      "package_id": "报纸_001_the_global_herald",
-      "source_version": "cc7688b9b6f5",
-      "checksum": "cc7688b9b6f5abb7448f319130be6376102359cef0e4eed4040a87831ef09f23",
-      "path": "source_packages/报纸_001_the_global_herald/cc7688b9b6f5",
-      "items": 42,
-      "chunks": 41,
-      "assets": 2
+      "package_id": "110页-供应链解决方案",
+      "title": "110页-供应链解决方案",
+      "source_version": "2131a4bf9628",
+      "checksum": "2131a4bf9628db9d90fb05a3317d84f80036a745451b57d400a4c2e251c6ac29",
+      "path": "source_packages/110页-供应链解决方案/2131a4bf9628",
+      "items": 815,
+      "chunks": 815,
+      "assets": 35,
+      "modalities": ["image", "paragraph", "table", "title"]
     },
     {
-      "package_id": "杂志_001_tech_frontier",
-      "source_version": "4fa795b8a87f",
-      "checksum": "4fa795b8a87f7f66d2b276859d097cd8d540126274e9c88aa6acbdda8e0ccf6b",
-      "path": "source_packages/杂志_001_tech_frontier/4fa795b8a87f",
-      "items": 34,
-      "chunks": 21,
-      "assets": 1
+      "package_id": "20230507-小红书-服饰潮流行业-好产品赢战618",
+      "title": "20230507-小红书-服饰潮流行业：好产品赢战618",
+      "source_version": "7943c2dd3155",
+      "checksum": "7943c2dd315590ab318f710482e332b07f4cce7df1b373851e05ef592ff86d67",
+      "path": "source_packages/20230507-小红书-服饰潮流行业-好产品赢战618/7943c2dd3155",
+      "items": 666,
+      "chunks": 517,
+      "assets": 129,
+      "modalities": ["chart", "image", "page_footer", "page_header", "page_number", "paragraph", "table", "title"]
     },
     {
-      "package_id": "表格_018_irs_7004_extension_corp",
-      "source_version": "3cffac6e9f35",
-      "checksum": "3cffac6e9f35369ed9cf68837fcbc5c36fcf0b7393ce07090bf09ae7ab426cb7",
-      "path": "source_packages/表格_018_irs_7004_extension_corp/3cffac6e9f35",
-      "items": 5,
-      "chunks": 1,
-      "assets": 1
+      "package_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页",
+      "title": "2023年618厨卫刚需品类市场总结（烟、灶、热）-12页",
+      "source_version": "d655322463bb",
+      "checksum": "d655322463bbc11856b5c8ce67620d78f95e4bd1006a98284ffaada328cc57e1",
+      "path": "source_packages/2023年618厨卫刚需品类市场总结-烟-灶-热--12页/d655322463bb",
+      "items": 110,
+      "chunks": 78,
+      "assets": 43,
+      "modalities": ["chart", "image", "page_footer", "page_header", "page_number", "paragraph", "title"]
     },
     {
-      "package_id": "论文_002_cs_LG",
-      "source_version": "1d9dabf3e92b",
-      "checksum": "1d9dabf3e92b1c9074166d278f06fb9116fa664a4caefec1972eefd9a25829be",
-      "path": "source_packages/论文_002_cs_LG/1d9dabf3e92b",
-      "items": 118,
-      "chunks": 107,
-      "assets": 23
+      "package_id": "23年开年冰洗小结及五一-618预测-8页",
+      "title": "23年开年冰洗小结及五一、618预测-8页",
+      "source_version": "4df2a4272bb5",
+      "checksum": "4df2a4272bb5352e7d1f8124b7bc55bad4571f50aebe827a9e44fc6a502c37ca",
+      "path": "source_packages/23年开年冰洗小结及五一-618预测-8页/4df2a4272bb5",
+      "items": 56,
+      "chunks": 40,
+      "assets": 21,
+      "modalities": ["chart", "image", "page_footer", "page_header", "paragraph", "table", "title"]
+    },
+    {
+      "package_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究",
+      "title": "3 类典型株型草本植物对沙面风蚀抑制作用的研究",
+      "source_version": "f6bdeb42a3b8",
+      "checksum": "f6bdeb42a3b87e4c1a246b3f12199af8f9f7b34fb4dc2dcc42793f0768ddd121",
+      "path": "source_packages/3-类典型株型草本植物对沙面风蚀抑制作用的研究/f6bdeb42a3b8",
+      "items": 152,
+      "chunks": 110,
+      "assets": 12,
+      "modalities": ["chart", "equation", "image", "list", "page_aside_text", "page_footer", "page_footnote", "page_header", "page_number", "paragraph", "title"]
+    },
+    {
+      "package_id": "618新生活购物趋势洞察报告-37页",
+      "title": "618新生活购物趋势洞察报告-37页",
+      "source_version": "e92cbcfca65e",
+      "checksum": "e92cbcfca65e1170c0121d3f723c6efdb08a9bd7a432d1c3abaec353fdbfa2f0",
+      "path": "source_packages/618新生活购物趋势洞察报告-37页/e92cbcfca65e",
+      "items": 741,
+      "chunks": 649,
+      "assets": 119,
+      "modalities": ["chart", "image", "page_footer", "page_header", "paragraph", "title"]
+    },
+    {
+      "package_id": "厚叶卷瓣兰_中国兰科一新记录种",
+      "title": "厚叶卷瓣兰_中国兰科一新记录种",
+      "source_version": "f375999282d8",
+      "checksum": "f375999282d804b52a6ff3704d36d4f386869729c26b3ac5af26193f6ee50396",
+      "path": "source_packages/厚叶卷瓣兰_中国兰科一新记录种/f375999282d8",
+      "items": 52,
+      "chunks": 45,
+      "assets": 1,
+      "modalities": ["image", "list", "page_footnote", "page_header", "page_number", "paragraph", "title"]
+    },
+    {
+      "package_id": "服饰潮流行业-闭环全攻略",
+      "title": "【服饰潮流行业】闭环全攻略",
+      "source_version": "e471f79c739e",
+      "checksum": "e471f79c739ea4b60ec329ff73a0f57e67486bc1ebe100f492400f0e628ea538",
+      "path": "source_packages/服饰潮流行业-闭环全攻略/e471f79c739e",
+      "items": 1055,
+      "chunks": 962,
+      "assets": 407,
+      "modalities": ["chart", "image", "page_footer", "page_header", "page_number", "paragraph", "table", "title"]
+    },
+    {
+      "package_id": "果集数据-抖音618好物节电商报告-62页",
+      "title": "果集数据-抖音618好物节电商报告-62页",
+      "source_version": "7204bf81d8da",
+      "checksum": "7204bf81d8da2461ebcff5d055a94a29cf4a7cc58f4a375d45df81dcbade23bb",
+      "path": "source_packages/果集数据-抖音618好物节电商报告-62页/7204bf81d8da",
+      "items": 690,
+      "chunks": 495,
+      "assets": 157,
+      "modalities": ["chart", "image", "page_footer", "page_header", "paragraph", "table", "title"]
     }
   ]
 }

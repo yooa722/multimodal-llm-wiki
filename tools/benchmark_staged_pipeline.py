@@ -23,11 +23,16 @@ from tools.evaluate_retrieval import evaluate_pipeline, load_jsonl
 
 
 DEFAULT_SOURCE_IDS = (
-    "中文_006_chinese_mixed",
-    "报纸_001_the_global_herald",
-    "杂志_001_tech_frontier",
-    "表格_018_irs_7004_extension_corp",
-    "论文_002_cs_LG",
+    "104页-ERP财务供应链解决方案",
+    "110页-供应链解决方案",
+    "20230507-小红书-服饰潮流行业-好产品赢战618",
+    "2023年618厨卫刚需品类市场总结-烟-灶-热--12页",
+    "23年开年冰洗小结及五一-618预测-8页",
+    "3-类典型株型草本植物对沙面风蚀抑制作用的研究",
+    "618新生活购物趋势洞察报告-37页",
+    "厚叶卷瓣兰_中国兰科一新记录种",
+    "服饰潮流行业-闭环全攻略",
+    "果集数据-抖音618好物节电商报告-62页",
 )
 
 
@@ -220,12 +225,12 @@ def main() -> int:
         type=Path,
         action="append",
         default=[],
-        help="Source Package，可重复；默认使用 40 题覆盖的 5 个来源",
+        help="Source Package，可重复；默认使用当前 data/index.json 中的 10 个来源",
     )
     parser.add_argument(
         "--suite",
         type=Path,
-        default=PROJECT_ROOT / "evaluation/multimodal_wiki_40.jsonl",
+        default=PROJECT_ROOT / "evaluation/official_image_text_10_verified.jsonl",
     )
     parser.add_argument(
         "--provider", choices=("baseline", "api"), default="api"
@@ -250,10 +255,14 @@ def main() -> int:
     if args.offline and args.provider == "api":
         args.provider = "baseline"
 
-    packages = args.package or [
-        PROJECT_ROOT / "runtime/reference-packages" / source_id
-        for source_id in DEFAULT_SOURCE_IDS
-    ]
+    dataset_index = json.loads(
+        (PROJECT_ROOT / "data/index.json").read_text(encoding="utf-8")
+    )
+    package_paths = {
+        str(record["package_id"]): PROJECT_ROOT / "data" / str(record["path"])
+        for record in dataset_index["packages"]
+    }
+    packages = args.package or [package_paths[source_id] for source_id in DEFAULT_SOURCE_IDS]
     packages = [path.expanduser().resolve() for path in packages]
     missing = [str(path) for path in packages if not (path / "manifest.json").is_file()]
     if missing:

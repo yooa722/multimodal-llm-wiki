@@ -14,7 +14,10 @@ from mmwiki.retrieval import RetrievalIndex
 
 class IncrementalWikiTests(unittest.TestCase):
     def test_mineru_caption_is_matched_by_image_sha256(self) -> None:
-        package_root = Path(__file__).parents[1] / "data/source_packages/论文_002_cs_LG/1d9dabf3e92b"
+        package_root = (
+            Path(__file__).parents[1]
+            / "data/source_packages/厚叶卷瓣兰_中国兰科一新记录种/f375999282d8"
+        )
         package = load_package(package_root)
         item = next(item for item in package.items if item.asset_ids and item.caption)
         asset = package.assets[item.asset_ids[0]]

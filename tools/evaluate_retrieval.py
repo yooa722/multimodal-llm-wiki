@@ -212,7 +212,11 @@ def evaluate_pipeline(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="评测多模态 Wiki 证据检索")
-    parser.add_argument("--suite", type=Path, default=Path("evaluation/demo_qa.jsonl"))
+    parser.add_argument(
+        "--suite",
+        type=Path,
+        default=Path("evaluation/official_image_text_10_verified.jsonl"),
+    )
     parser.add_argument("--output", type=Path, default=Path("reports/retrieval-results.json"))
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument("--wiki-source-k", type=int, default=3)

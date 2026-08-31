@@ -1,0 +1,39 @@
+{
+  "schema_version": "mmwiki-0.1",
+  "package_id": "服饰潮流行业-闭环全攻略",
+  "document": {
+    "title": "【服饰潮流行业】闭环全攻略",
+    "source": {
+      "filename": "【服饰潮流行业】闭环全攻略.pdf",
+      "structured_output": "raw/bfef0443-de66-41ff-84f9-d3b16d745a53_content_list_v2.json",
+      "media_type": "application/pdf"
+    }
+  },
+  "parser": {
+    "name": "mineru",
+    "version": "mineru-cloud-vlm",
+    "structured_output": "content_list_v2"
+  },
+  "artifacts": {
+    "items": "items.jsonl",
+    "chunks": "chunks.jsonl",
+    "raw": "raw/",
+    "assets": "assets/",
+    "assets_index": "assets.json"
+  },
+  "counts": {
+    "records": 1055,
+    "chunks": 962,
+    "assets": 407
+  },
+  "handoff": {
+    "text_index": "chunks.text",
+    "image_index": "chunks.asset_ids",
+    "table_index": "items.content.table",
+    "answer_citation": "chunks.provenance"
+  },
+  "quality": {
+    "semantic_enrichment": "adjacent-text-for-visual-retrieval",
+    "retrieval_proxy": "deterministic-mineru-adapter"
+  }
+}

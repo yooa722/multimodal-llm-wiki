@@ -21,8 +21,14 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="校验多模态 Wiki 评测金标")
     parser.add_argument("suite", type=Path)
+    parser.add_argument(
+        "--runtime-root",
+        type=Path,
+        default=PROJECT_ROOT / "runtime",
+        help="待校验 Runtime；默认使用项目 runtime/",
+    )
     args = parser.parse_args()
-    state = json.loads((PROJECT_ROOT / "runtime/state.json").read_text(encoding="utf-8"))
+    state = json.loads((args.runtime_root / "state.json").read_text(encoding="utf-8"))
     cases = load_jsonl(args.suite)
     errors: list[str] = []
     seen_ids: set[str] = set()

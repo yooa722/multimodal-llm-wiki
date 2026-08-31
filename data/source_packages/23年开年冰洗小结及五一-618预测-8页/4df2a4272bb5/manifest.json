@@ -1,0 +1,39 @@
+{
+  "schema_version": "mmwiki-0.1",
+  "package_id": "23年开年冰洗小结及五一-618预测-8页",
+  "document": {
+    "title": "23年开年冰洗小结及五一、618预测-8页",
+    "source": {
+      "filename": "23年开年冰洗小结及五一、618预测-8页.pdf",
+      "structured_output": "raw/6a8f1afb-59f9-4547-bd32-42cecaba4fb9_content_list_v2.json",
+      "media_type": "application/pdf"
+    }
+  },
+  "parser": {
+    "name": "mineru",
+    "version": "mineru-cloud-vlm",
+    "structured_output": "content_list_v2"
+  },
+  "artifacts": {
+    "items": "items.jsonl",
+    "chunks": "chunks.jsonl",
+    "raw": "raw/",
+    "assets": "assets/",
+    "assets_index": "assets.json"
+  },
+  "counts": {
+    "records": 56,
+    "chunks": 40,
+    "assets": 21
+  },
+  "handoff": {
+    "text_index": "chunks.text",
+    "image_index": "chunks.asset_ids",
+    "table_index": "items.content.table",
+    "answer_citation": "chunks.provenance"
+  },
+  "quality": {
+    "semantic_enrichment": "adjacent-text-for-visual-retrieval",
+    "retrieval_proxy": "deterministic-mineru-adapter"
+  }
+}
