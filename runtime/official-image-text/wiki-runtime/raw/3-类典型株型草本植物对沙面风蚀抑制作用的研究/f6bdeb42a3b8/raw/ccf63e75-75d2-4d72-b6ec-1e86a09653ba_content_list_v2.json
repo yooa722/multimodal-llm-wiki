@@ -1,0 +1,3061 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3类典型株型草本植物对沙面风蚀抑制作用的研究"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                112,
+                143,
+                882,
+                172
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "程锋梅<sup>1,2,3</sup>， 李生宇<sup>2,3</sup>， 郑 伟<sup>1</sup>， 赵淳宇<sup>1,2,3</sup>， 范敬龙<sup>2,3</sup>，王世杰1,2,3， 王海峰2,3， 俞祥祥2,3"
+                    }
+                ]
+            },
+            "bbox": [
+                181,
+                192,
+                789,
+                236
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "（1.新疆农业大学草业学院，新疆 乌鲁木齐 830052；2.中国科学院新疆生态与地理研究所，国家荒漠-绿洲生态建设工程技术研究中心，新疆 乌鲁木齐 830011；3. 中国科学院新疆生态与地理研究所莫索湾沙漠研究站，新疆 石河子 832000）"
+                    }
+                ]
+            },
+            "bbox": [
+                191,
+                247,
+                803,
+                297
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "摘 要：植物自身具有维持生境稳定性的独特功能，而植物株型为主要作用要素之一。研究不同株型草本植物在沙质荒漠地区的地面抗风蚀作用，可以为制定生态恢复措施提供重要的科学参考。通过风洞实验，对3种植物株型（匍匐状、球状、丛状）的草本植物在 种覆盖度（ 、 、 、 和 ）条件下的沙面风蚀率进行了测定，并分析了各株型的风蚀抑制率。结果表明：（1）3种株型草本植物随覆盖度增加，空气动力学粗糙度和对风速的削减均逐步增加。在覆盖度较低时，不同植物株型之间的风蚀抑制率差异较大，球状和匍匐状植物株型固沙能力相对较高，而丛状植物株型固沙能力相对较低；较高风蚀抑制效率植物株型可以达到较低风蚀抑制效率植物株型在较高覆盖度条件下的固沙效果。（2）在覆盖度30%时，匍匐状和球状植物的风蚀抑制效率分别为47.55%、55.70%，分别接近丛状植物覆盖度40%（48.46%）和45%（56.94%）的风蚀抑制效率。（3）3种株型草本植物的风蚀抑制效率均随覆盖度增加而增加，覆盖度越小，三者差异越大，反之覆盖度越大差异越小；类植物株型的风蚀率匍匐状最低，球状次之，丛状最高；风蚀抑制效率匍匐状最高，球状次之，丛状最低。"
+                    }
+                ]
+            },
+            "bbox": [
+                124,
+                317,
+                873,
+                497
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "关键词：草本植物；植物株型；风洞实验；风蚀率；风蚀抑制效率"
+                    }
+                ]
+            },
+            "bbox": [
+                124,
+                500,
+                571,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "植物能有效抑制地表风蚀<sup>［1］</sup>，是沙质荒漠化防治的主要措施<sup>［2］</sup>。植物地上部分可以通过多种方式对地表形成保护，其作用机理在于覆盖部分地表、分解部分风动量、阻拦被蚀物质使其沉降<sup>［3］</sup>。植物对地表风蚀的防控作用主要取决于植物特征，如高度、宽度、株型、疏透度、枝条弹性<sup>［4］</sup>、根系特征<sup>［5］</sup>，也与覆盖度、排列方式<sup>［4］</sup>等分布格局<sup>［6］</sup>有关。目前，国内外学者对于乔灌木<sup>［7-8］</sup>、作物残茬<sup>［9］</sup>和耕作方式<sup>［10</sup>及排列方式<sup>［11］</sup>等与风蚀的关系做了大量研究。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                533,
+                485,
+                708
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "对于草本植物以及植物不同株型与风蚀关系的相关研究相对较少，并主要集中在单株植物对风速的影响。张文等<sup>［12］</sup>通过对 种不同形态的模型和圆木棒进行研究，发现2种上大下小的柔性植物形态具有较好的阻沙作用，2种具有树冠和树干的树状植株形态的防风效应和防护距离相对较大，而圆木棒单株模型对风速以及风蚀防治效应的影响相对较小。Cheng等<sup>［</sup>13<sup>］</sup>利用风洞实验，研究了8种单株植物的背风侧气流变化，发现不同形态或孔隙率植物对风速的影响不同。王成龙<sup>［14］</sup>通过研究 种植物对风速的影响，发现4种植物单株对气流影响最明显的高度存在显著差别。Gillies等<sup>［</sup>15<sup>］</sup>通过对3种植物形态的研究，发现不同形态对风速阻力系数有很大差别。现有研究增强了人们对单株植株形态防风作用的认识，但对于不同形态植物群体的防风作用，以及草本植物防治风蚀的效果有必要进一步加强研究。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                709,
+                484,
+                807
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                510,
+                533,
+                907,
+                747
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "虽然在沙质荒漠生态系统中，草本植物生物量占比很小，但对物种丰富度和多样性贡献很大，而且在生态系统中发挥着重要作用<sup>［</sup>16<sup>］</sup>。在0~30 cm高度范围内，地面风速大，沙粒移动能力强，草本植物可以有效地抑制沙粒蠕动和跃移运动<sup>［17］</sup>。短命和类短命草本植物可以利用春季融雪水，迅速完成生活史，对春季风蚀防治发挥了重要作用<sup>［18］</sup>，虽然生长季后植物地上部分枯萎凋落，但是枯立地上部分仍能发挥一定的防风固沙作用<sup>［19］</sup>。株型是影响植物防护效应的重要因素，不同株型植物的防护效率存在显著差异。本文采用风洞实验，对3类典型株型草本植物的风蚀防治作用进行研究，旨在揭示不同株型草本植物对风蚀抑制作用的差异，促进防沙和生态恢复工程设计对植物株型的重视。"
+                    }
+                ]
+            },
+            "bbox": [
+                512,
+                750,
+                907,
+                807
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "chinaXiv:202212.00149v1"
+                    }
+                ]
+            },
+            "bbox": [
+                18,
+                357,
+                55,
+                640
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ChinaXiv合作期刊"
+                    }
+                ]
+            },
+            "bbox": [
+                742,
+                19,
+                917,
+                38
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "第39卷 第5期2022年9 月"
+                    }
+                ]
+            },
+            "bbox": [
+                102,
+                61,
+                210,
+                89
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "干 旱 区 研 究ARID ZONE RESEARCH"
+                    }
+                ]
+            },
+            "bbox": [
+                408,
+                61,
+                594,
+                91
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Vol. 39 No. 5 Sep. 2022"
+                    }
+                ]
+            },
+            "bbox": [
+                800,
+                61,
+                895,
+                90
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "收稿日期：2022-04-02； 修订日期：2022-04-26"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                833,
+                406,
+                847
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "基金项目：中国科学院A类战略性科技先导专项子课题（XDA20030202）；国家重点研发计划政府间国际科技创新合作重点专项（2017YFE0109200）；中国科学院关键技术人才项目（2018）；新疆维吾尔自治区高校科研计划重点项目（XJEDU2019I013）；草原生态修复治理补助监测及科技支撑项目（ ）"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                847,
+                907,
+                890
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "作者简介：程锋梅（1996-），女，硕士研究生，主要从事草地荒漠化防治方面研究. E-mail: 1554102833@qq.com"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                890,
+                739,
+                904
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "通讯作者：李生宇. E-mail: oasis@ms.xjb.ac.cn"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                904,
+                376,
+                920
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "1526－1533 页"
+                    }
+                ]
+            },
+            "bbox": [
+                455,
+                920,
+                542,
+                933
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "http: //azr.xjegi.com"
+                    }
+                ]
+            },
+            "bbox": [
+                784,
+                919,
+                905,
+                933
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                87,
+                105,
+                485,
+                317
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 实验设计与分析方法"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                90,
+                332,
+                344,
+                351
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.1 实验设计"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                90,
+                369,
+                203,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "实验在中国科学院新疆生态与地理研究所莫索湾沙漠研究站风洞实验室进行，该风洞为直流吹气式低速风洞，全长为16.2 m；由动力段、稳定段、收缩段和实验段组成，实验段长 ，其中可放置模型段长4 m、截面宽1.3 m、高1 m；侧壁扩散式结构，侧壁扩散角0.2°；气流稳定性系数低于1%，紊流度小于 ，气流横向均匀性在 以内，边界层厚度约15 cm，满足低速环境风洞要求<sup>［</sup>20<sup>］</sup>；风速在0~20 m·s-1厚度范围内连续可调，来流风速由热线仪实时测量，实验段风速由皮托管采集后，通过微差压变送器传给数据采集器计算出风速并保存。"
+                    }
+                ]
+            },
+            "bbox": [
+                89,
+                387,
+                484,
+                600
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "研究站周围广泛生长着不同株型沙质荒漠草本植物，以匍匐状、丛状和球状株型居多，如蒺藜（Tribulus terrestris）、爪 瓣 山 柑（Capparis himalayen⁃sis）、狗牙根（Cynodon dactylon）等为匍匐状，花花柴（Karelinia caspia）、碱 蓬（Suaeda glauca）、顶 羽 菊（Acroptilon repens）等为丛生状，角果藜（Ceratocarpusarenarius）、沙蓬（Agriophyllum squarrosum）、刺沙蓬（Salsola tragus）等为球状，它们具有很强的耐旱和耐高温特性。选取蒺藜、花花柴、角果藜为各株型模型参照，通过测量它们的株高与冠幅，并计算其平均值，为实验提供数据。由于不同株型植物尺寸差异较大，为保证实验结果的有效性，故根据测量结果和风洞边界层厚度（约15 cm），对匍匐状、丛状和球状植物分别采用不同的缩尺比（匍匐状1:5、丛状1:6.5，球状1:1）进行模型制作（图1）。缩尺后，丛状和球状株型模型的冠幅分别是12 cm和14 cm，而高度均为10 cm，匍匐状株型因其贴地生长的特性，仅取冠幅数据为20 cm。匍匐状和丛状模型根据购买的塑料草加工而成，而球状则使用天然的角果藜植株。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                602,
+                485,
+                933
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/4ec7f7524b2c7df74b8bce3b70185d5d2accea06bea69eb4d665dd1de9aa8452.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "图1 参试3类株型草本植物模型的侧视图和俯视图"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Fig. 1 Side view and overlook view of three herbaceous plant type models in experiment"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                519,
+                102,
+                904,
+                306
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                512,
+                384,
+                905,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "实验于2021年7月进行，由于各株型植物的冠幅大小不同，所以覆盖度按照植被所有冠层及其枝叶的垂直投影面积占统计区域面积的百分比进行测算<sup>［21］</sup>。将各株型植物依据比例制作的模型，取单个实验植株模型进行垂直拍照，用Image J软件测算单个模型的枝叶垂直投影覆盖面积，计算得到单个模型覆盖度（不同株型的高度差异暂不考虑）；根据所得数值结果分别计算不同覆盖度（25%、30%、35%、40%和45%）所需的模型个数数量，在沙盘（长×宽×高：87.5 cm×80 cm×5 cm）中填充干燥天然流沙 厚，将上述匍匐状、丛状、球状 种株型草本植物实验模型采用行列式均匀排列于沙盘，沙盘置于风洞实验段底板中央，长边平行与风洞侧壁；分别设置5个覆盖度（25%、30%、35%、40%、45%），并设置没有植物的空白对照（CK，0%）（图2），将各株型模型依次在不同覆盖度条件下开展吹蚀实验，分别记录实验数据，最后将风蚀情况进行汇总对比。据文献所述，在植物的旺盛生长阶段， 级的风就能给植物带来一定危害<sup>［</sup>22<sup>］</sup>，故选取中间值8 m·<sup>-1</sup>的指示风速进行净风吹蚀实验，吹蚀时长 ；每个设置实验前后，分别用电子天平称量沙盘重量M 和 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { M } _ { 2 } ( \\mathbf { \\Delta }"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                444,
+                907,
+                873
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "吹蚀实验结束后，重新布设沙盘模型，并用固沙剂将沙盘的沙面固定，利用皮托管测量沙盘中央部位9个高度（1 cm、2 cm、3 cm、5 cm、7 cm、10 cm、"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                877,
+                907,
+                934
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ChinaXiv合作期刊"
+                    }
+                ]
+            },
+            "bbox": [
+                744,
+                19,
+                917,
+                38
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "chinaXiv:202212.00149v1"
+                    }
+                ]
+            },
+            "bbox": [
+                18,
+                357,
+                53,
+                640
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "5 期"
+                    }
+                ]
+            },
+            "bbox": [
+                100,
+                74,
+                129,
+                87
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "程锋梅等：3类典型株型草本植物对沙面风蚀抑制作用的研究"
+                    }
+                ]
+            },
+            "bbox": [
+                305,
+                73,
+                705,
+                87
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1527"
+                    }
+                ]
+            },
+            "bbox": [
+                858,
+                74,
+                895,
+                87
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/c9a6bd0332eeb8c02cf963fa6d8a7a1177de6b227f437aab391c66ac7a1ad8a9.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "图2 各草本植物株型模型不同覆盖度实验沙盘"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Fig. 2 Experimental sand boards with different coverage of three herbaceous plant type models"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                90,
+                99,
+                475,
+                265
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "15 cm、30 cm、50 cm）的风速。"
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                344,
+                312,
+                359
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.2 分析方法"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                90,
+                363,
+                205,
+                379
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "根据董治宝等<sup>［23］</sup>的研究，并结合本实验情况得出，高度10~15 cm之间的风速变化可代表整个植被层特征，故分别选取10 cm、15 cm 高度的风速，来计算不同株型植物下垫面的粗糙度 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( Z _ { 0 } \\right)"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                382,
+                484,
+                458
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "Z _ {0} = \\exp [ (V _ {1} \\ln Z _ {2} - V _ {2} \\ln Z _ {1}) / (V _ {1} - V _ {2}) ]\\tag{1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/15f93fabd0c4064653fd7893493f41b0a32717158052bf7260f317b9e9f93cf3.jpg"
+                }
+            },
+            "bbox": [
+                154,
+                462,
+                420,
+                480
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "式中： "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 \\setminus V _ { 2 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "分别为 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { Z } _ { 1 } , \\boldsymbol { Z } _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "高度的风速。"
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                483,
+                374,
+                500
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "风蚀率（P）是指单位时间、单位面积实验沙盘沙样质量减少量，即："
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                504,
+                482,
+                539
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "P = (M _ {1} - M _ {2}) / (S \\times T)\\tag{2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/539837fc33619e679860b5f591b4b6936793da183f28accc1336c32921088a1a.jpg"
+                }
+            },
+            "bbox": [
+                213,
+                544,
+                361,
+                560
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "式中： "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P"
+                    },
+                    {
+                        "type": "text",
+                        "content": "为风蚀率（%）； "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "为实验前沙盘总重 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( \\mathbf { k g } \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "；"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "为实验后沙盘总重 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathrm { { k g } ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "；S为沙盘表面积；T为吹蚀时间。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                564,
+                482,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "风蚀抑制效率（K）是空白对照的风蚀量（F）和不同覆盖度下的风蚀量 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( F _ { 2 } \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "的差值，除以空白对照的风蚀量 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( F _ { 1 } \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "的比值，即："
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                624,
+                484,
+                678
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "K = \\frac {F _ {1} - F _ {2}}{F _ {1}} \\times 100 \\%\\tag{3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6cea37dbd7536441309af05a590067854c272927963dd9b0a3cc9402fca9b387.jpg"
+                }
+            },
+            "bbox": [
+                215,
+                681,
+                359,
+                713
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "式中：K为风蚀抑制效率 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\% ) ; F _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "为空白对照的风蚀量 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( \\mathrm { { k g } } \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "）；F<sub>2</sub>不同覆盖度下的风蚀量 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathrm { { k g } ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "。"
+                    }
+                ]
+            },
+            "bbox": [
+                512,
+                105,
+                905,
+                143
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 结果与分析"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                512,
+                158,
+                673,
+                178
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.1 风场和空气动力学粗糙度"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                512,
+                195,
+                749,
+                210
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3种植物株型在8 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { m } \\cdot \\mathrm { s } ^ { - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "的指示风速下，不同株型植物沙盘表现的地表空气流场相对于空场（0%）发生了较大变化（图3），10 cm高度以下风速整体被削弱，而 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 0 ~ \\mathrm { c m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "以上则有一定程度增加；匍匐状植物沙盘植物高度较小，对风场影响较小，随着高度增加，风速不断增大直至趋于稳定；而丛状和球状植物高度较大，在植物高度范围（10 cm）内风速衰减大，廓线较为紊乱，在10 cm高度以上风速廓线逐渐恢复正常。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                215,
+                907,
+                392
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "粗糙度是反映下垫面对风速影响的重要参数。如图4所示，随覆盖度的增加，空气动力学粗糙度逐渐增大，尤其是丛状和球状株型增加快速；而匍匐状植物紧贴地面，随着高度的增加，摩擦阻力减小，匍匐状植物粗糙度较小。在同等植被覆盖度下，丛状株型植物粗糙度最大，球状其次，匍匐状最小。粗糙度随植被覆盖度增加而线性增大 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( R ^ { 2 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "0.91），且两者关系显著（P<0.011），由趋势线斜率可知，增加速率为：丛状>球状>匍匐状（图4），这与董治宝等<sup>［24］</sup>在风洞实验中得出的结果一致。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                395,
+                909,
+                593
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.2 风蚀率分析"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                512,
+                596,
+                645,
+                612
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "如图5所示，在8 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { m } \\cdot \\mathrm { s } ^ { - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "的指示风速下，种植物株型的风蚀率（单位时间和单位面积的风蚀量）变化随覆盖度增加呈线性减少，相关系数 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R ^ { 2 } { > } 0 . 8 7"
+                    },
+                    {
+                        "type": "text",
+                        "content": "。从拟合趋势线斜率（丛状 匍匐状 球状）来看，覆盖度越低，三者的风蚀率差异越大，覆盖度越高，差异越小，且两者呈显著相关（P<0.02）。当覆盖度为45%时，匍匐状株型风蚀率仅为 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 4 8 ~ \\mathrm { g } \\cdot \\mathrm { m } ^ { - 2 } \\cdot \\mathrm { m i n } ^ { - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "，而球状和丛状的风蚀率分别为 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 6 2 \\ \\mathrm { g } \\cdot \\mathrm { m } ^ { - 2 } \\cdot \\mathrm { m i n } ^ { - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "和 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 7 2 { \\ \\mathrm { g } } \\cdot { }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { m } ^ { - 2 } { \\cdot } \\mathrm { m i n } ^ { - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "。在同等植被覆盖度条件下，丛状株型风蚀率大于球状和匍匐状；在覆盖度为35%时，球状和匍匐状风蚀率非常接近 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 3 ~ \\mathrm { g } \\cdot \\mathrm { m } ^ { - 2 } \\cdot \\mathrm { m i n } ^ { - 1 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "；覆盖度<35%时，匍匐状大于球状，而覆盖度>35%时，球状大于匍匐状。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                615,
+                907,
+                714
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/b31d44aca1f2d848ffa22e4862d31c00ccac94bb362b6dd3a4f61ba02eeec322.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                132,
+                741,
+                376,
+                888
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/9453d0f39cc110cd14cce8925df090a9320e472c6fd3f32180ade2ac676c26e2.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "图3 各实验沙盘的风廓线"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                381,
+                741,
+                625,
+                888
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/05ed81b581326eb98230278f6d326ce8ae8829a43134940dfc36e096d2969cb4.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 3 Wind profiles of each experimental sand boards"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                626,
+                743,
+                865,
+                888
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ChinaXiv合作期刊"
+                    }
+                ]
+            },
+            "bbox": [
+                744,
+                19,
+                917,
+                38
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "chinaXiv:202212.00149v1"
+                    }
+                ]
+            },
+            "bbox": [
+                18,
+                357,
+                53,
+                640
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1528"
+                    }
+                ]
+            },
+            "bbox": [
+                102,
+                74,
+                141,
+                87
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "干 旱 区 研 究"
+                    }
+                ]
+            },
+            "bbox": [
+                423,
+                74,
+                563,
+                89
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "39卷"
+                    }
+                ]
+            },
+            "bbox": [
+                855,
+                73,
+                895,
+                87
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/48d4a04c1e987dcda3da40c2eda2d9d6aa32b44bca291e22ea932ebe13e3d9b8.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "图4 各实验沙盘的空气动力学粗糙度"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                90,
+                102,
+                477,
+                269
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/606a3252bf4e5fdb87096454618781788d8cd1939ffd24d214995c45dce44176.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 4 Aerodynamic roughness of various plant types"
+                    },
+                    {
+                        "type": "text",
+                        "content": "图5 各实验沙盘风蚀率随覆盖度的变化"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Fig. 5 Variation of wind erosion rate with coverage of each experiment sand boards"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                92,
+                332,
+                475,
+                494
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                87,
+                581,
+                484,
+                734
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.3 风蚀抑制效率"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                90,
+                739,
+                238,
+                753
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "如图6所示，在8 m·s-1的指示风速下，3种株型的风蚀抑制效率均随覆盖度增加而线性增大，并呈显著相关关系（P ）。当覆盖度为 时，种株型植物具有一定的风蚀抑制效率，其中球状株型（46.11%）和匍匐状株型（44.10%）可达40%~50%，而丛状株型（20.48%）仅为20%左右；当覆盖度为时，风蚀抑制效率均快速增加，其中匍匐状株型最高（71.54%），球状株型次之（63.20%），丛状株型最小（56.94%）。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                759,
+                485,
+                933
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6c66eade868c4e8a861b7421d23fb7204975a6bd5296f016b06795044d97e6dd.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "图6 各实验沙盘风蚀抑制效率随覆盖度的变化"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                521,
+                104,
+                902,
+                272
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d4ac7626bd6e6c1b67dcd703d9121b46d2873fc608aad7c88c1800efdcb61585.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 6 Variation of wind erosion Inhibition efficiency with coverage of each experiment sand boards"
+                    },
+                    {
+                        "type": "text",
+                        "content": "图7 3种株型植物风蚀抑制效率变异系数随覆盖度的变化"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Fig. 7 Variation coefficient of wind erosion inhibition efficiency with coverage of three plant types"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                554,
+                346,
+                870,
+                475
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "从拟合函数趋势线的斜率（丛状>匍匐状>球状）来看，覆盖度越大，丛状与匍匐状、球状的风蚀抑制效率差异越小，而覆盖度越小，则差异越大；匍匐状和球状相对来说差异不大，尤其在覆盖度为35%时，差异最小（56%），随着覆盖度增大，差异越大，当覆盖度<35%时，球状大于匍匐状，当覆盖度>35%时，匍匐状大于球状。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                551,
+                907,
+                686
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "以上实验结果表明，3种株型植物的风蚀抑制效率均随覆盖度增加而呈线性增大趋势，但在同一覆盖度条件下，3种株型的抗风蚀效率存在较大差异。由图 可知，覆盖度较低时，种株型植物风蚀抑制效率的变异系数较大，而随覆盖增加变异系数呈线性减小，覆盖度与变异系数之间呈极显著负相关关系（P<0.003）。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                689,
+                907,
+                825
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 讨 论"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                510,
+                840,
+                613,
+                860
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 不同植物株型固沙能力差异"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                512,
+                876,
+                766,
+                892
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "植物是下垫面的重要组成因素，发挥着重要的对陆表的调节作用<sup>［25］</sup>，对干旱区水土保持与沙质荒漠防治尤为重要，通过改善植被条件来防治风蚀是沙质荒漠化防治的重要技术手段，前人已进行了大量研究<sup>［26-28］</sup>，其中植被覆盖度是最为常用的重要指标<sup>［29］</sup>，而株型作为植物的重要参数之一，对其防风固沙能力有很大影响<sup>［30］</sup>。通常学者采用“等间距分级法”<sup>［</sup>31<sup>］</sup>，将植被覆盖度分为5个等级<sup>［</sup>32<sup>］</sup>，本实验的植被覆盖度范围为25%~45%，涵盖了半固定沙地（丘）和固定沙地（丘）的植被。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                896,
+                907,
+                933
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ChinaXiv合作期刊"
+                    }
+                ]
+            },
+            "bbox": [
+                744,
+                19,
+                917,
+                38
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "chinaXiv:202212.00149v1"
+                    }
+                ]
+            },
+            "bbox": [
+                18,
+                357,
+                53,
+                640
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "5 期"
+                    }
+                ]
+            },
+            "bbox": [
+                100,
+                74,
+                129,
+                87
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "程锋梅等：3类典型株型草本植物对沙面风蚀抑制作用的研究"
+                    }
+                ]
+            },
+            "bbox": [
+                305,
+                73,
+                705,
+                87
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1529"
+                    }
+                ]
+            },
+            "bbox": [
+                858,
+                74,
+                895,
+                87
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                87,
+                105,
+                485,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "由实验可知，三者固沙能力差异与自身株型密切相关。风蚀率和风蚀抑制效率均随覆盖度的变化而变化，覆盖度越小，三者差异越大，覆盖度越大，差异越小。在相同覆盖度条件下，球状和匍匐状风蚀率在覆盖度35%时非常接近，覆盖度<35%时，匍匐状大于球状，而覆盖度>35%时，球状大于匍匐状，丛状株型风蚀率始终大于球状和匍匐状。在覆盖度较低时，不同植物株型之间的风蚀抑制效率差异较大，如在覆盖度 时，匍匐状和球状植物的风蚀抑制效率分别为47.55%、55.70%，分别接近丛状植物40%（48.46%）和45%（56.94%）的风蚀抑制效率。因此，球状和匍匐状植物株型固沙能力相对较高，而丛状植物株型固沙能力相对较低，利用较高风蚀抑制效率的株型可以达到较低风蚀抑制效率株型在较高覆盖度条件下的固沙效果。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                262,
+                485,
+                555
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 不同株型固沙能力差异的原因分析"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                89,
+                558,
+                398,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "本文通过风洞模拟实验表明，各株型植物空气动力学粗糙度的变化趋势基本一致，均随覆盖度的增加而增大，其中，丛状和球状株型的粗糙度始终高于匍匐状植物，各株型植物对风速的削减程度不同，但范围较为一致。不同植物株型的风蚀抑制效率存在较大差异，并随覆盖度而变化。球状株型植物的枝叶较密集，植株迎风剖面透风系数较小，对地表风速有较好的削弱作用，尤其风影区风速降低较大，并在风影区形成风影堆积。丛状株型植物枝条分布稀疏，并随风摇摆，对地表风速的削弱能力较低，风蚀抑制能力大幅降低。丛状和球状株型之间的差异与马全林等<sup>［33］</sup>研究的沙蒿和油蒿的防风阻沙作用的结果较为一致。对于匍匐状株型植物来说，虽然株型矮小，对近地表风速削弱能力较低，但枝条几乎紧贴地面生长，有效阻隔了气流与地面沙物质颗粒的接触，沙源供给能力下降，风蚀量较小，此研究结果与王晗生等<sup>［34］</sup>的结论一致。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                577,
+                485,
+                910
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "球状和匍匐状株型植物的风蚀抑制效率对比关系因覆盖度而变化，35%时彼此接近，小于35%时，球状高于匍匐状，大于35%时，匍匐状高于球状。这可能与球状植物层内气流的风蚀作用有关。覆盖度小于35%时，球状株型植物在冠层风影区形成风沙堆积<sup>［35］</sup>，但是冠层底面与地面之间的枝下空间对气流削弱能力较弱，甚至随着覆盖度增加和植株间距减小，枝下空间和株间可因“狭管效应”而形成局部风蚀<sup>［36］</sup>，从而一定程度削弱风影堆积。"
+                    }
+                ]
+            },
+            "bbox": [
+                124,
+                912,
+                484,
+                929
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                510,
+                105,
+                907,
+                262
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "综上所述，匍匐状株型植物具有向四周伸展的柔韧枝条并紧贴地面，可以有效隔离风与沙的直接作用，地面受到植物枝条庇护，受风力影响小，可以保持较高的风蚀抑制效率；球状株型植物具有枝叶密集的冠体和强度较大的茎干，其透风系数小，固沙能力较好；而丛状植物的枝条相对较为稀疏且柔软，在风的作用下摆动幅度较大，因而阻沙、固沙能力相对较弱。因此，从固沙角度来看，匍匐状和球状株型更适于生物固沙工程；从抗沙埋程度来看，丛状和球状植物更加适宜外来沙源丰富地区。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                263,
+                907,
+                462
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 结 论"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                512,
+                476,
+                613,
+                497
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "草本植物在生物防沙工程中具有重要作用。在植物高度以下，3种株型地表风速整体被削弱；随覆盖度的增加，粗糙度线性增加，增加速率为：丛状球状 匍匐状。风蚀率和风蚀抑制效率均随覆盖度增加而变化，覆盖度越小，三者差异越大，覆盖度越大，则差异越小。整体上，丛状株型植物风蚀抑制效率相对较低，而球状和匍匐状株型风蚀抑制效率较高，球状和匍匐状的差异随覆盖度而变化， 时接近， 时球状大于匍匐状， 时，匍匐状大于球状。三者固沙能力差异与自身株型的生长特性密切相关，球状和匍匐状植物株型的生长高度较矮且枝条密度相对较大，气流在通过时经枝条阻挡、摩擦，使风动能减小挟沙能力大幅下降，所以固沙能力相对较高；而丛状植物株型的枝条相对柔软且分布较为稀疏，对风沙活动的影响效果较差，所以丛状植物株型固沙能力相对较低。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                512,
+                909,
+                831
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "致谢：感谢中国科学院新疆生态与地理研究所莫索湾沙漠研究站提供的实验平台，感谢崔珂军和王浩同学对实验的帮助，也感谢研究站工作人员的后勤保障。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                852,
+                907,
+                929
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ChinaXiv合作期刊"
+                    }
+                ]
+            },
+            "bbox": [
+                744,
+                19,
+                917,
+                38
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "chinaXiv:202212.00149v1"
+                    }
+                ]
+            },
+            "bbox": [
+                18,
+                357,
+                53,
+                640
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1530"
+                    }
+                ]
+            },
+            "bbox": [
+                100,
+                74,
+                142,
+                89
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "干 旱 区 研 究"
+                    }
+                ]
+            },
+            "bbox": [
+                421,
+                74,
+                564,
+                89
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "39卷"
+                    }
+                ]
+            },
+            "bbox": [
+                855,
+                73,
+                897,
+                87
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "参考文献（References）："
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                90,
+                124,
+                268,
+                141
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[1] 黄富祥, 王明星, 王跃思.植被覆盖对风蚀地表保护作用研究的 某些新进展[J]. 植物生态学报, 2002, 26(5): 627-633. [Huang Fuxiang, Wang Mingxing, Wang Yuesi. Recent progress on the research of vegetation protection in soil erosion by wind[J]. Acta Phytoecologica Sinica, 2002, 26(5): 627-633. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                159,
+                484,
+                240
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[2] Wolfe S A, Nickling W G. The protective role of sparse vegetation in wind erosion[J]. Progress in Physical Geography, 1993, 17(1): 50-68."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                244,
+                482,
+                288
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[3] Pajouhesh M, Gharahi N, Iranmanesh M, et al. Effects of vegetation pattern and of biochar and powdery soil amendments on soil loss by wind in a semi- arid region[J]. Soil Use and Management, 2020, 36(4): 704-713."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                294,
+                482,
+                356
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[4] 贺山峰, 蒋德明, 阿拉木萨. 植被的防治风蚀作用[J]. 生态学杂 志, 2007, 26(5): 743-748. [He Shanfeng, Jiang Deming, Alamusa. Roles of vegetation in wind erosion control: A research review[J]. Chinese Journal of Ecology, 2007, 26(5): 743-748. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                360,
+                482,
+                424
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[5] 程洪, 谢涛, 唐春, 等. 植物根系力学与固土作用机理研究综述 [J]. 水土保持通报, 2006, 26(1): 97-102. [Cheng Hong, Xie Tao, Tang Chun, et al. Overview of mechanism of plant roots improving soil reinforcement and slope stabilization[J]. Bulletin of Soil and Water Conservation, 2006, 26(1): 97-102. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                426,
+                482,
+                507
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[6] 杨洪晓, 张金屯, 吴波, 等. 毛乌素沙地油蒿种群点格局分析[J].植 物 生 态 学 报, 2006, 30(4): 563- 570. [Yang Hongxiao, ZhangJintun, Wu Bo, et al. Point pattern analysis of Artemisia ordosicapopulation in the mu us sandy land[J]. Chinese Journal of PlantEcology, 2006, 30(4): 563-570. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                511,
+                482,
+                590
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[7] 郑义津, 李正农, 涂文戈, 等. 树木对风沙流场影响的风洞试验 研究[J]. 自然灾害学报, 2020, 29(6): 107-116. [Zheng Yijin, Li Zhengnong, Tu Wenge, et al. Wind tunnel experiments on the influence of trees on wind-sand flow field[J]. Journal of Natural Disasters, 2020, 29(6): 107-116. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                594,
+                482,
+                674
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[8] 李少华, 张立恒, 王学全, 等. 高寒灌木固沙区土壤性状与植被 生长特征的相关分析[J]. 干旱区研究, 2017, 34(6): 1331-1337. [Li Shaohua, Zhang Liheng, Wang Xuequan, et al. Soil properties and shrub growth in an alpine sandy area[J]. Arid Zone Research, 2017, 34(6): 1331-1337. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                678,
+                482,
+                758
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "赵永来 麻硕士 陈智 等 残茬覆盖地表空气动力学粗糙度变 化规律[J]. 农业机械学报, 2013, 44(4): 118-122. [Zhao Yonglai, Ma Shuoshi, Chen Zhi, et al. Variational rule of aerodynamic roughness under crop stubble coverage[J]. Transactions of the Chinese Society for Agricultural Machinery, 2013, 44(4): 118-122. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                762,
+                482,
+                841
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[10] 孙悦超, 麻硕士, 陈智, 等. 阴山北麓干旱半干旱区地表土壤风 蚀测试与分析 农业工程学报 Yuechao, Ma Shuoshi, Chen Zhi, et al. Test and analysis of wind erosion of land surface soil in arid and semi-arid regions in north areas of Yinshan Mountain[J]. Transactions of the CSAE, 2007, 23"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                846,
+                484,
+                926
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "(12): 1-5. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                546,
+                105,
+                611,
+                118
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[11] 屈志强, 张莉, 丁国栋, 等. 不同配置方式沙蒿灌丛对土壤风蚀 影响的对比分析[J]. 水土保持学报, 2008, 22(3): 1-4. [Qu Zhiq iang, Zhang Li, Ding Guodong, et al. Comparative analysis on ef fect of distribution modes of Artemisia sphaerocephala to soil wind erosion[J]. Journal of Soil and Water Conservation, 2008, 22(3): 1-4. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                122,
+                905,
+                202
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[12] 张文, 亢力强, 张琴, 等. 植株形态对单植株前后风速变化影响 的风洞实验[J]. 北京师范大学学报(自然科学版), 2020, 56(4): 573-581. [Zhang Wen, Kang Liqiang, Zhang Qin, et al. Speed up wind and downwind of a single plant[J]. Journal of Beijing Norma University(Natural Science Edition), 2020, 56(4): 573-581. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                206,
+                905,
+                286
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[13] Cheng H, Zhang K D, Liu C C, et al. Wind tunnel study of airflow recovery on the lee side of single plants[J]. Agricultural and Forest Meteorology, 2018, 263: 362-372."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                290,
+                905,
+                336
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[14] 王成龙. 四种同龄植物防风作用的比较研究[D]. 呼和浩特: 内蒙 古 农 业 大 学, 2011. [Wang Chenglong. Comparative Study onthe Wind Erosion of Four Kinds of Even- aged Plant[D]. Hohhot:Inner Mongolia Agricultural University, 2011. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                340,
+                905,
+                404
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[15] Gillies J A, Nickling W G, King J. Drag coefficient and plant form response to wind speed in three plant species: Burning bush (Eu onymus alatus), colorado blue spruce (Picea pungens glauca. ), and fountain grass (Pennisetum setaceum) [J]. Journal of Geophysica Research: Atmospheres, 2002, 107(D24): 4760."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                407,
+                905,
+                487
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[16] Gilliam F S. The ecological significance of the herbaceous layer in temperate forest ecosystems[J]. BioScience, 2007, 57(10): 845- 858."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                492,
+                905,
+                537
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[17] 曹当当. 南疆几种荒漠植物固沙及种群更新能力研究[D]. 喀 什: 喀什大学, 2020. [Cao Dangdang. Sand Fixation and Population Regeneration Ability of several Desert Plants in Southern Xinjiang, China[D]. Kashi: Kashi University, 2020. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                542,
+                905,
+                606
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[18] 王雪芹, 蒋进, 雷加强, 等. 古尔班通古特沙漠短命植物分布及 其沙面稳定意义[J]. 地理学报, 2003, 58(4): 598-605. [Wang Xueqin, Jiang Jin, Lei Jiaqiang, et al. The distribution of ephemeral vegetation on the longitudinal dunes surface and its stabiliza tion significance in the Gurbantunggut Desert[J]. Acta Geographi ca Sinica, 2003, 58(4): 598-605. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                609,
+                905,
+                706
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[19] 张继义, 赵哈林, 崔建垣, 等. 科尔沁沙地流动沙丘沙米群落生 物量特征及其防风固沙作用[J]. 水土保持学报, 2003, 17(3): 152-154. [Zhang Jiyi, Zhao Halin, Cui Jianyuan, et al. Biomass of Agriophyllum squarrosum community and its function on mobile sand dune in Horqin Sandy Land[J]. Journal of Soil and Water Conservation, 2003, 17(3): 152-154. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                709,
+                905,
+                807
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[20] 郑则浩, 雷加强, 李生宇, 等. 可移动式环境风洞气动特性测试与 评 价 [J]. 中 国 沙 漠, 2012, 32(6): 1551- 1558. [Zheng Zehao,Lei Jiaqiang, Li Shengyu, et al. Test and evaluation of wind flowcharacteristics of a portable wind tunnel[J]. Journal of Desert Re⁃search, 2012, 32(6): 1551-1558. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                810,
+                905,
+                890
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[21] 秦伟, 朱清科, 张学霞, 等. 植被覆盖度及其测算方法研究进展[J]. 西北农林科技大学学报(自然科学版), 2006, 34(9): 163-"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                894,
+                905,
+                925
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ChinaXiv合作期刊"
+                    }
+                ]
+            },
+            "bbox": [
+                744,
+                19,
+                917,
+                38
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "chinaXiv:202212.00149v1"
+                    }
+                ]
+            },
+            "bbox": [
+                18,
+                357,
+                53,
+                640
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "5 期"
+                    }
+                ]
+            },
+            "bbox": [
+                100,
+                74,
+                131,
+                87
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "程锋梅等：3类典型株型草本植物对沙面风蚀抑制作用的研究"
+                    }
+                ]
+            },
+            "bbox": [
+                305,
+                73,
+                705,
+                87
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1531"
+                    }
+                ]
+            },
+            "bbox": [
+                858,
+                74,
+                895,
+                87
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "170. [Qin Wei, Zhu Qingke, Zhang Xuexia, et al. Review of vegetation covering and its measuring and calculating method[J]. Journal of Northwest A＆F University(Natural Science Edition), 2006, 34 (9): 163-170. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                122,
+                105,
+                482,
+                168
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[22] 蒲云锦, 刘清芳, 郭襄. 莫索湾1961—2010年大风特征分析[J].干旱区资源与环境, 2012, 26(10): 24-27. [Pu Yunjin, Liu Qing⁃fang, Guo Xiang. Characteristics of strong wind in Mosuowan from1961 to 2010[J]. Journal of Arid Land Resources and Environ⁃ment, 2012, 26(10): 24-27. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                172,
+                482,
+                250
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[23] 董治宝, 陈渭南, 董光荣, 等. 植被对风沙土风蚀作用的影响[J]. 环境科学学报, 1996, 16(4): 437-443. [Dong Zhibao, Chen Weinan, Dong Guangrong, et al. Influences of vegetation cover on the wind erosion of sandy soil[J]. Acta Scientiae Circumstantiae, 1996, 16(4): 437-443. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                256,
+                482,
+                335
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[24] 董治宝, Donald W Fryrear, 高尚玉. 直立植物防沙措施粗糙特 征的模拟实验[J]. 中国沙漠, 2000, 20(3): 260-263. [Dong Zhibao, Donald W Fryrear, Gao Shangyu. Modeling the roughness effect of blown sand controlling standing vegetation in wind tunnel [J]. Journal of Desert Research, 2000, 20(3): 260-263. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                338,
+                482,
+                420
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "邢恩德 马少薇 郭建英 等 植被盖度对典型草原区地表风沙 流结构及风蚀量影响[J]. 水土保持研究, 2015, 22(6): 331-334. [Xing Ende, Ma Shaowei, Guo Jianying, et al. Effect of vegetation cover on sandstorm structure and rate of wind erosion in typical steppe[J]. Research of Soil and Water Conservation, 2015, 22(6): 331-334. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                423,
+                482,
+                519
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[26] 张佳, 李生宇, 靳正忠, 等. 防护林下草本植物层片物种多样性与 环 境 因 子 的 关 系 [J]. 干 旱 区 研 究, 2011, 28(1): 118- 125.[Zhang Jia, Li Shengyu, Jin Zhengzhong, et al. Relationship be⁃tween species diversity herbaceous plants in the shelterbelt andenvironment factors[J]. Arid Zone Research, 2011, 28(1): 118-125. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                524,
+                482,
+                604
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[27] 周鑫, 田丽慧, 张登山, 等. 青海湖沙区不同植被防风固沙效益研究[J]. 干旱区资源与环境, 2018, 32(8): 180-185. [Zhou Xin,Tian Lihui, Zhang Dengshan, et al. Study on wind-prevention andsand-fixing benefits of different vegetation on the east coast duneof Qinghai Lake[J]. Journal of Arid Land Resources and Environ⁃ment, 2018, 32(8): 180-185. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                607,
+                482,
+                703
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[28] 杨文斌, 董慧龙, 卢琦, 等. 低覆盖度固沙林的乔木分布格局与 防风效果[J]. 生态学报, 2011, 31(17): 5000-5008. [Yang Wenbin, Dong Huilong, Lu Qi, et al. Pattern of low-covered sand-fixing woodland and its windbreak effect[J]. Acta Ecologica Sinica,"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                707,
+                482,
+                772
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "2011, 31(17): 5000-5008. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                105,
+                699,
+                118
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[29] Leys J F. Towards a better model of the effect of prostrate vegeta tion cover on wind erosion[J]. Vegetation, 1991, 91(1): 49-58."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                123,
+                905,
+                152
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[30] 王继和, 马全林, 刘虎俊, 等. 干旱区沙漠化土地逆转植被的防 风固沙效益研究[J]. 中国沙漠, 2006, 26(6): 903-909. [Wang Ji he, Ma Quanlin, Liu Hujun, et al. Effect of wind-breaking and sand-fixing of vegetation in progressive succession on desertifica tion land in arid area[J]. Journal of Desert Research, 2006, 26(6): 903-909. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                155,
+                905,
+                250
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[31] 陈妮, 李谭宝, 张晓萍, 等. 北洛河流域植被覆盖度时空变化的 遥感动态分析[J]. 水土保持通报, 2013, 33(3): 206-210, 327. [Chen Ni, Li Tanbao, Zhang Xiaoping, et al. Spatiotemporal varia tions of vegetation coverage in Beiluo River watershed based on remote sensing data analysis[J]. Bulletin of Soil and Water Conservation, 2013, 33(3): 206-210, 327. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                256,
+                905,
+                351
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[32] 曹永香, 毛东雷, 薛杰, 等. 绿洲-沙漠过渡带植被覆盖动态变 化及其驱动因素——以新疆策勒为例[J]. 干旱区研究, 2022, 39(2): 510-521. [Cao Yongxiang, Mao Donglei, Xue Jie, et al. Dy namic changes and driving factors of vegetation cover in the oasisdesert ecotone: A case study of Cele, Xinjiang[J]. Arid Zone Research, 2022, 39(2): 510-521. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                356,
+                905,
+                453
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[33] 马全林, 卢琦, 张德魁, 等. 沙蒿与油蒿灌丛的防风阻沙作用[J]. 生态学杂志, 2012, 31(7): 1639-1645. [Ma Quanlin, Lu Qi, Zhang Dekui, et al. Wind prevention and sand resistance effects of Arte misia sphaerocephala and A. ordosica[J]. Chinese Journal of Ecology, 2012, 31(7): 1639-1645. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                456,
+                905,
+                536
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[34] 王晗生, 刘国彬. 植被结构及其防止土壤侵蚀作用分析[J]. 干旱 区资源与环境, 1999, 13(2): 63-69. [Wang Hansheng, Liu Guobin. Analyses on vegetation structures and their controlling soi erosion[J]. Journal of Arid Land Resources and Environment, 1999, 13(2): 63-69. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                539,
+                905,
+                619
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "蔡东旭 李生宇 刘耀中 等 台特玛湖干涸湖盆区植物风影沙丘的形态特征[J]. 干旱区地理, 2017, 40(5): 1020-1028. [CaiDongxu, Li Shengyu, Liu Yaozhong, et al. Morphological characteristics of shadow dunes of plant at dry lakebed of Taitema Lake[J].Arid Land Geography, 2017, 40(5): 1020-1028. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                624,
+                905,
+                703
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[36] 刘虎俊. 仿真固沙灌木构型参数及防风固沙效应研究[D]. 兰 州: 甘肃农业大学, 2012. [Liu Hujun. The Study on Architecture and Wind Break Efficiency of Iimitation Sand- Fixed Shrub[D]. Lanzhou: Gansu Agricultural University, 2012. ]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                707,
+                905,
+                771
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ChinaXiv合作期刊"
+                    }
+                ]
+            },
+            "bbox": [
+                744,
+                19,
+                917,
+                38
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "chinaXiv:202212.00149v1"
+                    }
+                ]
+            },
+            "bbox": [
+                18,
+                357,
+                53,
+                640
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1532"
+                    }
+                ]
+            },
+            "bbox": [
+                100,
+                74,
+                142,
+                87
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "干 旱 区 研 究"
+                    }
+                ]
+            },
+            "bbox": [
+                423,
+                74,
+                563,
+                89
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "39卷"
+                    }
+                ]
+            },
+            "bbox": [
+                855,
+                73,
+                895,
+                87
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Study on wind erosion inhibition of three typical herbaceous plants on sand surface"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                250,
+                121,
+                741,
+                164
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "CHENG Fengmei<sup>1,</sup> <sup>2,</sup> <sup>3</sup>, LI Shengyu<sup>2,</sup> <sup>3</sup>, ZHENG Wei<sup>1</sup>, ZHAO Chunyu<sup>1,</sup> <sup>2,</sup> <sup>3</sup>, FAN Jinglong<sup>2,</sup> <sup>3</sup>, WANG Shijie<sup>1,</sup> <sup>2,</sup> <sup>3</sup>, WANG Haifeng<sup>2,</sup> <sup>3</sup>, YU Xiangxiang<sup>2,</sup> <sup>3</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                181,
+                843,
+                217
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(1. College of Grassland Science, Xinjiang Agricultural University, Urumqi 830052, Xinjiang, China; 2. National Engineering Technology Research Center for Desert-Oasis Ecological Construction, Xinjiang Institute of Ecology and Geography, Chinese Academy of Sciences, Urumqi 830011, Xinjiang, China; 3. Mosuowan Desert Research Station, Xinjiang Institute of Ecology and Geography, Chinese Academy of Sciences, Shihezi 832000, Xinjiang, China)"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                221,
+                847,
+                287
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract: Plant habit (form) is the main factor in determining the function of different plants in maintaining vegetative cover under wind erosion. Knowing the effects of different forms of herbaceous plants against wind erosion in a sandy desertified area can provide valuable references for ecological restoration measures. In this study, we conducted wind tunnel experiments to measure the erosion rate under three forms of herbaceous plants (creeping, globular, and plexiform) under different extents of vegetative cover (25%, 30%, 35%, 40%, and 45%). Aerodynamic roughness increased, and wind speed was reduced with the increase in vegetative cover, for all three plant forms. However, under low coverage, the wind erosion inhibition rate differed greatly among the different plant forms; the sand fixation ability of globular and creeping plants was higher than that of the plexiform plants. The plant type with high wind erosion inhibition efficiency can achieve the sand fixation effect of the plant type with low wind erosion inhibition efficiency under the condition of high coverage. At 30% coverage, the wind erosion inhibition efficiency of creeping and globular plants was 47.55% and 55.70% , respectively, which was not much different than the efficiency of plexiform plants at 40% (48.46% ) and 45% (56.94%) coverage, respectively. The wind erosion inhibition efficiency of the three types of herbaceous plants increased linearly with the increase in coverage. The smaller the coverage, the greater the difference among the three plants. The wind erosion rate of the three plant forms was lowest in creeping, followed by globular, and highest in plexiform. Conversely, the wind erosion inhibition rate was highest in creeping, followed by globular, and lowest in plexiform."
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                307,
+                910,
+                644
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Keywords: herbs; plant type; wind tunnel experiment; wind erosion rate; wind erosion inhibition efficiency"
+                    }
+                ]
+            },
+            "bbox": [
+                89,
+                646,
+                877,
+                663
+            ]
+        },
+        {
+            "type": "page_aside_text",
+            "content": {
+                "page_aside_text_content": [
+                    {
+                        "type": "text",
+                        "content": "chinaXiv:202212.00149v1"
+                    }
+                ]
+            },
+            "bbox": [
+                18,
+                357,
+                53,
+                640
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ChinaXiv合作期刊"
+                    }
+                ]
+            },
+            "bbox": [
+                744,
+                19,
+                917,
+                38
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "5 期"
+                    }
+                ]
+            },
+            "bbox": [
+                100,
+                74,
+                131,
+                87
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "程锋梅等：3类典型株型草本植物对沙面风蚀抑制作用的研究"
+                    }
+                ]
+            },
+            "bbox": [
+                305,
+                73,
+                705,
+                87
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1533"
+                    }
+                ]
+            },
+            "bbox": [
+                858,
+                74,
+                895,
+                87
+            ]
+        }
+    ]
+]

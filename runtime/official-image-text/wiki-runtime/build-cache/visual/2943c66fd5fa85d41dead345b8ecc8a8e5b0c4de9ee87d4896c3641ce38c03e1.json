@@ -1,0 +1,169 @@
+{
+  "sha256": "2943c66fd5fa85d41dead345b8ecc8a8e5b0c4de9ee87d4896c3641ce38c03e1",
+  "ocr": {
+    "status": "ready",
+    "text": "ALL VIEW CLOUD\n\nAVC 奥维云\nALL VIEW CLOUD\n\n0.6%\n0.4%\n0.4%\n0.2%\n0.3%\n2.2%\n2.1%\n3.4%\n3.6%\n3.3%\n4.7%\n5.0%\n6.5%\n6.9%\n19年W1-22\n19年618\n19年26-52\n20年W1-22\n20年618\n20年26-52\n21年W1-22\n21年618\n21年26-52\n22年W1-22\n22年618\n22年26-52\n23年W1-22\n23年618\n23年618",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "diagram_chart",
+    "primary_representation": "ocr+vlm_caption",
+    "run_caption": true,
+    "run_ocr": true,
+    "ocr_policy": "always",
+    "reason": "流程图或图表同时保留图中文字和整体视觉语义"
+  },
+  "generated_at": "2026-08-31T02:10:30.280314+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "蓝色柱状图，横轴为时间区间（19年W1–22至23年618），纵轴为销额占比；各柱顶标注百分比数值，最高值为23年618的6.9%；图中含‘AVC 奥维云网 ALL VIEW CLOUD’水印。",
+    "model": "qwen3-vl-plus"
+  },
+  "batch_shas": [
+    "922a56eba0f5a9aecdb95839d75c56fa69bfde12ef231692c08c061dc94cc9db",
+    "d3703c23f4af33ac8993a6baac74c2a34ba6ec33d8462f4a9324ebe8c2189de1",
+    "2943c66fd5fa85d41dead345b8ecc8a8e5b0c4de9ee87d4896c3641ce38c03e1",
+    "3dbf08fd91a9644f5da6c79b3b64fc47bde6375b133219ec69419877f3490c2a"
+  ],
+  "analysis": {
+    "summary": "新来源为奥维云网发布的《2023年618厨卫刚需品类市场总结（烟、灶、热）》第12页片段，提供四条多模态证据：两幅白色厨电产品图（华帝CXW-200-I11226吸油烟机与JZT-I10091B燃气灶），以及两张趋势柱状图（2019–2023年燃热冷凝销额占比、燃气灶高热效率＞63%销额占比）。图像显示白色外观设计与尺寸标注（12.6cm），图表数据表明冷凝燃热与高热效灶具占比持续上升，2023年618达6.9%与36%。该证据直接支撑‘形态升级’（白色款）与‘参数升级’（高热效率）两大概念，并可更新‘2023年厨卫刚需品类市场趋势分析’页面。",
+    "claims": [
+      {
+        "statement": "华帝CXW-200-I11226为白色吸油烟机，其机身高度标注为12.6cm。",
+        "evidence_refs": [
+          "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "华帝JZT-I10091B为白色双灶燃气灶，灶面呈白色，配备两个蓝色火焰燃烧器。",
+        "evidence_refs": [
+          "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0011"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2019–2023年线上冷凝式燃气热水器销额占比从0.6%升至6.9%，其中2023年618达6.9%。",
+        "evidence_refs": [
+          "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0002"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2019–2023年线上高热效率（＞63%）燃气灶销额占比从11%升至36%，其中2023年618达36%。",
+        "evidence_refs": [
+          "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "白色外观已成为烟灶产品的主流设计趋势，体现‘感性消费力驱动’下的形态升级。",
+        "evidence_refs": [
+          "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0006",
+          "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0011"
+        ],
+        "provenance": "inferred"
+      },
+      {
+        "statement": "环保与能效参数提升构成理性消费力驱动的核心，推动厨电产业升级。",
+        "evidence_refs": [
+          "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0002",
+          "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0003"
+        ],
+        "provenance": "inferred"
+      }
+    ],
+    "entities": [
+      {
+        "name": "华帝CXW-200-I11226"
+      },
+      {
+        "name": "华帝JZT-I10091B"
+      },
+      {
+        "name": "奥维云网"
+      }
+    ],
+    "concepts": [
+      {
+        "name": "形态升级"
+      },
+      {
+        "name": "参数升级"
+      },
+      {
+        "name": "冷凝式燃气热水器"
+      },
+      {
+        "name": "高热效率燃气灶"
+      },
+      {
+        "name": "感性消费力"
+      },
+      {
+        "name": "理性消费力"
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "形态升级",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新增两幅白色厨电实物图（华帝CXW-200-I11226与JZT-I10091B），直接佐证‘白色外观’作为形态升级的典型表现；原页面已存在update_eligible=true，且证据明确指向该概念。"
+      },
+      {
+        "title": "参数升级",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新增两张趋势图证实高热效率（＞63%）灶具与冷凝燃热占比显著上升，强化‘参数升级’定义中的性能指标驱动逻辑；原页面update_eligible=true，证据充分且无冲突。"
+      },
+      {
+        "title": "2023年厨卫刚需品类市场趋势分析",
+        "kind": "analysis",
+        "action": "update",
+        "reason": "该分析页原已覆盖烟灶热品类趋势，现新增具体机型图像与量化趋势图表（冷凝占比、高热效占比），可补充‘感性消费力’与‘理性消费力’双驱动机制的实证细节；原页面update_eligible=true。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-922a56eba0f5a9aecdb9",
+        "evidence_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0006",
+        "caption": "白色壁挂式吸油烟机安装于浅色瓷砖墙面，机身正面有品牌标识与触控按钮，下方标注‘12.6cm’字样；前方放置一白色锅具。"
+      },
+      {
+        "asset_id": "asset-d3703c23f4af33ac8993",
+        "evidence_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0011",
+        "caption": "白色台式双灶燃气灶，两个灶眼正燃烧蓝色火焰，灶面左下角印有‘vatti’品牌标识，背景为浅灰渐变。"
+      },
+      {
+        "asset_id": "asset-2943c66fd5fa85d41dea",
+        "evidence_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0002",
+        "caption": "蓝色柱状图，横轴为时间区间（19年W1–22至23年618），纵轴为销额占比；各柱顶标注百分比数值，最高值为23年618的6.9%；图中含‘AVC 奥维云网 ALL VIEW CLOUD’水印。"
+      },
+      {
+        "asset_id": "asset-3dbf08fd91a9644f5da6",
+        "evidence_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0003",
+        "caption": "橙色柱状图，横轴为时间区间（19年W1–22至23年618），纵轴为销额占比；各柱顶标注百分比数值，最高值为23年618的36%；图中含‘AVC 奥维云网 ALL VIEW CLOUD’水印。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 9608,
+      "total_tokens": 11579,
+      "completion_tokens": 1971,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "image_tokens": 2531,
+        "text_tokens": 7077
+      },
+      "completion_tokens_details": {
+        "text_tokens": 1971
+      }
+    }
+  }
+}

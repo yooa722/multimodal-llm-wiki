@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import http.client
 import os
 import re
 import ssl
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -343,6 +345,10 @@ class OpenAICompatibleProvider:
                 "MMWIKI_BUILD_MODEL", values.get("MMWIKI_BUILD_MODEL", "")
             ).strip()
         self.timeout = int(os.environ.get("MMWIKI_TIMEOUT", values.get("MMWIKI_TIMEOUT", "60")))
+        self.retries = max(
+            1,
+            int(os.environ.get("MMWIKI_API_RETRIES", values.get("MMWIKI_API_RETRIES", "3"))),
+        )
         default_tokens = "1200" if task == "vision" else "3000"
         self.max_tokens = int(
             os.environ.get(
@@ -387,7 +393,7 @@ class OpenAICompatibleProvider:
         )
         result: dict[str, Any] | None = None
         payload: dict[str, Any] = {}
-        for attempt in range(2):
+        for attempt in range(self.retries):
             try:
                 with urllib.request.urlopen(
                     request, timeout=self.timeout, context=context
@@ -398,12 +404,27 @@ class OpenAICompatibleProvider:
                 break
             except urllib.error.HTTPError as exc:
                 detail = exc.read().decode("utf-8", errors="replace")[:500]
+                if exc.code in {408, 429, 500, 502, 503, 504} and attempt + 1 < self.retries:
+                    time.sleep(min(2**attempt, 8))
+                    continue
                 raise ProviderError(f"模型 API 返回 HTTP {exc.code}：{detail}") from exc
-            except (urllib.error.URLError, TimeoutError, KeyError, IndexError, TypeError) as exc:
+            except (
+                urllib.error.URLError,
+                TimeoutError,
+                http.client.RemoteDisconnected,
+                ConnectionResetError,
+                BrokenPipeError,
+            ) as exc:
+                if attempt + 1 < self.retries:
+                    time.sleep(min(2**attempt, 8))
+                    continue
                 raise ProviderError(f"模型 API 调用失败：{exc}") from exc
+            except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+                raise ProviderError(f"模型 API 返回格式错误：{exc}") from exc
             except ProviderError:
-                if attempt == 1:
+                if attempt + 1 >= self.retries:
                     raise
+                time.sleep(min(2**attempt, 8))
         if result is None:  # pragma: no cover - 循环的防御性兜底
             raise ProviderError("模型没有返回可解析的 JSON")
         usage = payload.get("usage", {})
@@ -479,7 +500,24 @@ class OpenAICompatibleProvider:
         # Validation remains strict whenever at least one actual image is present.
         if not images:
             value["image_annotations"] = []
-        return validate_wiki_analysis(value, allowed, images)
+        try:
+            return validate_wiki_analysis(value, allowed, images)
+        except ProviderError as first_error:
+            repaired = self.chat_json(
+                "你是 Wiki JSON 校验修复器。只能修正结构、枚举值和引用，不能增加新事实。返回严格 JSON。",
+                (
+                    "上一次 Wiki 分析结果未通过校验。请保留有依据的原内容，只修正错误；"
+                    "无法修正且没有合法引用的 claim 直接删除。"
+                    f"校验错误：{first_error}\n"
+                    f"允许的 Evidence ID：{json.dumps(sorted(allowed), ensure_ascii=False)}\n"
+                    "page_actions 的 kind 仅允许 concept、entity、analysis，action 仅允许 create、update。\n"
+                    f"允许的图片身份：{json.dumps([{'asset_id': str(item.get('asset_id') or ''), 'evidence_id': str(item.get('evidence_id') or '')} for item in (images or [])], ensure_ascii=False)}\n"
+                    f"待修复 JSON：{json.dumps(value, ensure_ascii=False)}"
+                ),
+            )
+            if not images:
+                repaired["image_annotations"] = []
+            return validate_wiki_analysis(repaired, allowed, images)
 
     def compile_wiki(
         self,
@@ -516,7 +554,6 @@ class OpenAICompatibleProvider:
                 f"证据：{json.dumps(evidence, ensure_ascii=False)}"
             ),
         )
-        value = validate_wiki_compilation(value, allowed)
         planned = {
             (
                 str(action.get("title") or "").strip().casefold(),
@@ -525,20 +562,97 @@ class OpenAICompatibleProvider:
             for action in analysis.get("page_actions", [])
             if isinstance(action, dict)
         }
-        unplanned = [
-            str(page.get("title") or "")
-            for page in value["pages"]
-            if (
-                str(page.get("title") or "").strip().casefold(),
-                str(page.get("kind") or ""),
+
+        def validate_plan(candidate: dict[str, Any]) -> dict[str, Any]:
+            validated = validate_wiki_compilation(candidate, allowed)
+            unplanned = [
+                str(page.get("title") or "")
+                for page in validated["pages"]
+                if (
+                    str(page.get("title") or "").strip().casefold(),
+                    str(page.get("kind") or ""),
+                )
+                not in planned
+            ]
+            if unplanned:
+                raise ProviderError(
+                    "Wiki 编译器返回了分析阶段未规划的页面："
+                    + ", ".join(unplanned)
+                )
+            return validated
+
+        def sanitize_cross_source_refs(candidate: dict[str, Any]) -> dict[str, Any] | None:
+            """Remove only citations that cannot belong to this ingest.
+
+            Existing shared pages may already cite other sources.  The writer
+            preserves those citations from state, so the current source plan
+            should carry only current-source refs.  A shared page with no valid
+            current ref is omitted, leaving the existing page untouched.  New
+            pages with no valid ref are deliberately not hidden here and still
+            go through the strict repair/failure path.
+            """
+
+            pages = candidate.get("pages")
+            if not isinstance(pages, list):
+                return None
+            existing_titles = {
+                str(page.get("title") or "").strip().casefold()
+                for page in existing_pages
+                if isinstance(page, dict)
+            }
+            changed = False
+            cleaned_pages: list[Any] = []
+            for page in pages:
+                if not isinstance(page, dict):
+                    cleaned_pages.append(page)
+                    continue
+                refs = page.get("evidence_refs")
+                if not isinstance(refs, list):
+                    cleaned_pages.append(page)
+                    continue
+                valid_refs = list(
+                    dict.fromkeys(str(ref) for ref in refs if str(ref) in allowed)
+                )
+                if valid_refs:
+                    cleaned = dict(page)
+                    cleaned["evidence_refs"] = valid_refs
+                    cleaned_pages.append(cleaned)
+                    changed = changed or len(valid_refs) != len(refs)
+                    continue
+                title = str(page.get("title") or "").strip().casefold()
+                if title and title in existing_titles:
+                    changed = True
+                    continue
+                cleaned_pages.append(page)
+            if not changed:
+                return None
+            cleaned_candidate = dict(candidate)
+            cleaned_candidate["pages"] = cleaned_pages
+            return cleaned_candidate
+
+        try:
+            return validate_plan(value)
+        except ProviderError as first_error:
+            repair_input = value
+            if "evidence_refs" in str(first_error):
+                sanitized = sanitize_cross_source_refs(value)
+                if sanitized is not None:
+                    try:
+                        return validate_plan(sanitized)
+                    except ProviderError:
+                        repair_input = sanitized
+            repaired = self.chat_json(
+                "你是 Wiki JSON 校验修复器。只能修正结构、引用和页面范围，不能增加新事实。返回严格 JSON。",
+                (
+                    "上一次 Wiki 编译结果未通过校验。请保留原正文，只修正错误；"
+                    "删除没有合法 Evidence 引用的页面，也不要输出分析阶段未规划的页面。"
+                    f"校验错误：{first_error}\n"
+                    f"允许的 Evidence ID：{json.dumps(sorted(allowed), ensure_ascii=False)}\n"
+                    f"允许的页面：{json.dumps([{'title': str(action.get('title') or ''), 'kind': str(action.get('kind') or '')} for action in analysis.get('page_actions', []) if isinstance(action, dict)], ensure_ascii=False)}\n"
+                    f"待修复 JSON：{json.dumps(repair_input, ensure_ascii=False)}"
+                ),
             )
-            not in planned
-        ]
-        if unplanned:
-            raise ProviderError(
-                "Wiki 编译器返回了分析阶段未规划的页面：" + ", ".join(unplanned)
-            )
-        return value
+            return validate_plan(repaired)
 
     def rewrite_query(self, question: str) -> dict[str, Any]:
         value = self.chat_json(

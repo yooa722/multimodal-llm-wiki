@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import http.client
 import json
 import math
 import mimetypes
@@ -9,8 +10,10 @@ import os
 import re
 import ssl
 import tempfile
+import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -98,15 +101,30 @@ class BailianRetrievalProvider:
         service_root = _service_root(base_url)
         self.key = setting("MMWIKI_API_KEY")
         self.timeout = int(setting("MMWIKI_TIMEOUT", "60"))
+        self.retries = max(
+            1,
+            int(
+                setting(
+                    "MMWIKI_RETRIEVAL_API_RETRIES",
+                    setting("MMWIKI_API_RETRIES", "3"),
+                )
+            ),
+        )
+        self.text_embedding_batch_size = max(
+            1, int(setting("MMWIKI_TEXT_EMBEDDING_BATCH_SIZE", "5"))
+        )
+        self.text_embedding_workers = max(
+            1, int(setting("MMWIKI_TEXT_EMBEDDING_WORKERS", "3"))
+        )
         self.text_embedding_model = setting(
-            "MMWIKI_TEXT_EMBEDDING_MODEL", "qwen3.7-text-embedding"
+            "MMWIKI_TEXT_EMBEDDING_MODEL", "text-embedding-v4"
         )
         self.text_rerank_model = setting("MMWIKI_TEXT_RERANK_MODEL", "qwen3-rerank")
         self.vl_embedding_model = setting(
             "MMWIKI_VL_EMBEDDING_MODEL", "qwen3-vl-embedding"
         )
         self.vl_rerank_model = setting("MMWIKI_VL_RERANK_MODEL", "qwen3-vl-rerank")
-        dimension = setting("MMWIKI_EMBEDDING_DIMENSION", "1024")
+        dimension = setting("MMWIKI_EMBEDDING_DIMENSION", "512")
         self.dimension = int(dimension) if dimension else None
         self.text_embedding_url = setting(
             "MMWIKI_TEXT_EMBEDDING_URL",
@@ -158,30 +176,50 @@ class BailianRetrievalProvider:
     def _post(self, url: str, body: dict[str, Any]) -> dict[str, Any]:
         if not self.key or not url:
             raise ProviderError("检索模型 API 尚未配置")
-        request = urllib.request.Request(
-            url,
-            data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
-            method="POST",
-            headers={
-                "Authorization": f"Bearer {self.key}",
-                "Content-Type": "application/json",
-            },
-        )
+        data = json.dumps(body, ensure_ascii=False).encode("utf-8")
         context = (
             ssl.create_default_context(cafile=certifi.where())
             if certifi is not None
             else ssl.create_default_context()
         )
-        try:
-            with urllib.request.urlopen(
-                request, timeout=self.timeout, context=context
-            ) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")[:500]
-            raise ProviderError(f"检索模型 API 返回 HTTP {exc.code}：{detail}") from exc
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-            raise ProviderError(f"检索模型 API 调用失败：{exc}") from exc
+        payload: Any = None
+        for attempt in range(self.retries):
+            request = urllib.request.Request(
+                url,
+                data=data,
+                method="POST",
+                headers={
+                    "Authorization": f"Bearer {self.key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            try:
+                with urllib.request.urlopen(
+                    request, timeout=self.timeout, context=context
+                ) as response:
+                    payload = json.loads(response.read().decode("utf-8"))
+                break
+            except urllib.error.HTTPError as exc:
+                detail = exc.read().decode("utf-8", errors="replace")[:500]
+                if exc.code in {408, 429, 500, 502, 503, 504} and attempt + 1 < self.retries:
+                    time.sleep(attempt + 1)
+                    continue
+                raise ProviderError(
+                    f"检索模型 API 返回 HTTP {exc.code}：{detail}"
+                ) from exc
+            except (
+                urllib.error.URLError,
+                TimeoutError,
+                http.client.IncompleteRead,
+                http.client.RemoteDisconnected,
+                ConnectionResetError,
+                BrokenPipeError,
+                json.JSONDecodeError,
+            ) as exc:
+                if attempt + 1 < self.retries:
+                    time.sleep(attempt + 1)
+                    continue
+                raise ProviderError(f"检索模型 API 调用失败：{exc}") from exc
         if not isinstance(payload, dict):
             raise ProviderError("检索模型 API 返回格式错误")
         if payload.get("code") and not payload.get("data") and not payload.get("output"):
@@ -189,10 +227,15 @@ class BailianRetrievalProvider:
         return payload
 
     def text_embeddings(self, texts: list[str]) -> tuple[list[list[float]], dict[str, int]]:
-        vectors: list[list[float]] = []
-        usage: dict[str, int] = {}
-        for offset in range(0, len(texts), 10):
-            batch = texts[offset : offset + 10]
+        if not texts:
+            return [], {}
+        batch_size = self.text_embedding_batch_size
+        batches = [
+            (offset, texts[offset : offset + batch_size])
+            for offset in range(0, len(texts), batch_size)
+        ]
+
+        def embed_batch(offset: int, batch: list[str]):
             body: dict[str, Any] = {
                 "model": self.text_embedding_model,
                 "input": batch,
@@ -209,8 +252,22 @@ class BailianRetrievalProvider:
                 not isinstance(vector, list) for vector in batch_vectors
             ):
                 raise ProviderError("文本向量数量与输入不一致")
-            vectors.extend([[float(value) for value in vector] for vector in batch_vectors])
-            _usage_total(usage, payload.get("usage"))
+            return (
+                offset,
+                [[float(value) for value in vector] for vector in batch_vectors],
+                payload.get("usage"),
+            )
+
+        results: dict[int, list[list[float]]] = {}
+        usage: dict[str, int] = {}
+        workers = min(self.text_embedding_workers, len(batches))
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = [executor.submit(embed_batch, offset, batch) for offset, batch in batches]
+            for future in as_completed(futures):
+                offset, batch_vectors, batch_usage = future.result()
+                results[offset] = batch_vectors
+                _usage_total(usage, batch_usage)
+        vectors = [vector for offset, _ in batches for vector in results[offset]]
         return vectors, usage
 
     def text_rerank(
@@ -595,25 +652,39 @@ class RetrievalIndex:
     def build_wiki_pages(
         self, state: dict[str, Any], provider: BailianRetrievalProvider
     ) -> dict[str, Any]:
-        """Backfill only the page-level Wiki index and preserve Evidence vectors."""
+        """Build page-level navigation vectors, with or without dense Evidence vectors."""
         if not provider.text_configured:
             raise ProviderError("文本向量接口未配置")
         value = self.load()
         current_versions = _source_versions(state)
         current_fingerprints = _source_fingerprints(state)
-        if value.get("schema_version") != RETRIEVAL_INDEX_VERSION:
+        if not value:
+            value = {
+                "schema_version": RETRIEVAL_INDEX_VERSION,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "sources": current_versions,
+                "source_fingerprints": current_fingerprints,
+                "text": {
+                    "model": provider.text_embedding_model,
+                    "records": [],
+                    "usage": {},
+                },
+                "visual": {
+                    "model": provider.vl_embedding_model,
+                    "records": [],
+                    "usage": {},
+                },
+            }
+        elif value.get("schema_version") != RETRIEVAL_INDEX_VERSION:
             raise ProviderError("现有索引版本不兼容，请先迁移或构建基础索引")
-        if (
+        elif (
             value.get("sources") != current_versions
             or value.get("source_fingerprints") != current_fingerprints
         ):
-            raise ProviderError("现有 Evidence 索引与当前来源不一致，不能只回填 Wiki 页面")
+            raise ProviderError("现有索引与当前来源不一致，不能只回填 Wiki 页面")
         text = value.get("text") if isinstance(value.get("text"), dict) else {}
-        if (
-            text.get("model") != provider.text_embedding_model
-            or not text.get("records")
-        ):
-            raise ProviderError("基础文本 Evidence 索引缺失或模型不一致")
+        if text.get("model") not in (None, provider.text_embedding_model):
+            raise ProviderError("基础文本 Evidence 索引模型不一致")
 
         current_wiki = _wiki_documents(state, self.vault)
         existing_wiki = (
@@ -671,7 +742,11 @@ class RetrievalIndex:
         _atomic_write_json(self.path, value)
         return self.status(state, provider) | {
             "status": "wiki_page_index_built",
-            "index_scope": "wiki_pages_only",
+            "index_scope": (
+                "wiki_pages_with_existing_evidence_vectors"
+                if text.get("records")
+                else "wiki_pages_only_lightweight"
+            ),
             "wiki_usage": usage,
             "reused_wiki_records": len(reusable),
             "new_wiki_records": len(new_records),
@@ -705,7 +780,7 @@ class RetrievalIndex:
 
         incremental = source_ids is not None
         retained_source_ids = active_source_ids - selected_source_ids
-        existing = self.load() if incremental else {}
+        existing = self.load()
         current_versions = _source_versions(state)
         current_fingerprints = _source_fingerprints(state)
         existing_versions: dict[str, str] = {}
@@ -713,9 +788,10 @@ class RetrievalIndex:
         existing_text_records: list[dict[str, Any]] = []
         existing_visual_records: list[dict[str, Any]] = []
         existing_wiki_records: list[dict[str, Any]] = []
-        if incremental:
-            if existing.get("schema_version") != RETRIEVAL_INDEX_VERSION:
-                raise ProviderError("现有索引版本不兼容，无法安全增量合并")
+        existing_compatible = existing.get("schema_version") == RETRIEVAL_INDEX_VERSION
+        if incremental and not existing_compatible:
+            raise ProviderError("现有索引版本不兼容，无法安全增量合并")
+        if existing_compatible:
             existing_versions = (
                 existing.get("sources")
                 if isinstance(existing.get("sources"), dict)
@@ -726,6 +802,45 @@ class RetrievalIndex:
                 if isinstance(existing.get("source_fingerprints"), dict)
                 else {}
             )
+            existing_text = (
+                existing.get("text") if isinstance(existing.get("text"), dict) else {}
+            )
+            if existing_text.get("model") == provider.text_embedding_model:
+                existing_text_records = [
+                    record
+                    for record in existing_text.get("records", [])
+                    if isinstance(record, dict)
+                ]
+            elif incremental:
+                raise ProviderError("现有文本索引模型不一致，无法安全增量合并")
+            existing_wiki = (
+                existing.get("wiki") if isinstance(existing.get("wiki"), dict) else {}
+            )
+            if existing_wiki.get("model") in (None, provider.text_embedding_model):
+                existing_wiki_records = [
+                    record
+                    for record in existing_wiki.get("records", [])
+                    if isinstance(record, dict)
+                ]
+            if include_visual:
+                existing_visual = (
+                    existing.get("visual")
+                    if isinstance(existing.get("visual"), dict)
+                    else {}
+                )
+                existing_visual_model = existing_visual.get("model")
+                if existing_visual_model in (None, provider.vl_embedding_model):
+                    existing_visual_records = [
+                        record
+                        for record in existing_visual.get("records", [])
+                        if isinstance(record, dict)
+                    ]
+                elif incremental:
+                    raise ProviderError("现有视觉索引模型不一致，无法安全增量合并")
+
+        if incremental:
+            if not existing_compatible:
+                raise ProviderError("现有索引版本不兼容，无法安全增量合并")
             stale = [
                 source_id
                 for source_id in sorted(retained_source_ids)
@@ -739,25 +854,6 @@ class RetrievalIndex:
                     + ", ".join(stale)
                 )
 
-            existing_text = (
-                existing.get("text") if isinstance(existing.get("text"), dict) else {}
-            )
-            if existing_text.get("model") != provider.text_embedding_model:
-                raise ProviderError("现有文本索引模型不一致，无法安全增量合并")
-            existing_text_records = [
-                record
-                for record in existing_text.get("records", [])
-                if isinstance(record, dict)
-            ]
-            existing_wiki = (
-                existing.get("wiki") if isinstance(existing.get("wiki"), dict) else {}
-            )
-            if existing_wiki.get("model") in (None, provider.text_embedding_model):
-                existing_wiki_records = [
-                    record
-                    for record in existing_wiki.get("records", [])
-                    if isinstance(record, dict)
-                ]
             expected_retained_chunks = {
                 (source_id, str(chunk.get("chunk_id") or ""))
                 for source_id in retained_source_ids
@@ -774,28 +870,20 @@ class RetrievalIndex:
             if indexed_retained_chunks != expected_retained_chunks:
                 raise ProviderError("未选来源的文本索引记录不完整，拒绝标记为最新")
 
-            if include_visual:
-                existing_visual = (
-                    existing.get("visual")
-                    if isinstance(existing.get("visual"), dict)
-                    else {}
-                )
-                existing_visual_model = existing_visual.get("model")
-                if existing_visual_model not in (None, provider.vl_embedding_model):
-                    raise ProviderError("现有视觉索引模型不一致，无法安全增量合并")
-                existing_visual_records = [
-                    record
-                    for record in existing_visual.get("records", [])
-                    if isinstance(record, dict)
-                ]
-
         current_text: dict[tuple[str, str], tuple[dict[str, str], str]] = {}
         for source_id, source in sources.items():
             for chunk in iter_retrieval_chunks(source):
                 key = (str(source_id), str(chunk.get("chunk_id") or ""))
+                document_text = _document_text(source, chunk)
                 current_text[key] = (
-                    {"source_id": key[0], "chunk_id": key[1]},
-                    _document_text(source, chunk),
+                    {
+                        "source_id": key[0],
+                        "chunk_id": key[1],
+                        "content_hash": hashlib.sha256(
+                            document_text.encode("utf-8")
+                        ).hexdigest(),
+                    },
+                    document_text,
                 )
 
         reusable_text: dict[tuple[str, str], dict[str, Any]] = {}
@@ -807,11 +895,20 @@ class RetrievalIndex:
             source_id = key[0]
             if key not in current_text or not isinstance(record.get("vector"), list):
                 continue
+            source_unchanged = (
+                existing_fingerprints.get(source_id)
+                == current_fingerprints.get(source_id)
+            )
+            record_unchanged = bool(record.get("content_hash")) and (
+                record.get("content_hash")
+                == current_text[key][0]["content_hash"]
+            )
             if source_id in retained_source_ids or (
                 source_id in selected_source_ids
                 and existing_versions.get(source_id) == current_versions.get(source_id)
+                and (source_unchanged or record_unchanged)
             ):
-                reusable_text[key] = record
+                reusable_text[key] = {**record, **current_text[key][0]}
 
         missing_text_keys = sorted(
             key
@@ -880,10 +977,30 @@ class RetrievalIndex:
             tuple[str, str, str, str], tuple[str, Path, str]
         ] = {}
         for source_id, source in sources.items():
+            visual_evidence = source.get("visual_evidence")
+            ready_visual_asset_ids: set[str] | None = None
+            if isinstance(visual_evidence, list):
+                ready_visual_asset_ids = {
+                    str(record.get("asset_id") or "")
+                    for record in visual_evidence
+                    if isinstance(record, dict)
+                    and record.get("status") == "ready"
+                    and record.get("searchable") is True
+                    and str(record.get("asset_id") or "")
+                }
             for chunk in iter_retrieval_chunks(source, include_derived=False):
                 text = _document_text(source, chunk)[:3000]
                 for raw_asset_id in chunk.get("asset_ids", []):
                     asset_id = str(raw_asset_id)
+                    # Parsed assets all remain browsable in the Wiki, but the
+                    # expensive visual vector index follows the cost-aware
+                    # enrichment scope.  Legacy states without visual_evidence
+                    # retain the previous all-assets behavior.
+                    if (
+                        ready_visual_asset_ids is not None
+                        and asset_id not in ready_visual_asset_ids
+                    ):
+                        continue
                     asset = source.get("assets", {}).get(raw_asset_id)
                     if asset is None:
                         asset = source.get("assets", {}).get(asset_id, {})
@@ -922,6 +1039,8 @@ class RetrievalIndex:
                 if source_id in retained_source_ids or (
                     source_id in selected_source_ids
                     and existing_versions.get(source_id) == current_versions.get(source_id)
+                    and existing_fingerprints.get(source_id)
+                    == current_fingerprints.get(source_id)
                 ):
                     reusable_visual[key] = record
 
@@ -1005,6 +1124,8 @@ class RetrievalIndex:
             "new_wiki_records": len(new_wiki_records),
             "reused_visual_records": len(reusable_visual),
             "new_visual_records": len(missing_visual_keys),
+            "visual_index_scope": "ready_visual_evidence",
+            "eligible_visual_records": len(current_visual),
         }
 
 
@@ -1304,8 +1425,50 @@ class HybridRetriever:
 
         status = self.index.status(self.state, provider)
         if not status["text_ready"]:
-            trace["fallback_reason"] = "文本向量索引缺失或已过期"
-            return lexical[:top_k], trace
+            if not status["wiki_semantic_ready"]:
+                trace["fallback_reason"] = "文本向量索引缺失或已过期"
+                return lexical[:top_k], trace
+            try:
+                value = self.index.load()
+                query_vectors, embedding_usage = provider.text_embeddings([query])
+                wiki_index = value.get("wiki") if isinstance(value.get("wiki"), dict) else {}
+                semantic_page_navigation = self._rank_wiki_pages(
+                    query_vectors[0], wiki_index.get("records", []), source_ids
+                )
+                semantic_navigation = self._wiki_pages_to_sources(
+                    semantic_page_navigation
+                )
+                effective_wiki_source_ranks = self._merge_wiki_source_ranks(
+                    wiki_source_ranks, semantic_navigation
+                )
+                lexical = Retriever(self.state).search(
+                    query,
+                    candidate_limit,
+                    source_ids,
+                    wiki_paths_by_source,
+                    effective_wiki_source_ranks,
+                )
+                trace.update(
+                    {
+                        "mode": "hybrid",
+                        "channels": ["wiki_page_embedding", "wiki_navigation", "bm25"],
+                        "models": {"wiki_page_embedding": provider.text_embedding_model},
+                        "usage": {"wiki_page_embedding": embedding_usage},
+                        "fallback_reason": (
+                            "采用轻量索引：Wiki Page Embedding 定位来源，"
+                            "Evidence 使用本地 BM25/Caption 检索"
+                        ),
+                        "wiki_semantic_navigation": semantic_navigation,
+                        "wiki_semantic_navigation_pages": semantic_page_navigation,
+                        "wiki_navigation_strategy": (
+                            "wiki-page-bm25+page-embedding->local-evidence"
+                        ),
+                    }
+                )
+                return lexical[:top_k], trace
+            except ProviderError as exc:
+                trace["fallback_reason"] = f"Wiki 页面语义检索失败，已回退 BM25：{exc}"
+                return lexical[:top_k], trace
         value = self.index.load()
         try:
             query_vectors, embedding_usage = provider.text_embeddings([query])

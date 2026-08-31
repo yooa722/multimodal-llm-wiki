@@ -1,0 +1,11 @@
+# Large generated Runtime snapshots are versioned for portability but are not
+# useful as line-by-line review diffs. Wiki Markdown remains reviewable.
+runtime/official-image-text/wiki-runtime/state.json -diff
+runtime/official-image-text/wiki-runtime/page-index.json -diff
+runtime/official-image-text/wiki-runtime/retrieval-index.json -diff
+runtime/official-image-text/wiki-runtime/raw/** -diff
+runtime/official-image-text/wiki-runtime/build-cache/** -diff
+runtime/official-image-text/wiki-runtime/vault/assets/** -diff
+# MinerU text can intentionally contain Markdown hard-break spaces. Preserve the
+# immutable generated pages without treating those source spaces as code errors.
+runtime/official-image-text/wiki-runtime/vault/wiki/** whitespace=-blank-at-eol

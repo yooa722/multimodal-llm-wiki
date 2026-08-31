@@ -9,6 +9,37 @@ from mmwiki.pipeline import NON_WIKI_VAULT_DOCUMENTS, WikiPipeline
 
 
 class VaultLayoutTests(unittest.TestCase):
+    def test_pipeline_reads_relative_runtime_root_from_dotenv(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "project"
+            root.mkdir()
+            (root / ".env").write_text(
+                "MMWIKI_RUNTIME_ROOT=runtime/official/wiki-runtime\n",
+                encoding="utf-8",
+            )
+
+            pipeline = WikiPipeline(root)
+
+            self.assertEqual(
+                pipeline.runtime,
+                (root / "runtime/official/wiki-runtime").resolve(),
+            )
+            self.assertTrue(pipeline.state_path.is_file())
+            self.assertFalse((root / "runtime/state.json").exists())
+
+    def test_pipeline_can_use_an_isolated_runtime_root(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "project"
+            runtime = Path(directory) / "official-runtime"
+            root.mkdir()
+
+            pipeline = WikiPipeline(root, runtime_root=runtime)
+
+            self.assertEqual(pipeline.runtime, runtime.resolve())
+            self.assertEqual(pipeline.vault, runtime.resolve() / "vault")
+            self.assertTrue(pipeline.state_path.is_file())
+            self.assertFalse((root / "runtime").exists())
+
     def test_layout_bootstraps_wiki_purpose_schema_and_maintenance(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             pipeline = WikiPipeline(Path(directory))

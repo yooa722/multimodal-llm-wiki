@@ -1,0 +1,39 @@
+{
+  "schema_version": "mmwiki-0.1",
+  "package_id": "厚叶卷瓣兰_中国兰科一新记录种",
+  "document": {
+    "title": "厚叶卷瓣兰_中国兰科一新记录种",
+    "source": {
+      "filename": "厚叶卷瓣兰_中国兰科一新记录种.pdf.pdf",
+      "structured_output": "raw/6f2b57b7-09a8-433c-a29d-588e05eb5121_content_list_v2.json",
+      "media_type": "application/pdf"
+    }
+  },
+  "parser": {
+    "name": "mineru",
+    "version": "mineru-cloud-vlm",
+    "structured_output": "content_list_v2"
+  },
+  "artifacts": {
+    "items": "items.jsonl",
+    "chunks": "chunks.jsonl",
+    "raw": "raw/",
+    "assets": "assets/",
+    "assets_index": "assets.json"
+  },
+  "counts": {
+    "records": 52,
+    "chunks": 45,
+    "assets": 1
+  },
+  "handoff": {
+    "text_index": "chunks.text",
+    "image_index": "chunks.asset_ids",
+    "table_index": "items.content.table",
+    "answer_citation": "chunks.provenance"
+  },
+  "quality": {
+    "semantic_enrichment": "adjacent-text-for-visual-retrieval",
+    "retrieval_proxy": "deterministic-mineru-adapter"
+  }
+}

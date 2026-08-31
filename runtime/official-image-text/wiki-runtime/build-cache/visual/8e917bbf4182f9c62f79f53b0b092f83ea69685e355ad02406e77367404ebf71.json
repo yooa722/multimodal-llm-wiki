@@ -1,0 +1,217 @@
+{
+  "sha256": "8e917bbf4182f9c62f79f53b0b092f83ea69685e355ad02406e77367404ebf71",
+  "ocr": {
+    "status": "skipped",
+    "text": "",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "natural_image",
+    "primary_representation": "vlm_caption",
+    "run_caption": true,
+    "run_ocr": false,
+    "ocr_policy": "on_demand",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力"
+  },
+  "generated_at": "2026-08-30T14:07:23.625659+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "标题为‘材料出库’的泳道图，含‘生产制造部门’‘需求部门’‘物资部仓库’‘财务部-材料会计’四泳道；流程从‘开始’经‘原材料/设备配件/低值易耗品’判断分支，经岗位01（出库申请）、02（材料出库单）、03（统计员录入）、审核、自动触发至‘材料出库单’及财务处理，最终‘结束’；顶部标注‘流程名称：材料出库 版本号：V1.0 更新时间：2014.11.21’。",
+    "model": "qwen3-vl-plus"
+  },
+  "analysis": {
+    "summary": "新来源为《104页-ERP财务供应链解决方案》，是一份ERP系统实施文档，涵盖版本历史、审核记录、业务单元组织结构（含磁材公司、进出口公司）、供应商数据模板、关键管理需求（如产成品直运销售、材料出库）、仓库出入库业务流程（含采购入库、材料出库、销售出库、报废、盘点）、系统参数设置（库存管理模块）及两个核心业务流程图：'物资部仓库总体业务流程'与'材料出库'流程。该文档为现有Wiki中已存在的'ERP财务供应链解决方案'分析页、'磁材公司'与'进出口公司'实体页、'信息分类编码原则'概念页提供了多模态证据支撑，尤其通过两张流程图补充了原有文本描述的视觉逻辑。",
+    "claims": [
+      {
+        "statement": "ERP系统实施范围包括‘有限公司’、‘磁材公司’和‘进出口公司’三个业务单元，其中‘磁材公司’启用销售、财务、资产、库存、采购、质检职能，‘进出口公司’启用资产、库存职能。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0007-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "采购入库业务要求产成品、原材料、辅料必须经检验合格后方可入库；材料出库需由需求部门提出申请。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0054-b0002"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "‘物资部仓库总体业务流程’中，采购订单触发到货单→质检→采购入库；销售出库依赖发货计划；报废与盘点由仓库主导并协同财务。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0054-b0002"
+        ],
+        "provenance": "inferred"
+      },
+      {
+        "statement": "‘材料出库’流程中：制造部门或物资需求部门提交出库申请→仓库审核后录入材料出库单；该流程自动触发财务部材料会计处理。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0057-b0002"
+        ],
+        "provenance": "inferred"
+      },
+      {
+        "statement": "库存管理模块设定了8项系统参数，包括最高/最低/安全库存检查方式均为‘提示’，入库货位优先顺序为‘存量货位’，可用量不足检查为‘不检查’。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0056-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "‘产成品采购直运销售’需求旨在减少仓储物流成本并快速响应客户交货时间，要求供应商直接将商品发往客户。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0022-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "‘材料出库’需求指生产制造部门及其他部门开出领料申请单，仓库人员据此发料并录入材料出库单。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0056-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "文档存在版本历史表（V1.0至V1.6）与审核记录表（V1.0、V1.3、V1.5），但所有字段均为空值。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0002-b0002",
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0002-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "确认页包含四条‘2015年3月’的确认记录，确认人与备注栏为空。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0002-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "供应商编码采用8位数字格式（如01.01.0001），但供应商名称列全部为空。",
+        "evidence_refs": [
+          "104页-ERP财务供应链解决方案@386617a95792#item-p0010-b0010"
+        ],
+        "provenance": "extracted"
+      }
+    ],
+    "entities": [
+      {
+        "name": "磁材公司"
+      },
+      {
+        "name": "进出口公司"
+      },
+      {
+        "name": "有限公司"
+      },
+      {
+        "name": "物资部采购"
+      },
+      {
+        "name": "物资部仓库"
+      },
+      {
+        "name": "品质保证部"
+      },
+      {
+        "name": "制造部门"
+      },
+      {
+        "name": "营销部"
+      },
+      {
+        "name": "财务部"
+      }
+    ],
+    "concepts": [
+      {
+        "name": "采购入库"
+      },
+      {
+        "name": "材料出库"
+      },
+      {
+        "name": "销售出库"
+      },
+      {
+        "name": "报废"
+      },
+      {
+        "name": "盘点"
+      },
+      {
+        "name": "产成品采购直运销售"
+      },
+      {
+        "name": "库存管理参数"
+      },
+      {
+        "name": "业务流程"
+      },
+      {
+        "name": "组织职能"
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "ERP财务供应链解决方案",
+        "kind": "analysis",
+        "action": "update",
+        "reason": "新来源提供完整表格与两张关键流程图（物资部仓库总体业务流程、材料出库），显著增强原分析页的多模态证据层；流程图揭示了跨部门协作逻辑，属于inferred知识，需更新正文并关联evidence_ids。"
+      },
+      {
+        "title": "磁材公司",
+        "kind": "entity",
+        "action": "update",
+        "reason": "新来源表格明确其启用的组织职能（销售、财务、资产、库存、采购、质检），属extracted事实，需补充至实体页。"
+      },
+      {
+        "title": "进出口公司",
+        "kind": "entity",
+        "action": "update",
+        "reason": "新来源表格明确其启用的组织职能（资产、库存），属extracted事实，需补充至实体页。"
+      },
+      {
+        "title": "信息分类编码原则",
+        "kind": "concept",
+        "action": "update",
+        "reason": "虽本来源未直接提及编码原则，但其大量使用结构化编码（如供应商编码01.01.0001、参数代码IC014等）及组织编码（1, 10, 101, 102），可作为编码实践的实证案例，支持概念页的扩展说明。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-e499532eaf558478b38b",
+        "evidence_id": "104页-ERP财务供应链解决方案@386617a95792#item-p0054-b0002",
+        "caption": "标题为‘物资部仓库总体业务流程’的泳道图，含‘物资需求部门’‘采购部’‘质检部’‘物资部仓库’‘存货核算’五泳道；流程节点包括采购订单、到货单、质检流程、采购入库单、材料出库单、产成品入库单、销售出库单、报废、盘点等；顶部标注‘流程名称：物资部仓库总体业务流程 版本号:V1.0 最后更新时间：2014.12.11’。"
+      },
+      {
+        "asset_id": "asset-8e917bbf4182f9c62f79",
+        "evidence_id": "104页-ERP财务供应链解决方案@386617a95792#item-p0057-b0002",
+        "caption": "标题为‘材料出库’的泳道图，含‘生产制造部门’‘需求部门’‘物资部仓库’‘财务部-材料会计’四泳道；流程从‘开始’经‘原材料/设备配件/低值易耗品’判断分支，经岗位01（出库申请）、02（材料出库单）、03（统计员录入）、审核、自动触发至‘材料出库单’及财务处理，最终‘结束’；顶部标注‘流程名称：材料出库 版本号：V1.0 更新时间：2014.11.21’。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 2791,
+      "total_tokens": 5084,
+      "completion_tokens": 2293,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 2791
+      },
+      "completion_tokens_details": {
+        "text_tokens": 2293
+      }
+    }
+  },
+  "batch_shas": [
+    "e499532eaf558478b38b11073ed1a991f73cdd98da23b9ec180cbb62cc7b37d3",
+    "8e917bbf4182f9c62f79f53b0b092f83ea69685e355ad02406e77367404ebf71"
+  ]
+}

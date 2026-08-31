@@ -69,16 +69,16 @@ class QueryView extends ItemView {
     examples.createEl("span", { text: "试试这些" });
     const prompts = [
       {
-        label: "读 Figure 4",
-        question: "根据 Figure 4，ReToken 推理时的数据流是什么？请按顺序说明，并指出图中缓存的对象。"
+        label: "看厚叶卷瓣兰原图",
+        question: "请观察厚叶卷瓣兰第2页的原图，说明A、B、C、D四个分图分别展示什么，并概括花朵的颜色和斑点特征。"
       },
       {
         label: "读取 Form 7004",
         question: "Form 7004 可以为哪些申报表申请延期？请根据表格列举前五项。"
       },
       {
-        label: "核对工期预算",
-        question: "工期与预算表中，开发测试阶段需要多少天、多少人、多少预算？"
+        label: "核对 ERP 参数表",
+        question: "ERP方案第18页中，销售管理参数S001、S004、S007的参数名称、参数值和取值范围分别是什么？"
       }
     ];
     for (const prompt of prompts) {

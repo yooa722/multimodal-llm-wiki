@@ -1,0 +1,28 @@
+{
+  "sha256": "bf250c473ebd10642cd3e5e83de0eba7de1a84744b3af69607bd6c4d9b80cc3a",
+  "ocr": {
+    "status": "ready",
+    "text": "序号\n部门及岗\n位\n业务步骤\n流程说明\n单据\n处理状\n态\n1\n制造部门\n出库申请\n制造部门根据生产计划进行原材料、辅料\n录入出库申请。\n出库申请单\n2\n物资需求\n部门\n出库申请\n相关物资需求部门依据需求申请录入出\n库申请单\n3\n物资部\n仓库\n材料出库单\n仓库人员参照审核后的出库申请单录入\n材料出库单",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "table_screenshot",
+    "primary_representation": "structured_table",
+    "run_caption": false,
+    "run_ocr": true,
+    "ocr_policy": "assistive",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对"
+  },
+  "generated_at": "2026-08-30T14:07:24.504975+00:00",
+  "caption": {
+    "status": "skipped",
+    "text": "",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对",
+    "model": "qwen3-vl-plus"
+  }
+}

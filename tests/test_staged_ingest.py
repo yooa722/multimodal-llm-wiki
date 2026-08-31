@@ -470,6 +470,46 @@ class StagedIngestTests(unittest.TestCase):
             self.assertEqual(unchanged["status"], "unchanged")
             self.assertEqual(unchanged["build_metrics"]["api_calls"], 0)
 
+    def test_visual_scope_does_not_limit_multimodal_wiki_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = make_package(root)
+            pipeline = WikiPipeline(root)
+            pipeline.ingest(package, stage="text")
+
+            result = pipeline.ingest(
+                package,
+                stage="multimodal",
+                visual_item_ids={"table-1"},
+            )
+            source = pipeline._load_state()["sources"]["staged-demo"]
+            source_page = (pipeline.vault / source["wiki_path"]).read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(result["build_metrics"]["multimodal_items_added"], 2)
+            self.assertEqual(
+                result["build_metrics"]["evidence_scope"],
+                {"mode": "selected_items", "item_ids": ["table-1"]},
+            )
+            self.assertEqual(len(source["assets"]), 1)
+            self.assertIn("| 指标 | 数值 |", source_page)
+            self.assertIn("![[assets/staged-demo/asset-1.png]]", source_page)
+
+    def test_multimodal_scope_rejects_unknown_items(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = make_package(root)
+            pipeline = WikiPipeline(root)
+            pipeline.ingest(package, stage="text")
+
+            with self.assertRaisesRegex(PipelineError, "不存在"):
+                pipeline.ingest(
+                    package,
+                    stage="multimodal",
+                    visual_item_ids={"missing-item"},
+                )
+
     def test_full_scale_also_persists_ocr_and_caption_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

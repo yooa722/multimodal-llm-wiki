@@ -1,11 +1,67 @@
 import { tool } from "@opencode-ai/plugin"
 import { spawn } from "node:child_process"
+import { closeSync, existsSync, openSync, readFileSync } from "node:fs"
 import http from "node:http"
 import path from "path"
+import { fileURLToPath } from "node:url"
 
 
 const WIKI_SERVER_URL = "http://127.0.0.1:19828"
-const PRESENTATION_VERSION = "split-query-v2"
+const PRESENTATION_VERSION = "split-query-v3"
+const TOOL_PROJECT_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+)
+
+
+function projectRoot(worktree: string): string {
+  const candidate = path.resolve(worktree)
+  if (
+    existsSync(path.join(candidate, "app.py")) &&
+    existsSync(path.join(candidate, "mmwiki"))
+  ) {
+    return candidate
+  }
+  return TOOL_PROJECT_ROOT
+}
+
+
+function activeRuntimeRoot(worktree: string): string {
+  worktree = projectRoot(worktree)
+  let configured = process.env.MMWIKI_RUNTIME_ROOT?.trim() || ""
+  if (!configured) {
+    const dotenvPath = path.join(worktree, ".env")
+    if (existsSync(dotenvPath)) {
+      const line = readFileSync(dotenvPath, "utf8")
+        .split(/\r?\n/)
+        .find((value) => /^\s*MMWIKI_RUNTIME_ROOT\s*=/.test(value))
+      if (line) {
+        configured = line
+          .split("=", 2)[1]
+          .trim()
+          .replace(/^['"]|['"]$/g, "")
+      }
+    }
+  }
+  return path.resolve(worktree, configured || "runtime")
+}
+
+
+function pythonExecutable(worktree: string): string {
+  const configured = process.env.MMWIKI_PYTHON?.trim()
+  if (configured) return configured
+
+  const venvCandidates = process.platform === "win32"
+    ? [path.join(worktree, ".venv", "Scripts", "python.exe")]
+    : [
+        path.join(worktree, ".venv", "bin", "python3"),
+        path.join(worktree, ".venv", "bin", "python"),
+      ]
+  const venvPython = venvCandidates.find((candidate) => existsSync(candidate))
+  if (venvPython) return venvPython
+  return process.platform === "win32" ? "python" : "python3"
+}
 
 
 function markdownResult(
@@ -23,9 +79,10 @@ async function runPython(
   worktree: string,
   args: string[],
 ): Promise<string> {
+  worktree = projectRoot(worktree)
   const script = path.join(worktree, "tools", "opencode_demo.py")
   return new Promise((resolve, reject) => {
-    const child = spawn("python3", [script, ...args], {
+    const child = spawn(pythonExecutable(worktree), [script, ...args], {
       cwd: worktree,
       shell: false,
       stdio: ["ignore", "pipe", "pipe"],
@@ -62,8 +119,9 @@ async function runCli(
   worktree: string,
   args: string[],
 ): Promise<string> {
+  worktree = projectRoot(worktree)
   return new Promise((resolve, reject) => {
-    const child = spawn("python3", ["app.py", ...args], {
+    const child = spawn(pythonExecutable(worktree), ["app.py", ...args], {
       cwd: worktree,
       shell: false,
       stdio: ["ignore", "pipe", "pipe"],
@@ -93,8 +151,9 @@ async function runCli(
 async function wikiServerStatus(
   worktree: string,
 ): Promise<"ready" | "outdated" | "offline"> {
+  worktree = projectRoot(worktree)
   return new Promise((resolve) => {
-    const request = http.get(`${WIKI_SERVER_URL}/api/v1/health`, (response) => {
+    const request = http.get(`${WIKI_SERVER_URL}/api/v1/ping`, (response) => {
       let body = ""
       response.setEncoding("utf8")
       response.on("data", (chunk: string) => {
@@ -102,20 +161,25 @@ async function wikiServerStatus(
       })
       response.on("end", () => {
         if (response.statusCode !== 200 && response.statusCode !== 503) {
-          resolve("offline")
+          // A process answered on the Wiki port, but it does not implement the
+          // current lightweight probe. Treat it as an old server so it can be
+          // replaced safely instead of reporting a misleading offline error.
+          resolve("outdated")
           return
         }
         try {
           const value = JSON.parse(body) as {
             presentation_version?: string
             project_root?: string
+            runtime_root?: string
           }
           const currentProject = value.project_root
             ? path.resolve(value.project_root)
             : ""
           resolve(
             value.presentation_version === PRESENTATION_VERSION &&
-              currentProject === path.resolve(worktree)
+              currentProject === path.resolve(worktree) &&
+              path.resolve(value.runtime_root || "") === activeRuntimeRoot(worktree)
               ? "ready"
               : "outdated",
           )
@@ -124,7 +188,7 @@ async function wikiServerStatus(
         }
       })
     })
-    request.setTimeout(500, () => {
+    request.setTimeout(3000, () => {
       request.destroy()
       resolve("offline")
     })
@@ -162,6 +226,7 @@ async function capture(command: string, args: string[]): Promise<string> {
 
 
 async function stopOutdatedWikiServer(worktree: string): Promise<void> {
+  worktree = projectRoot(worktree)
   let listeners = ""
   try {
     listeners = await capture("lsof", ["-tiTCP:19828", "-sTCP:LISTEN"])
@@ -202,27 +267,43 @@ async function stopOutdatedWikiServer(worktree: string): Promise<void> {
 
 
 async function ensureWikiServer(worktree: string): Promise<void> {
+  worktree = projectRoot(worktree)
   const initialStatus = await wikiServerStatus(worktree)
   if (initialStatus === "ready") return
   if (initialStatus === "outdated") {
     await stopOutdatedWikiServer(worktree)
   }
+  const logPath = path.join(worktree, ".opencode", "wiki-server.log")
+  const logFd = openSync(logPath, "w")
   const child = spawn(
-    "python3",
+    pythonExecutable(worktree),
     ["app.py", "api", "--host", "127.0.0.1", "--port", "19828"],
     {
       cwd: worktree,
       detached: true,
       shell: false,
-      stdio: "ignore",
+      stdio: ["ignore", logFd, logFd],
     },
   )
+  closeSync(logFd)
+  let startupError = ""
+  child.on("error", (error) => {
+    startupError = String(error)
+  })
   child.unref()
-  for (let attempt = 0; attempt < 30; attempt += 1) {
-    await new Promise((resolve) => setTimeout(resolve, 100))
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 250))
     if (await wikiServerStatus(worktree) === "ready") return
   }
-  throw new Error("无法启动本地 Wiki 展示服务 127.0.0.1:19828")
+  let diagnostics = startupError
+  try {
+    diagnostics ||= readFileSync(logPath, "utf8").trim().slice(-4000)
+  } catch {
+    // Keep the user-facing error useful even when the log file is unavailable.
+  }
+  throw new Error(
+    `无法启动本地 Wiki 展示服务 127.0.0.1:19828${diagnostics ? `：${diagnostics}` : ""}`,
+  )
 }
 
 
@@ -278,7 +359,7 @@ export { importWiki as import }
 
 
 export const tour = tool({
-  description: "生成多模态 Wiki 的完整中文导览，展示构建路线、查询路线、真实完整表格、Figure 4 原图和 Evidence ID。",
+  description: "生成多模态 Wiki 的完整中文导览，展示 MinerU 数据入口、构建路线、查询路线、新数据中的完整表格、原图和 Evidence ID。",
   args: {},
   async execute(_args, context) {
     await ensureWikiServer(context.worktree)

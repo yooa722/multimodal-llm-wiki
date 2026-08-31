@@ -1,0 +1,28 @@
+{
+  "sha256": "657afd42ff8a8dcac7d164800f3ec1485d12ea45cd559322fb71bb595a39ed95",
+  "ocr": {
+    "status": "ready",
+    "text": "五一促销期：23W18-19\n(4月24日到5月7日)\n线上（万台，亿元）\n线下（万台，亿元）\n全渠道（万台，亿元）\n冰箱\n同比\n规模\n106.7\n22.4\n52.6\n34.8\n159.3\n57.3\n1.9%\n2.5%\n-2.6%\n2.9%\n0.3%\n2.7%\n30.1\n3.5\n16.2\n1.9\n46.3\n5.4\n8.4%\n5.7%\n-4.7%\n-2.8%\n3.4%\n2.5%\n76.9\n12.2\n53.2\n19.8\n130.1\n32.0\n1.0%\n3.9%\n6.3%\n8.0%\n6.4%\n2.9\n1.1\n3.1\n2.5\n6.0\n3.6\n同比\n-15.6%\n-17.5%\n12.2%\n7.0%\n-3.4%\n-2.0%\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额.4%\n-2.0%\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额\n零售额4%\n-2.0%\n零售额\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量\n零售额\n零售量",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "table_screenshot",
+    "primary_representation": "structured_table",
+    "run_caption": false,
+    "run_ocr": true,
+    "ocr_policy": "assistive",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对"
+  },
+  "generated_at": "2026-08-30T11:39:40.489748+00:00",
+  "caption": {
+    "status": "skipped",
+    "text": "",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对",
+    "model": "qwen3-vl-plus"
+  }
+}

@@ -82,7 +82,7 @@ def main() -> int:
     parser.add_argument("--suite", type=Path, default=Path("evaluation/online_smoke.jsonl"))
     parser.add_argument("--output", type=Path, default=Path("reports/online-smoke-results.json"))
     parser.add_argument(
-        "--retrieval-mode", choices=RETRIEVAL_MODES, default="hybrid"
+        "--retrieval-mode", choices=("auto", *RETRIEVAL_MODES), default="hybrid"
     )
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument(
@@ -96,8 +96,25 @@ def main() -> int:
         action="store_true",
         help="允许检索模式回退；默认回退会使本次评测失败",
     )
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=PROJECT_ROOT,
+        help="待评测项目根目录；默认使用当前仓库",
+    )
+    parser.add_argument(
+        "--runtime-root",
+        type=Path,
+        help="可选：使用隔离 Runtime，避免覆盖默认演示知识库",
+    )
+    parser.add_argument(
+        "--provider",
+        choices=("api", "baseline"),
+        default="api",
+        help="api 用于正式在线评测；baseline 只用于本地链路诊断",
+    )
     args = parser.parse_args()
-    pipeline = WikiPipeline(PROJECT_ROOT)
+    pipeline = WikiPipeline(args.root, runtime_root=args.runtime_root)
     cases = load_jsonl(args.suite)
     rows: list[dict[str, Any]] = []
     for case in cases:
@@ -105,7 +122,7 @@ def main() -> int:
             result = pipeline.query(
                 case["question"],
                 top_k=args.top_k,
-                provider="api",
+                provider=args.provider,
                 source_ids=(
                     {case["source_id"]} if args.scope == "source" else None
                 ),
@@ -129,6 +146,10 @@ def main() -> int:
                     "total_tokens": 0,
                     "image_tokens": 0,
                     "retriever": None,
+                    "expected_mode": case.get("expected_mode"),
+                    "actual_mode": None,
+                    "routing_correct": False if case.get("expected_mode") else None,
+                    "fell_back": False,
                     "model": None,
                 }
             )
@@ -157,6 +178,14 @@ def main() -> int:
         keyword_pass = all(keyword.casefold() in answer.casefold() for keyword in case["required_keywords"])
         concept_pass = concept_coverage_pass(answer, case)
         answerable = result["answer_mode"] != "abstention"
+        retrieval = result.get("retrieval", {})
+        actual_mode = retrieval.get("mode")
+        expected_mode = case.get("expected_mode")
+        fell_back = bool(retrieval.get("fallback_reason")) or (
+            args.retrieval_mode != "auto"
+            and actual_mode is not None
+            and actual_mode != args.retrieval_mode
+        )
         rows.append(
             {
                 "id": case["id"],
@@ -176,9 +205,13 @@ def main() -> int:
                     result.get("usage", {}).get("prompt_tokens_details", {}).get("image_tokens", 0)
                 ),
                 "retriever": result["retriever"],
-                "retrieval": result.get("retrieval", {}),
-                "fell_back": result.get("retrieval", {}).get("mode")
-                != args.retrieval_mode,
+                "retrieval": retrieval,
+                "expected_mode": expected_mode,
+                "actual_mode": actual_mode,
+                "routing_correct": (
+                    actual_mode == expected_mode if expected_mode else None
+                ),
+                "fell_back": fell_back,
                 "model": result["model"],
             }
         )
@@ -187,6 +220,7 @@ def main() -> int:
     answerable_rows = [
         row for row, case in zip(rows, cases) if case["expected_answerable"]
     ]
+    routed_rows = [row for row in rows if row.get("expected_mode")]
     metrics = {
         "cases": len(rows),
         "answerability_accuracy": round(sum(row["answerability_correct"] for row in rows) / len(rows), 4),
@@ -202,12 +236,18 @@ def main() -> int:
         "total_tokens": sum(row["total_tokens"] for row in rows),
         "image_tokens": sum(row["image_tokens"] for row in rows),
         "fallback_count": sum(row.get("fell_back", False) for row in rows),
+        "routing_accuracy": round(
+            sum(bool(row.get("routing_correct")) for row in routed_rows)
+            / len(routed_rows),
+            4,
+        ) if routed_rows else None,
     }
     metrics["fallback_rate"] = round(metrics["fallback_count"] / len(rows), 4)
     payload = {
         "suite": str(args.suite),
         "retrieval_mode": args.retrieval_mode,
         "evaluation_scope": args.scope,
+        "provider": args.provider,
         "metrics": metrics,
         "metrics_by_modality": grouped_metrics(rows, cases, "modality"),
         "metrics_by_difficulty": grouped_metrics(rows, cases, "difficulty"),

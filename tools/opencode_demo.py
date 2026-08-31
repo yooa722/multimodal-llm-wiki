@@ -28,17 +28,17 @@ from mmwiki.web import media_url, wiki_view_url
 
 DEMO_CASES = {
     "table": {
-        "question": "开发测试阶段需要多少天、多少人、多少预算？",
+        "question": "ERP方案第18页中，销售管理参数 S001、S004、S007 的参数名称、参数值和取值范围分别是什么？",
         "mode": "auto",
         "why": "验证 Wiki 能否定位知识页，并回读完整表格单元格。",
     },
     "visual": {
-        "question": "根据 Figure 4，ReToken 推理时的数据流是什么？请按顺序说明，并指出图中缓存的对象。",
+        "question": "请观察厚叶卷瓣兰第2页的原图：A、B、C、D四个分图分别展示什么？花朵主要有哪些颜色和斑点特征？",
         "mode": "auto",
         "why": "验证系统是否真正读取原图，而不只依赖 Caption。",
     },
     "refuse": {
-        "question": "Figure 4 中蓝色方框的 RGB 精确数值是多少？",
+        "question": "厚叶卷瓣兰第2页原图中紫色斑点的精确 RGB 数值是多少？图中没有数值时请拒绝猜测。",
         "mode": "auto",
         "why": "验证证据不足时是否拒绝编造。",
     },
@@ -425,7 +425,7 @@ def _evidence_entries(
 def api_health() -> dict[str, Any]:
     try:
         with urllib.request.urlopen(
-            "http://127.0.0.1:19828/api/v1/health", timeout=1
+            "http://127.0.0.1:19828/api/v1/ping", timeout=3
         ) as response:
             value = json.loads(response.read().decode("utf-8"))
             return value if isinstance(value, dict) else {"status": "unknown"}
@@ -450,6 +450,13 @@ def collect_snapshot(pipeline: WikiPipeline) -> dict[str, Any]:
         Path.home() / ".opencode/bin/opencode"
     )
     config = load_json(PROJECT_ROOT / "opencode.json")
+    project_integration_files = [
+        PROJECT_ROOT / "opencode.json",
+        PROJECT_ROOT / ".opencode/skills/multimodal-wiki/SKILL.md",
+        PROJECT_ROOT / ".opencode/tools/wiki.ts",
+        PROJECT_ROOT / ".opencode/commands/wiki-check.md",
+        PROJECT_ROOT / ".opencode/commands/wiki-ask.md",
+    ]
     data_ready = lint.get("status") == "passed" and (
         not pipeline.features.enable_vector_retrieval
         or bool(retrieval.get("text_ready"))
@@ -482,6 +489,7 @@ def collect_snapshot(pipeline: WikiPipeline) -> dict[str, Any]:
         "opencode_cli": opencode_cli,
         "opencode_cli_ready": Path(opencode_cli).is_file(),
         "opencode_desktop_ready": Path("/Applications/OpenCode.app").is_dir(),
+        "opencode_project_ready": all(path.is_file() for path in project_integration_files),
     }
 
 
@@ -491,6 +499,8 @@ def render_start(pipeline: WikiPipeline) -> str:
     return f"""# 多模态 LLM Wiki · OpenCode 新手入口
 
 > **当前结论：{status}。** OpenCode 是操作台，Wiki 页面与多模态 Evidence 才是知识本体。
+
+当前活动知识库由 MinerU 云解析结果转换为 `mmwiki-0.1` 后构建；OpenCode 查询统一读取配置指定的新数据 Runtime。
 
 ## 你在 OpenCode 中看到的四部分
 
@@ -563,8 +573,11 @@ def render_status(pipeline: WikiPipeline) -> str:
             ),
         ),
         ("模型配置", snapshot["provider_ready"], snapshot["models"]["vision_qa"]),
-        ("OpenCode CLI", snapshot["opencode_cli_ready"], snapshot["opencode_cli"]),
-        ("OpenCode Desktop", snapshot["opencode_desktop_ready"], "/Applications/OpenCode.app"),
+        (
+            "OpenCode 项目集成",
+            snapshot["opencode_project_ready"],
+            "项目级 Skill、命令、类型化工具和模型配置",
+        ),
         (
             "本地 Wiki 展示服务",
             api_online,
@@ -633,7 +646,7 @@ def render_status(pipeline: WikiPipeline) -> str:
             "",
             f"- VLM：`{'on' if vlm_enabled else 'off'}`",
             f"- 向量检索：`{'on' if vector_enabled else 'off'}`",
-            "- Caption 来源：`MinerU（已有 Wiki 导入时）`",
+            "- Caption 来源：`MinerU Source Package`",
             f"- Auto 查询路径：`{auto_path}`",
         ]
     )
@@ -662,10 +675,16 @@ def markdown_table(table: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def top_demo_hit(pipeline: WikiPipeline, question: str) -> tuple[dict[str, Any], dict[str, Any]]:
-    result = pipeline.search_with_trace(question, 3, None, "lexical")
+def top_demo_hit(
+    pipeline: WikiPipeline, question: str, *, prefer_asset: bool = False
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    result = pipeline.search_with_trace(question, 12 if prefer_asset else 3, None, "lexical")
     hits = result.get("hits", [])
-    return (hits[0] if hits else {}), result.get("retrieval", {})
+    if prefer_asset:
+        selected = next((hit for hit in hits if hit.get("asset_paths")), None)
+    else:
+        selected = None
+    return (selected or (hits[0] if hits else {})), result.get("retrieval", {})
 
 
 def render_tour(pipeline: WikiPipeline) -> str:
@@ -674,7 +693,9 @@ def render_tour(pipeline: WikiPipeline) -> str:
     table_case = DEMO_CASES["table"]
     visual_case = DEMO_CASES["visual"]
     table_hit, table_trace = top_demo_hit(pipeline, table_case["question"])
-    visual_hit, visual_trace = top_demo_hit(pipeline, visual_case["question"])
+    visual_hit, visual_trace = top_demo_hit(
+        pipeline, visual_case["question"], prefer_asset=True
+    )
 
     table_source = table_hit.get("source_id", "")
     table_item_id = (table_hit.get("item_ids") or [""])[0]
@@ -738,7 +759,7 @@ mmwiki-0.1 Source Package
 - Evidence：`{visual_evidence}`
 - 图片说明：{visual_hit.get('snippet', '')}
 
-{evidence_image('Figure 4 原始 Evidence', visual_asset)}
+{evidence_image('厚叶卷瓣兰第 2 页原始 Evidence', visual_asset)}
 
 图片问题在 `multimodal` 模式下会把原图交给视觉检索与视觉语言模型，而不是只阅读 Caption。
 
@@ -1005,9 +1026,9 @@ def render_questions() -> str:
 
 | 类型 | 问题 | 推荐命令/模式 | 证明什么 |
 |---|---|---|---|
-| 表格 | 开发测试阶段需要多少天、多少人、多少预算？ | `/wiki-table` · Auto | 默认 BM25 + Caption，回读完整 rows/cells |
-| 图片 | Figure 4 中 ReToken 推理的数据流是什么？ | `/wiki-image` · Auto | VLM 开启时读取原图；关闭时明确回退 |
-| 拒答 | Figure 4 中蓝色方框的 RGB 精确数值是多少？ | `/wiki-refuse` · Auto | 证据不足时不编造 |
+| 表格 | ERP 第 18 页中 S001、S004、S007 的参数配置分别是什么？ | `/wiki-table` · Auto | 定位新数据中的结构化表格并回读完整 rows/cells |
+| 图片 | 厚叶卷瓣兰第 2 页的 A、B、C、D 分图及花色特征是什么？ | `/wiki-image` · Auto | VLM 读取原图中的分图、颜色与斑点细节 |
+| 拒答 | 厚叶卷瓣兰图片中紫色斑点的精确 RGB 数值是多少？ | `/wiki-refuse` · Auto | 原图未给出精确数值时不编造 |
 | 自由问答 | 任意文档问题 | `/wiki-ask 你的问题` | Auto 根据特性开关选择实际路径 |
 
 推荐顺序：`/wiki-demo` → `/wiki-table` → `/wiki-image` → `/wiki-compare` → `/wiki-refuse`。

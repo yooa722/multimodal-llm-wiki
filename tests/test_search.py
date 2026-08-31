@@ -3,11 +3,14 @@ from __future__ import annotations
 import unittest
 from copy import deepcopy
 import hashlib
+import http.client
 import json
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from mmwiki.retrieval import (
+    BailianRetrievalProvider,
     HybridRetriever,
     LEGACY_RETRIEVAL_INDEX_VERSION,
     RETRIEVAL_INDEX_VERSION,
@@ -25,6 +28,64 @@ class TokenizationTests(unittest.TestCase):
 
     def test_figure_and_table_labels_are_recognized(self) -> None:
         self.assertEqual(reference_labels("比较 Figure 4 与 Table 1"), {"figure 4", "table 1"})
+
+
+class RetrievalProviderTransportTests(unittest.TestCase):
+    def test_post_retries_incomplete_chunked_response(self) -> None:
+        provider = object.__new__(BailianRetrievalProvider)
+        provider.key = "test-key"
+        provider.timeout = 1
+        provider.retries = 3
+
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+            def read(self):
+                return json.dumps({"data": [{"embedding": [1.0]}]}).encode("utf-8")
+
+        with (
+            patch(
+                "mmwiki.retrieval.urllib.request.urlopen",
+                side_effect=[http.client.IncompleteRead(b"partial"), Response()],
+            ) as post,
+            patch("mmwiki.retrieval.time.sleep") as sleep,
+        ):
+            value = provider._post("https://example.invalid/embeddings", {"input": ["a"]})
+
+        self.assertEqual(value["data"][0]["embedding"], [1.0])
+        self.assertEqual(post.call_count, 2)
+        sleep.assert_called_once_with(1)
+
+    def test_text_embeddings_use_small_parallel_batches_and_keep_order(self) -> None:
+        provider = object.__new__(BailianRetrievalProvider)
+        provider.text_embedding_model = "test-model"
+        provider.text_embedding_url = "https://example.invalid/embeddings"
+        provider.dimension = 2
+        provider.text_embedding_batch_size = 2
+        provider.text_embedding_workers = 2
+        calls: list[list[str]] = []
+
+        def fake_post(url, body):
+            batch = list(body["input"])
+            calls.append(batch)
+            return {
+                "data": [
+                    {"index": index, "embedding": [float(text), 0.0]}
+                    for index, text in enumerate(batch)
+                ],
+                "usage": {"total_tokens": len(batch)},
+            }
+
+        provider._post = fake_post
+        vectors, usage = provider.text_embeddings(["1", "2", "3", "4", "5"])
+
+        self.assertEqual([vector[0] for vector in vectors], [1, 2, 3, 4, 5])
+        self.assertEqual(sorted(len(batch) for batch in calls), [1, 2, 2])
+        self.assertEqual(usage["total_tokens"], 5)
 
 
 class RetrieverTests(unittest.TestCase):
@@ -284,6 +345,19 @@ class HybridRetrieverTests(unittest.TestCase):
         self.assertEqual(status["visual_records"], 1)
         self.assertEqual(status["wiki_records"], 1)
 
+    def test_full_rebuild_reuses_unchanged_vectors(self) -> None:
+        index = RetrievalIndex(self.index_path, self.vault)
+        index.build(self.state, FakeRetrievalProvider(), include_visual=True)
+
+        status = index.build(self.state, FakeRetrievalProvider(), include_visual=True)
+
+        self.assertEqual(status["reused_text_records"], 2)
+        self.assertEqual(status["new_text_records"], 0)
+        self.assertEqual(status["reused_wiki_records"], 1)
+        self.assertEqual(status["new_wiki_records"], 0)
+        self.assertEqual(status["reused_visual_records"], 1)
+        self.assertEqual(status["new_visual_records"], 0)
+
     def test_derived_visual_evidence_enters_text_index_not_visual_index(self) -> None:
         state = deepcopy(self.state)
         state["sources"]["source-a"]["visual_evidence"] = [
@@ -309,6 +383,49 @@ class HybridRetrieverTests(unittest.TestCase):
         self.assertEqual(status["text_records"], 3)
         self.assertEqual(status["visual_records"], 1)
 
+    def test_visual_index_only_embeds_assets_with_ready_visual_evidence(self) -> None:
+        state = deepcopy(self.state)
+        source = state["sources"]["source-a"]
+        second_asset = self.vault / "assets/other.png"
+        second_asset.write_bytes(b"other-png")
+        source["assets"]["asset-2"] = {
+            "vault_path": "assets/other.png",
+            "media_type": "image/png",
+        }
+        source["chunks"].append(
+            {
+                "chunk_id": "chunk-image-2",
+                "breadcrumb": "Figure 5",
+                "text": "decorative image",
+                "item_ids": ["item-image-2"],
+                "modalities": ["image"],
+                "asset_ids": ["asset-2"],
+                "page_refs": [3],
+            }
+        )
+        source["visual_evidence"] = [
+            {
+                "id": "source-a@version-a#asset-1#image_caption",
+                "kind": "image_caption",
+                "text": "Figure 4 visual retrieval flow",
+                "asset_id": "asset-1",
+                "parent_item_ids": ["item-image"],
+                "parent_chunk_ids": ["chunk-image"],
+                "page_refs": [2],
+                "status": "ready",
+                "searchable": True,
+            }
+        ]
+
+        status = RetrievalIndex(self.index_path, self.vault).build(
+            state, FakeRetrievalProvider(), include_visual=True
+        )
+        value = json.loads(self.index_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(status["visual_records"], 1)
+        self.assertEqual(status["eligible_visual_records"], 1)
+        self.assertEqual(value["visual"]["records"][0]["asset_id"], "asset-1")
+
     def test_wiki_page_backfill_preserves_existing_evidence_vectors(self) -> None:
         index = RetrievalIndex(self.index_path, self.vault)
         index.build(self.state, FakeRetrievalProvider(), include_visual=True)
@@ -322,12 +439,49 @@ class HybridRetrieverTests(unittest.TestCase):
         rebuilt = json.loads(self.index_path.read_text(encoding="utf-8"))
 
         self.assertTrue(status["wiki_semantic_ready"])
-        self.assertEqual(status["index_scope"], "wiki_pages_only")
+        self.assertEqual(
+            status["index_scope"], "wiki_pages_with_existing_evidence_vectors"
+        )
         self.assertEqual(status["new_wiki_records"], 1)
         self.assertEqual(status["preserved_text_records"], 2)
         self.assertEqual(status["preserved_visual_records"], 1)
         self.assertEqual(rebuilt["text"]["records"], expected_text)
         self.assertEqual(rebuilt["visual"]["records"], expected_visual)
+
+    def test_wiki_page_index_can_bootstrap_without_evidence_vectors(self) -> None:
+        self.index_path.unlink()
+        index = RetrievalIndex(self.index_path, self.vault)
+
+        status = index.build_wiki_pages(self.state, FakeRetrievalProvider())
+        value = json.loads(self.index_path.read_text(encoding="utf-8"))
+
+        self.assertTrue(status["wiki_semantic_ready"])
+        self.assertFalse(status["text_ready"])
+        self.assertEqual(status["index_scope"], "wiki_pages_only_lightweight")
+        self.assertEqual(value["text"]["records"], [])
+        self.assertEqual(status["new_wiki_records"], 1)
+
+    def test_hybrid_search_uses_page_vectors_with_local_evidence(self) -> None:
+        self.index_path.unlink()
+        index = RetrievalIndex(self.index_path, self.vault)
+        provider = FakeRetrievalProvider()
+        index.build_wiki_pages(self.state, provider)
+        retriever = HybridRetriever(self.state, self.vault, self.index_path)
+
+        hits, trace = retriever.search(
+            "edge computing architecture",
+            2,
+            None,
+            {"source-a": ["wiki/sources/source-a.md"]},
+            None,
+            "hybrid",
+            provider,
+        )
+
+        self.assertTrue(hits)
+        self.assertEqual(trace["mode"], "hybrid")
+        self.assertIn("wiki_page_embedding", trace["channels"])
+        self.assertIn("轻量索引", trace["fallback_reason"])
 
     def test_legacy_index_migration_preserves_vectors_without_api_calls(self) -> None:
         value = json.loads(self.index_path.read_text(encoding="utf-8"))

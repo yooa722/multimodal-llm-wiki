@@ -1,0 +1,39 @@
+{
+  "schema_version": "mmwiki-0.1",
+  "package_id": "618新生活购物趋势洞察报告-37页",
+  "document": {
+    "title": "618新生活购物趋势洞察报告-37页",
+    "source": {
+      "filename": "618新生活购物趋势洞察报告-37页.pdf",
+      "structured_output": "raw/7f5a3f4e-12d5-4bcd-a00f-9482b97e5837_content_list_v2.json",
+      "media_type": "application/pdf"
+    }
+  },
+  "parser": {
+    "name": "mineru",
+    "version": "mineru-cloud-vlm",
+    "structured_output": "content_list_v2"
+  },
+  "artifacts": {
+    "items": "items.jsonl",
+    "chunks": "chunks.jsonl",
+    "raw": "raw/",
+    "assets": "assets/",
+    "assets_index": "assets.json"
+  },
+  "counts": {
+    "records": 741,
+    "chunks": 649,
+    "assets": 119
+  },
+  "handoff": {
+    "text_index": "chunks.text",
+    "image_index": "chunks.asset_ids",
+    "table_index": "items.content.table",
+    "answer_citation": "chunks.provenance"
+  },
+  "quality": {
+    "semantic_enrichment": "adjacent-text-for-visual-retrieval",
+    "retrieval_proxy": "deterministic-mineru-adapter"
+  }
+}

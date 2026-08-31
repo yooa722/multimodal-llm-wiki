@@ -20,16 +20,16 @@ def main() -> int:
     lint = pipeline.lint()
     provider = OpenAICompatibleProvider(PROJECT_ROOT, "vision")
     required = [
-        PROJECT_ROOT / "runtime/vault/Home.md",
-        PROJECT_ROOT / "runtime/vault/wiki/index.md",
-        PROJECT_ROOT / "runtime/vault/wiki/overview.md",
+        pipeline.vault / "Home.md",
+        pipeline.vault / "wiki/index.md",
+        pipeline.vault / "wiki/overview.md",
         PROJECT_ROOT / ".opencode/skills/multimodal-wiki/SKILL.md",
         PROJECT_ROOT / "opencode.json",
     ]
     missing = [str(path.relative_to(PROJECT_ROOT)) for path in required if not path.is_file()]
     health: dict[str, object]
     try:
-        with urllib.request.urlopen("http://127.0.0.1:19828/api/v1/health", timeout=2) as response:
+        with urllib.request.urlopen("http://127.0.0.1:19828/api/v1/ping", timeout=3) as response:
             health = json.loads(response.read().decode("utf-8"))
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
         health = {"status": "offline", "hint": "运行 python3 app.py api"}
@@ -39,6 +39,16 @@ def main() -> int:
         Path.home() / ".opencode/bin/opencode"
     )
     opencode_ready = Path(opencode_cli).is_file()
+    project_integration_ready = all(
+        path.is_file()
+        for path in (
+            PROJECT_ROOT / ".opencode/skills/multimodal-wiki/SKILL.md",
+            PROJECT_ROOT / ".opencode/tools/wiki.ts",
+            PROJECT_ROOT / ".opencode/commands/wiki-check.md",
+            PROJECT_ROOT / ".opencode/commands/wiki-ask.md",
+            PROJECT_ROOT / "opencode.json",
+        )
+    )
     enhanced_retrieval_ready = (
         retrieval["text_ready"] and retrieval["visual_ready"]
     )
@@ -47,7 +57,7 @@ def main() -> int:
             lint["status"] == "passed"
             and provider.configured
             and enhanced_retrieval_ready
-            and opencode_ready
+            and project_integration_ready
             and not missing
         ),
         "sources": len(state.get("sources", {})),
@@ -58,6 +68,7 @@ def main() -> int:
         "opencode": {
             "cli": opencode_cli,
             "cli_ready": opencode_ready,
+            "project_integration_ready": project_integration_ready,
             "desktop_app": str(Path("/Applications/OpenCode.app")),
             "desktop_ready": Path("/Applications/OpenCode.app").is_dir(),
             "skill": ".opencode/skills/multimodal-wiki/SKILL.md",
@@ -66,7 +77,8 @@ def main() -> int:
         "api": health,
         "lint": lint,
         "missing_demo_files": missing,
-        "vault": str(PROJECT_ROOT / "runtime/vault"),
+        "runtime_root": str(pipeline.runtime),
+        "vault": str(pipeline.vault),
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0 if result["ready"] else 2

@@ -4,6 +4,7 @@ import json
 import mimetypes
 import os
 import re
+import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -14,26 +15,73 @@ from .provider import OpenAICompatibleProvider, ProviderError
 from .web import render_query_html, render_wiki_html, resolve_vault_path
 
 
-PRESENTATION_VERSION = "split-query-v2"
+PRESENTATION_VERSION = "split-query-v3"
 
 
-def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> None:
-    pipeline = WikiPipeline(project_root)
-    vault_root = project_root / "runtime/vault"
+def serve(
+    project_root: Path,
+    host: str = "127.0.0.1",
+    port: int = 19828,
+    runtime_root: Path | None = None,
+) -> None:
+    pipeline = WikiPipeline(project_root, runtime_root=runtime_root)
+    vault_root = pipeline.vault
+    task = "vision" if pipeline.features.enable_vlm else "answer"
+    provider = OpenAICompatibleProvider(project_root, task)
 
-    def online_status() -> dict[str, Any]:
-        task = "vision" if pipeline.features.enable_vlm else "answer"
-        provider = OpenAICompatibleProvider(project_root, task)
+    # A full retrieval status scan is useful for the detailed health page, but the
+    # official runtime can contain thousands of Evidence records.  Recomputing it
+    # for every OpenCode readiness probe made a healthy server look offline.  Warm
+    # the value before binding the port, then refresh it only when an index changes.
+    retrieval_lock = threading.Lock()
+    retrieval_signature: tuple[tuple[int, int], ...] | None = None
+    retrieval_value: dict[str, Any] = {}
+
+    def status_signature() -> tuple[tuple[int, int], ...]:
+        signature: list[tuple[int, int]] = []
+        for path in (
+            pipeline.state_path,
+            pipeline.page_index_path,
+            pipeline.retrieval_index_path,
+        ):
+            try:
+                stat = path.stat()
+                signature.append((stat.st_mtime_ns, stat.st_size))
+            except OSError:
+                signature.append((-1, -1))
+        return tuple(signature)
+
+    def cached_retrieval_status() -> dict[str, Any]:
+        nonlocal retrieval_signature, retrieval_value
+        signature = status_signature()
+        if retrieval_signature == signature:
+            return retrieval_value
+        with retrieval_lock:
+            signature = status_signature()
+            if retrieval_signature != signature:
+                retrieval_value = pipeline.retrieval_status()
+                retrieval_signature = signature
+        return retrieval_value
+
+    cached_retrieval_status()
+
+    def server_identity() -> dict[str, Any]:
         return {
             "status": "ok" if provider.configured else "needs_configuration",
             "presentation_version": PRESENTATION_VERSION,
             "project_root": str(project_root.resolve()),
+            "runtime_root": str(pipeline.runtime.resolve()),
             "server_pid": os.getpid(),
-            "mode": "online_multimodal_qa" if pipeline.features.enable_vlm else "online_text_qa",
             "configured": provider.configured,
             "model": provider.model or None,
+        }
+
+    def online_status() -> dict[str, Any]:
+        return {
+            **server_identity(),
+            "mode": "online_multimodal_qa" if pipeline.features.enable_vlm else "online_text_qa",
             "feature_config": pipeline.features.as_dict(),
-            "retrieval": pipeline.retrieval_status(),
+            "retrieval": cached_retrieval_status(),
         }
 
     class Handler(BaseHTTPRequestHandler):
@@ -65,7 +113,9 @@ def serve(project_root: Path, host: str = "127.0.0.1", port: int = 19828) -> Non
 
         def do_GET(self) -> None:  # noqa: N802
             request = urlsplit(self.path)
-            if request.path == "/api/v1/health":
+            if request.path == "/api/v1/ping":
+                self._send(200, server_identity())
+            elif request.path == "/api/v1/health":
                 value = online_status()
                 self._send(200 if value["configured"] else 503, value)
             elif request.path == "/api/v1/sources":

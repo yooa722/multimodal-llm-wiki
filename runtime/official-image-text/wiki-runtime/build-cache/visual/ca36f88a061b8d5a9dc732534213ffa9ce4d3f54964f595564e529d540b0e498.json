@@ -1,0 +1,28 @@
+{
+  "sha256": "ca36f88a061b8d5a9dc732534213ffa9ce4d3f54964f595564e529d540b0e498",
+  "ocr": {
+    "status": "ready",
+    "text": "| 排名 | 商品名称 | 品牌 | 销售指数 |\n| --- | --- | --- | --- |\n| 1 | 【广东夫妇618收官之战】Jmoon极萌大熨斗12极射频美容仪器 | 极萌 | 20526 |\n| 2 | 【端午专享】韩束红蛮腰贾乃亮同款紧致抗皱水乳护肤礼盒套装精华 | 韩束 | 15899 |\n| 3 | 【广东夫妇618收官之战】后天气丹花献光彩紧颜礼盒7件套 333ml | WHOO | 14939 |\n| 4 | 【618现货】海蓝之谜奢宠臻享套装 补水保湿抗老修护护肤礼盒 | 海蓝之谜 | 8031 |\n| 5 | 【小助理专属】雅萌黄金五环家用美容仪提拉紧致ACE五代 T | 雅萌 | 7803 |\n| 6 | 【VC】五重维C素颜霜 亮白抗衰遮瑕隔离自然不假白保湿懒人素颜霜 | VC美妆 | 6706 |\n| 7 | 【618好物节】雅诗兰黛小棕瓶精华+樱花水+胶原乳霜 补水抗皱套装 | 雅诗兰黛 | 5533 |\n| 8 | HR赫莲娜黑绷带玻色因面霜紧致抗皱抗老化护肤晚霜 | 赫莲娜 | 5384 |\n| 9 | 【橱窗延续618机制】雅萌MAX二代家用美容射频仪器MAX二代 T | 雅萌 | 5351 |\n| 10 | 【广东夫妇618收官之战】可复美胶原棒精华次抛1.5ml*30支 面部 | 可复美 | 5329 |",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "table_screenshot",
+    "primary_representation": "structured_table",
+    "run_caption": false,
+    "run_ocr": true,
+    "ocr_policy": "assistive",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对"
+  },
+  "generated_at": "2026-08-31T02:22:47.452143+00:00",
+  "caption": {
+    "status": "skipped",
+    "text": "",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对",
+    "model": "qwen3-vl-plus"
+  }
+}

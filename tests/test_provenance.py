@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from mmwiki.pipeline import WikiPipeline
 from mmwiki.provenance import build_evidence_page_index, evidence_locator_lookup
@@ -144,6 +145,111 @@ class EvidencePageIndexTests(unittest.TestCase):
             )
             evidence = pipeline._query_evidence_index(selected)
             self.assertEqual(evidence[0]["location"]["block_index"], 3)
+
+    def test_short_hit_adds_immediate_same_section_context(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = WikiPipeline(Path(directory))
+            state = self._state()
+            state["sources"]["user-document"]["items"][1]["raw_text"] = "3.8 亿+"
+            state["sources"]["user-document"]["items"][2]["raw_text"] = "日均搜索量"
+            pipeline._save_state(state)
+
+            selected, trace, _ = pipeline._select_query_evidence(
+                [
+                    {
+                        "source_id": "user-document",
+                        "item_ids": ["item-p0001-b0003"],
+                        "matched_asset_path": "",
+                    }
+                ],
+                state,
+            )
+
+            self.assertEqual(
+                [value["item"]["item_id"] for value in selected],
+                ["item-p0001-b0003", "item-p0001-b0002"],
+            )
+            self.assertEqual(trace["adjacent_context_items"], 1)
+
+    def test_aggregation_question_adds_same_page_section_context(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = WikiPipeline(Path(directory))
+            state = self._state()
+            state["sources"]["user-document"]["items"][1]["raw_text"] = (
+                "这是一个足够长的汇总段落，用来确认同页补齐来自聚合意图，"
+                "而不是短文本相邻块恢复机制。" * 3
+            )
+            pipeline._save_state(state)
+
+            selected, trace, _ = pipeline._select_query_evidence(
+                [
+                    {
+                        "source_id": "user-document",
+                        "item_ids": ["item-p0001-b0002"],
+                        "matched_asset_path": "",
+                    }
+                ],
+                state,
+                "有哪些重点数据？",
+            )
+
+            self.assertEqual(
+                [value["item"]["item_id"] for value in selected],
+                ["item-p0001-b0002", "item-p0001-b0003"],
+            )
+            self.assertTrue(trace["aggregation_intent"])
+            self.assertEqual(trace["same_page_context_items"], 1)
+
+    def test_adjacent_context_is_returned_as_citable_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline = WikiPipeline(Path(directory))
+            state = self._state()
+            state["sources"]["user-document"]["items"][1]["raw_text"] = "3.8 亿+"
+            state["sources"]["user-document"]["items"][2]["raw_text"] = "日均搜索量"
+            pipeline._save_state(state)
+            result = {
+                "hits": [
+                    {
+                        "source_id": "user-document",
+                        "chunk_id": "chunk-label",
+                        "title": "日均搜索量",
+                        "score": 1.0,
+                        "snippet": "日均搜索量",
+                        "item_ids": ["item-p0001-b0003"],
+                        "modalities": ["paragraph"],
+                        "asset_paths": [],
+                        "pages": [1],
+                        "path": "wiki/sources/user-document.md",
+                        "wiki_paths": [],
+                        "retrieval_channels": ["bm25"],
+                        "score_breakdown": {"bm25": 1.0},
+                        "matched_asset_id": "",
+                        "matched_asset_path": "",
+                    }
+                ],
+                "retrieval": {
+                    "mode": "lexical",
+                    "channels": ["bm25"],
+                    "requested_mode": "lexical",
+                },
+            }
+            with patch.object(pipeline, "search_with_trace", return_value=result):
+                answer = pipeline.query(
+                    "日均搜索量是多少？",
+                    provider="baseline",
+                    retrieval_mode="lexical",
+                )
+
+            self.assertIn("3.8 亿+", answer["answer"])
+            cited = {
+                evidence_id
+                for citation in answer["citations"]
+                for evidence_id in citation["evidence_ids"]
+            }
+            self.assertIn(
+                "user-document@version-1#item-p0001-b0002",
+                cited,
+            )
 
 
 if __name__ == "__main__":

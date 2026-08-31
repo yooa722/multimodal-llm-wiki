@@ -1,0 +1,252 @@
+{
+  "sha256": "1627d3fdfae2f5857f1addb027f283bc56d952f38936ab94d101cc82cc267c82",
+  "ocr": {
+    "status": "skipped",
+    "text": "",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "natural_image",
+    "primary_representation": "vlm_caption",
+    "run_caption": true,
+    "run_ocr": false,
+    "ocr_policy": "on_demand",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力"
+  },
+  "generated_at": "2026-08-30T11:39:42.519202+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "蓝色背景插画：左侧为放大镜与含折线图、饼图、柱状图的文档界面；右侧为穿白上衣蓝裤、戴紫色发髻的人物坐于桌前使用笔记本电脑，手持小放大镜观察屏幕。无可见文字。",
+    "model": "qwen3-vl-plus"
+  },
+  "analysis": {
+    "summary": "该来源为奥维云网发布的《23年开年冰洗小结及五一、618预测》报告，涵盖2023年Q1冰洗市场表现、成本压力、价格结构、产品趋势（薄嵌、大容量、白色）、价格战苗头，并提供五一与618促销期的全渠道零售量与零售额数据。报告包含多张图表、表格及公司介绍图文。",
+    "claims": [
+      {
+        "statement": "2023年Q1冰洗市场需求释放不及预期，增长静等风来。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0001-b0005"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2023W01-13线上10Kg洗衣机价格段结构存在多个价格区间分布。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "10kg洗衣机产品均价分别为1315、2256、3164元，同比变化为-7.6%、-4.5%、-5.0%。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0005"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2023W01-13线上冰箱价格段结构呈现多价格带分布。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0007"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "冰箱产品均价分别为3252、1539、4070元，同比变化为-2.4%、-8.2%、-3.6%。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0008"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2021年中国财富家庭规模数据被用于支撑线下高端化趋势延续的论点。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0003-b0002"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2023年线下市场滚筒洗衣机价格结构呈阶梯式分布。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0003-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2023年线下市场冰箱价格结构呈多层级分布。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0003-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2023M01-13线上冰洗薄嵌产品零售额规模及同比呈上升趋势。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0002"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2023M01-13线上冰洗大容量产品零售额份额及同比呈上升趋势。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2023M01-13白色冰箱产品零售额份额及同比呈上升趋势。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2023M01-13线上市场冰洗细分品类价格同比整体呈下降趋势。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0005-b0002"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "五一促销期（23W18-19）全渠道冰箱零售量159.3万台、零售额57.3亿元，同比+0.3%、+2.7%。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0006-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "五一促销期全渠道洗衣机零售量130.1万台、零售额32.0亿元，同比+3.1%、+6.4%。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0006-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "618促销期（W23-25）全渠道冰箱零售量461.0万台、零售额140.1亿元，同比+1.5%、+1.1%。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0007-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "618促销期全渠道洗衣机零售量416.2万台、零售额73.2亿元，同比+2.7%、-1.0%。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0007-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "奥维云网证券代码为831101，是专注于垂直领域的大数据应用技术和解决方案服务商。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0008-b0002",
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0008-b0004",
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0008-b0005"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "报告末页含‘51报告库’微信订阅推广信息及二维码。",
+        "evidence_refs": [
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0009-b0008",
+          "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0009-b0010"
+        ],
+        "provenance": "extracted"
+      }
+    ],
+    "entities": [
+      {
+        "name": "奥维云网"
+      },
+      {
+        "name": "冰洗市场"
+      },
+      {
+        "name": "冰箱"
+      },
+      {
+        "name": "洗衣机"
+      },
+      {
+        "name": "冷柜"
+      },
+      {
+        "name": "干衣机"
+      },
+      {
+        "name": "51报告库"
+      }
+    ],
+    "concepts": [
+      {
+        "name": "薄嵌产品"
+      },
+      {
+        "name": "大容量产品"
+      },
+      {
+        "name": "白色产品"
+      },
+      {
+        "name": "价格战"
+      },
+      {
+        "name": "高端化趋势"
+      },
+      {
+        "name": "全渠道零售"
+      },
+      {
+        "name": "线上/线下市场结构"
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "奥维云网",
+        "kind": "entity",
+        "action": "update",
+        "reason": "新证据补充了公司业务范围（零售交易大数据、家庭互联网用户大数据等）、技术能力（数据采集处理至可视化）及服务模式（‘数据＋技术＋服务’），需更新原摘要。"
+      },
+      {
+        "title": "冰洗市场",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新证据细化了2023年Q1表现、产品趋势关键词（薄嵌、大容量、白色）、价格战苗头及促销期数据，需扩充原概念定义。"
+      },
+      {
+        "title": "2023年冰洗市场趋势分析",
+        "kind": "analysis",
+        "action": "update",
+        "reason": "新证据提供了完整的Q1小结、五一与618促销期全渠道数据表、价格结构图、产品趋势图等多模态证据，显著增强原分析页内容，应更新并关联新增图表与表格证据。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-1627d3fdfae2f5857f1a",
+        "evidence_id": "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0009-b0010",
+        "caption": "蓝色背景插画：左侧为放大镜与含折线图、饼图、柱状图的文档界面；右侧为穿白上衣蓝裤、戴紫色发髻的人物坐于桌前使用笔记本电脑，手持小放大镜观察屏幕。无可见文字。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 11754,
+      "total_tokens": 14249,
+      "completion_tokens": 2495,
+      "prompt_tokens_details": {
+        "cached_tokens": 11264,
+        "image_tokens": 302,
+        "text_tokens": 11452
+      },
+      "completion_tokens_details": {
+        "text_tokens": 2495
+      }
+    }
+  },
+  "batch_shas": [
+    "1627d3fdfae2f5857f1addb027f283bc56d952f38936ab94d101cc82cc267c82"
+  ]
+}

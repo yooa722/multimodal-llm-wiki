@@ -17,8 +17,63 @@ node_modules/
 npm-debug.log*
 pnpm-debug.log*
 
-# 运行期数据与不可变来源副本
-runtime/
+# 可迁移 Runtime：只发布当前 10 来源快照。历史 5 来源 Runtime、其余已解析
+# 来源、查询历史、批处理日志、云解析下载缓存、编辑器状态和凭据均不进入 Git。
+runtime/*
+!runtime/README.md
+!runtime/official-image-text/
+runtime/official-image-text/*
+!runtime/official-image-text/wiki-runtime/
+runtime/official-image-text/wiki-runtime/*
+!runtime/official-image-text/wiki-runtime/state.json
+!runtime/official-image-text/wiki-runtime/page-index.json
+!runtime/official-image-text/wiki-runtime/retrieval-index.json
+!runtime/official-image-text/wiki-runtime/build-cache/
+!runtime/official-image-text/wiki-runtime/build-cache/**
+!runtime/official-image-text/wiki-runtime/vault/
+runtime/official-image-text/wiki-runtime/vault/*
+!runtime/official-image-text/wiki-runtime/vault/Home.md
+!runtime/official-image-text/wiki-runtime/vault/schema.md
+!runtime/official-image-text/wiki-runtime/vault/wiki-purpose.md
+!runtime/official-image-text/wiki-runtime/vault/assets/
+!runtime/official-image-text/wiki-runtime/vault/assets/**
+!runtime/official-image-text/wiki-runtime/vault/wiki/
+!runtime/official-image-text/wiki-runtime/vault/wiki/**
+runtime/official-image-text/wiki-runtime/vault/wiki/log.md
+
+# 当前 state.json 对应的 10 份不可变 Source Package。
+!runtime/official-image-text/wiki-runtime/raw/
+runtime/official-image-text/wiki-runtime/raw/*
+!runtime/official-image-text/wiki-runtime/raw/104页-ERP财务供应链解决方案/
+!runtime/official-image-text/wiki-runtime/raw/104页-ERP财务供应链解决方案/386617a95792/
+!runtime/official-image-text/wiki-runtime/raw/104页-ERP财务供应链解决方案/386617a95792/**
+!runtime/official-image-text/wiki-runtime/raw/110页-供应链解决方案/
+!runtime/official-image-text/wiki-runtime/raw/110页-供应链解决方案/2131a4bf9628/
+!runtime/official-image-text/wiki-runtime/raw/110页-供应链解决方案/2131a4bf9628/**
+!runtime/official-image-text/wiki-runtime/raw/20230507-小红书-服饰潮流行业-好产品赢战618/
+!runtime/official-image-text/wiki-runtime/raw/20230507-小红书-服饰潮流行业-好产品赢战618/7943c2dd3155/
+!runtime/official-image-text/wiki-runtime/raw/20230507-小红书-服饰潮流行业-好产品赢战618/7943c2dd3155/**
+!runtime/official-image-text/wiki-runtime/raw/2023年618厨卫刚需品类市场总结-烟-灶-热--12页/
+!runtime/official-image-text/wiki-runtime/raw/2023年618厨卫刚需品类市场总结-烟-灶-热--12页/d655322463bb/
+!runtime/official-image-text/wiki-runtime/raw/2023年618厨卫刚需品类市场总结-烟-灶-热--12页/d655322463bb/**
+!runtime/official-image-text/wiki-runtime/raw/23年开年冰洗小结及五一-618预测-8页/
+!runtime/official-image-text/wiki-runtime/raw/23年开年冰洗小结及五一-618预测-8页/4df2a4272bb5/
+!runtime/official-image-text/wiki-runtime/raw/23年开年冰洗小结及五一-618预测-8页/4df2a4272bb5/**
+!runtime/official-image-text/wiki-runtime/raw/3-类典型株型草本植物对沙面风蚀抑制作用的研究/
+!runtime/official-image-text/wiki-runtime/raw/3-类典型株型草本植物对沙面风蚀抑制作用的研究/f6bdeb42a3b8/
+!runtime/official-image-text/wiki-runtime/raw/3-类典型株型草本植物对沙面风蚀抑制作用的研究/f6bdeb42a3b8/**
+!runtime/official-image-text/wiki-runtime/raw/618新生活购物趋势洞察报告-37页/
+!runtime/official-image-text/wiki-runtime/raw/618新生活购物趋势洞察报告-37页/e92cbcfca65e/
+!runtime/official-image-text/wiki-runtime/raw/618新生活购物趋势洞察报告-37页/e92cbcfca65e/**
+!runtime/official-image-text/wiki-runtime/raw/厚叶卷瓣兰_中国兰科一新记录种/
+!runtime/official-image-text/wiki-runtime/raw/厚叶卷瓣兰_中国兰科一新记录种/f375999282d8/
+!runtime/official-image-text/wiki-runtime/raw/厚叶卷瓣兰_中国兰科一新记录种/f375999282d8/**
+!runtime/official-image-text/wiki-runtime/raw/服饰潮流行业-闭环全攻略/
+!runtime/official-image-text/wiki-runtime/raw/服饰潮流行业-闭环全攻略/e471f79c739e/
+!runtime/official-image-text/wiki-runtime/raw/服饰潮流行业-闭环全攻略/e471f79c739e/**
+!runtime/official-image-text/wiki-runtime/raw/果集数据-抖音618好物节电商报告-62页/
+!runtime/official-image-text/wiki-runtime/raw/果集数据-抖音618好物节电商报告-62页/7204bf81d8da/
+!runtime/official-image-text/wiki-runtime/raw/果集数据-抖音618好物节电商报告-62页/7204bf81d8da/**
 tmp/
 
 # 阶段性文档、评测输出与展示工程
@@ -30,6 +85,9 @@ config/wiki-plans/
 tools/build_first_round_report.py
 tools/render_summary_html.py
 logs/
+evaluation/pending/*.json
+evaluation/pending/*.jsonl
+evaluation/*.report.json
 
 # 编辑器与操作系统文件
 .DS_Store

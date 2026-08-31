@@ -1,0 +1,28 @@
+{
+  "sha256": "cdcdee7157db48c4645b93b5ab8772f304c30543644e9a3c3eb53f54ffc935bf",
+  "ocr": {
+    "status": "ready",
+    "text": "产品简介 核心优势 适用场景 产品路径\n\n广告主素材不可见 1. 客户可以在乘风上发布和管理“广告素材”，并在搭建计划时添加“广告素材”为推广内容 1. 提升品牌在小红书进行营销推广的内容产生效率和储备量，进而获得更好的拿量效果 1. 不希望专业号中有大量营销内容的客户 2. 不希望向用户展示大量同质化营销内容的客户 乘风-工具-广告素材\n\n单笔记多商品 1. 支持在推广时给单个笔记关联多个商品的功能 1. 增加用户购买选择，提高转化效率 1. 提升品牌在小红书进行营销推广的内容产生效率和储备量，进而获得更好的拿量效果 1. 不希望向用户展示大量同质化营销内容的客户 乘风-新建计划-关联商品\n\n直播快投 1. 在「商品推广x日常销售」营销场景中增加的【直播快投】开关。开关开启时，直播时段，该计划同时投放商品和直播间；非开播时段，仅投放商品推广 1. 模型继承，直播时起量更快 1. 希望专业号中有大量营销内容的客户 2. 系列款式，多种选择：饰品、商家同时挂同系列项链、手链、戒指等商品链接 1. 同时推广直播间和笔记的商家 2. 做店播经营、但缺少人力做直播推广的商家 乘风-商品推广-直播快投\n\n一键起量 1. 给需要快起量的计划增加一笔起量预算，帮助计划快速起量加速模型学习 1. 提升拿量 1. 大促拿量 2. 成熟计划衰退后焕活 3. 新笔记/商品快速测试 4. 直播间重要节点引流 乘风-新建计划-一键起量",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "table_screenshot",
+    "primary_representation": "structured_table",
+    "run_caption": false,
+    "run_ocr": true,
+    "ocr_policy": "assistive",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对"
+  },
+  "generated_at": "2026-08-31T02:16:34.317843+00:00",
+  "caption": {
+    "status": "skipped",
+    "text": "",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对",
+    "model": "qwen3-vl-plus"
+  }
+}

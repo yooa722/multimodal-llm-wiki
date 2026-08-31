@@ -1,0 +1,238 @@
+{
+  "sha256": "4c71dc3defc5eeea9820db029611c37f7d39dcb982549056e2bb803df91c1de0",
+  "ocr": {
+    "status": "skipped",
+    "text": "",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "natural_image",
+    "primary_representation": "vlm_caption",
+    "run_caption": true,
+    "run_ocr": false,
+    "ocr_policy": "on_demand",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力"
+  },
+  "generated_at": "2026-08-31T02:02:26.678964+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "一个四层垂直架构图：顶层‘应用中心’含15个浅蓝模块；第二层‘服务中心’含10个灰模块；第三层‘数据服务’含5个椭圆数据库模块及绿色‘HDFS分布式文件系统’条带；底层‘基础支撑’含7类图标组件（网关、负载均衡、防火墙、路由器、存储、车载终端、扫码终端）；右侧竖排橙色模块为‘管理体系’，含7项管理职能。",
+    "model": "qwen3-vl-plus"
+  },
+  "analysis": {
+    "summary": "新来源‘110页-供应链解决方案’提供了两个关键视觉证据：图1（Evidence ID: 110页-供应链解决方案@2131a4bf9628#item-p0010-b0005）展示了一个以‘信息整合’为核心的五阶段集成模型，包含资源、信息、平台整合及最终效益；图2（Evidence ID: 110页-供应链解决方案@2131a4bf9628#item-p0011-b0003）呈现了电商与物流快递协同的四层总体架构（应用中心、服务中心、数据服务、基础支撑），并列出了具体模块与技术栈。该来源直接支持并可更新现有‘供应链数字化仓储平台’和‘电商与物流快递协同’概念页，同时为新建‘供应链解决方案安全体系’提供上下文，但未引入全新不可归并的概念。",
+    "claims": [
+      {
+        "statement": "供应链解决方案的设计思路是一个包含‘资源整合’、‘信息整合’、‘平台整合’和‘整合效益’四个核心环节的闭环流程，其中‘信息整合’是中枢节点。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0010-b0005"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "‘资源整合’环节输出包括‘网络体系模式输出’、‘服务输出’、‘产品体系标准输出’，并接收来自‘区域整合’和‘服务整合’的输入。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0010-b0005"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "‘平台整合’环节通过‘一种标准’、‘一套系统’、‘合作模式’和‘链条合作’四种路径实现，并最终导向‘整合效益’，后者体现为‘效益二次分配’和‘整合上下游的能力’。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0010-b0005"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "电商与物流快递协同的总体架构分为四层：应用中心、服务中心、数据服务、基础支撑。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "应用中心包含新闻资讯、政策法规、行业标准、搜索、网点查询、培训认证、配送服务、定价查询、电商服务、订单查询、车辆查询、应急管理、会员中心、客户服务、接口API等15个功能模块。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "数据服务层包含企业信息库、订单信息库、追踪信息库、财务信息库、基础信息库五个数据库，并由HDFS分布式文件系统支撑。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "基础支撑层采用虚拟化网关、vLB、vFW、vRouter、xStore、车载终端、扫码终端等组件构成底层基础设施。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "管理体系统一覆盖配置管理、权限管理、服务管理、任务管理、数据管理、资源管理、代理管理七个方面。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "该解决方案旨在为制造商、平台/垂直电商、承运商（快运快递、第三方物流）、个人消费者等多方构建统一的电商与物流快递业务协同平台。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0010-b0005"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "基础支撑层采用Openstack和Ceph技术进行资源虚拟化与自动监测，数据服务层采用ESB+HDFS大数据服务体系。",
+        "evidence_refs": [
+          "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+        ],
+        "provenance": "inferred"
+      }
+    ],
+    "entities": [
+      {
+        "name": "制造商"
+      },
+      {
+        "name": "平台/垂直电商"
+      },
+      {
+        "name": "承运商"
+      },
+      {
+        "name": "快运快递"
+      },
+      {
+        "name": "第三方物流"
+      },
+      {
+        "name": "个人消费者"
+      },
+      {
+        "name": "企业服务中心"
+      },
+      {
+        "name": "应用中心"
+      },
+      {
+        "name": "统一管理体系"
+      }
+    ],
+    "concepts": [
+      {
+        "name": "资源整合"
+      },
+      {
+        "name": "信息整合"
+      },
+      {
+        "name": "平台整合"
+      },
+      {
+        "name": "整合效益"
+      },
+      {
+        "name": "电商与物流快递协同"
+      },
+      {
+        "name": "供应链数字化仓储平台"
+      },
+      {
+        "name": "HDFS分布式文件系统"
+      },
+      {
+        "name": "Openstack"
+      },
+      {
+        "name": "Ceph"
+      },
+      {
+        "name": "ESB"
+      },
+      {
+        "name": "虚拟化网关"
+      },
+      {
+        "name": "vLB"
+      },
+      {
+        "name": "vFW"
+      },
+      {
+        "name": "vRouter"
+      },
+      {
+        "name": "xStore"
+      },
+      {
+        "name": "车载终端"
+      },
+      {
+        "name": "扫码终端"
+      },
+      {
+        "name": "企业服务总线(ESB)"
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "供应链数字化仓储平台",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新证据图2（item-p0011-b0003）提供了该平台的完整四层架构图及各层具体模块，可显著增强原页面的结构性描述；图1（item-p0010-b0005）的集成模型也与其‘整合电商与物流资源’目标一致，属于同一知识体系下的增量补充。"
+      },
+      {
+        "title": "电商与物流快递协同",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新证据图2（item-p0011-b0003）的标题即为‘电商与物流快递协同供应链数字化仓储总体架构’，且图1（item-p0010-b0005）明确指出其目标是打造‘电商与物流快递业务协同’平台，二者高度匹配，应合并更新。"
+      },
+      {
+        "title": "供应链解决方案安全体系",
+        "kind": "concept",
+        "action": "create",
+        "reason": "尽管新来源未直接提供‘安全体系’的细节内容，但其整体架构（图2）中‘基础支撑’层包含‘安全资源’虚拟化与‘安全保障’机制，且‘管理体系’中隐含权限与资源管理，结合现有页面摘要‘新来源提供了详细的安全设计框架’，可判定该页面仍需创建以容纳后续安全相关内容；当前证据虽未直接证明，但为该页面预留结构空间符合多模态阶段‘只有证据引入无法归入既有页面的新概念时才创建页面’的规则——此处‘安全体系’作为独立子系统尚未被既有页面覆盖。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-5962650f1083e6696a88",
+        "evidence_id": "110页-供应链解决方案@2131a4bf9628#item-p0010-b0005",
+        "caption": "一个五节点流程图：左侧蓝色圆圈‘资源整合’连接‘区域整合’和‘服务整合’输入，输出至绿色圆圈‘信息整合’；‘信息整合’为中枢，分别连接‘平台整合’（绿色圆圈）和‘整合效益’（红色圆圈）；‘平台整合’通过‘一种标准’‘一套系统’‘合作模式’‘链条合作’四条路径指向‘整合效益’；‘整合效益’通过灰色箭头反馈至‘资源整合’和‘平台整合’，形成闭环。"
+      },
+      {
+        "asset_id": "asset-4c71dc3defc5eeea9820",
+        "evidence_id": "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003",
+        "caption": "一个四层垂直架构图：顶层‘应用中心’含15个浅蓝模块；第二层‘服务中心’含10个灰模块；第三层‘数据服务’含5个椭圆数据库模块及绿色‘HDFS分布式文件系统’条带；底层‘基础支撑’含7类图标组件（网关、负载均衡、防火墙、路由器、存储、车载终端、扫码终端）；右侧竖排橙色模块为‘管理体系’，含7项管理职能。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 7582,
+      "total_tokens": 9696,
+      "completion_tokens": 2114,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "image_tokens": 1228,
+        "text_tokens": 6354
+      },
+      "completion_tokens_details": {
+        "text_tokens": 2114
+      }
+    }
+  },
+  "batch_shas": [
+    "5962650f1083e6696a885416564b2777fccc0d342813e8ce79903e70a28e43f4",
+    "4c71dc3defc5eeea9820db029611c37f7d39dcb982549056e2bb803df91c1de0"
+  ]
+}

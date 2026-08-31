@@ -1,0 +1,39 @@
+{
+  "schema_version": "mmwiki-0.1",
+  "package_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究",
+  "document": {
+    "title": "3 类典型株型草本植物对沙面风蚀抑制作用的研究",
+    "source": {
+      "filename": "3 类典型株型草本植物对沙面风蚀抑制作用的研究.pdf",
+      "structured_output": "raw/ccf63e75-75d2-4d72-b6ec-1e86a09653ba_content_list_v2.json",
+      "media_type": "application/pdf"
+    }
+  },
+  "parser": {
+    "name": "mineru",
+    "version": "mineru-cloud-vlm",
+    "structured_output": "content_list_v2"
+  },
+  "artifacts": {
+    "items": "items.jsonl",
+    "chunks": "chunks.jsonl",
+    "raw": "raw/",
+    "assets": "assets/",
+    "assets_index": "assets.json"
+  },
+  "counts": {
+    "records": 152,
+    "chunks": 110,
+    "assets": 12
+  },
+  "handoff": {
+    "text_index": "chunks.text",
+    "image_index": "chunks.asset_ids",
+    "table_index": "items.content.table",
+    "answer_citation": "chunks.provenance"
+  },
+  "quality": {
+    "semantic_enrichment": "adjacent-text-for-visual-retrieval",
+    "retrieval_proxy": "deterministic-mineru-adapter"
+  }
+}

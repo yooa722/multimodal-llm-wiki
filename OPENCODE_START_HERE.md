@@ -17,7 +17,7 @@
    /wiki-demo
    ```
 
-如果尚未摄入 Source Package，`/wiki-check` 会提示 Wiki 数据或索引未就绪；这不是 OpenCode 安装失败，需要先按 README 完成文本阶段和多模态阶段构建。
+当前项目统一读取 `runtime/official-image-text/wiki-runtime/`：10 个新来源、38 个稳定知识页、4,473 条文本索引和 73 条视觉索引。如果 `/wiki-check` 仍显示 5 来源 / 22 知识页，说明 OpenCode 仍连接旧服务；完全退出并重开项目后再次执行 `/wiki-check`。新电脑的完整安装、凭据配置与排错流程见 [OPENCODE_NEW_COMPUTER_GUIDE.md](OPENCODE_NEW_COMPUTER_GUIDE.md)。
 
 完整图文演示需要在本机 `.env` 打开增强开关：
 
@@ -46,16 +46,30 @@ MMWIKI_ENABLE_VECTOR_RETRIEVAL=true
 普通文字、事实和表格语义问题直接提问：
 
 ```text
-/wiki-ask 开发测试阶段的工期、人力和预算分别是多少？
+/wiki-ask ERP方案第18页中，销售管理参数 S001、S004、S007 的参数名称、参数值和取值范围分别是什么？
 ```
 
 需要读取图片颜色、布局、箭头或曲线时，在问题中明确说明：
 
 ```text
-/wiki-ask 请结合 Figure 4 原图，按顺序解释箭头表示的数据流，并给出 Evidence ID。
+/wiki-ask 请观察厚叶卷瓣兰第2页的原图，说明 A、B、C、D 四个分图分别展示什么，并概括花朵的颜色和斑点特征。
 ```
 
 系统会优先定位 Wiki 页面，再检索和回读原始 Evidence。自由问答由专用 `wiki-query-presenter` 调用 `wiki_query`，其余固定演示命令由 `wiki-presenter` 选择对应工具；两个 Agent 都不负责重新生成事实。`wiki-result-passthrough` 插件在最终显示阶段直接采用工具返回的 Markdown，防止模型复述时改动链接、表格、公式、Evidence ID 或模型名。正式问答固定展示“结论—知识入口—证据依据—运行信息”：正文 `〔1〕` 直接对应下方 `〔1〕` 证据卡片；卡片可直接进入 Wiki 页面或原始 Evidence 锚点，图片卡片还会直接显示原图，并分别展示 VLM 理解、OCR 文字和 MinerU 原始 Caption。
+
+## 导入新的文档
+
+当前新数据已经构建完成，日常提问不需要再次解析。如果要加入新的 PDF、Office 文档或图片，项目提供 MinerU 云解析入口：
+
+```bash
+python3 tools/mineru_cloud_parse.py \
+  /absolute/path/to/input.pdf \
+  --output-root /absolute/path/to/mineru-output \
+  --package-root /absolute/path/to/source-packages \
+  --model-version vlm
+```
+
+该命令生成 `mmwiki-0.1` Source Package；后续按主 README 的“两阶段构建”进入活动 Runtime。MinerU Token 只放在本机 `.env`，不要写入 OpenCode 对话、文档或 Git。
 
 斜杠命令本质上是 OpenCode 的提示词模板，因此命令正文会作为一条用户消息出现。项目中的全部 `/wiki-*` 命令正文只保留用户可读的自然语言；工具名、`mode` 和 `provider` 等路由规则写在 Presenter Agent 配置中，不使用会出现在消息气泡里的 HTML 注释。如果仍看到旧的 `mmwiki-action`、`wiki_query`、`mode` 或 `provider`，说明正在查看历史消息或 Desktop 尚未重新加载 `.opencode`：请完全退出应用、重新打开仓库并重新执行命令。
 

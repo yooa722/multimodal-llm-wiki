@@ -1,0 +1,28 @@
+{
+  "sha256": "f656f660bdf31775bf989750bea05fea0d0495851a8ca3f2dddef6a2f425de55",
+  "ocr": {
+    "status": "ready",
+    "text": "| 618促销期：W23-25 | 线上（万台，亿元） | 线下（万台，亿元） | 全渠道（万台，亿元） |\n| --- | --- | --- | --- |\n| (5月29日到6月18日) | 零售量 | 零售额 | 零售量 | 零售额 | 零售量 | 零售额 |\n| 冰箱 | 356.8 | 91.2 | 104.2 | 48.9 | 461.0 | 140.1 |\n| 同比 | 3.8% | 3.3% | -5.7% | -2.6% | 1.5% | 1.1% |\n| 冷柜 | 75.8 | 9.5 | 35.1 | 8.3 | 110.9 | 17.8 |\n| 同比 | 6.5% | 5.4% | 1.1% | 5.8% | 4.7% | 7.5% |\n| 洗衣机 | 346.1 | 47.5 | 70.1 | 25.7 | 416.2 | 73.2 |\n| 同比 | 2.7% | -2.1% | 2.4% | 1.0% | 2.7% | -1.0% |\n| 干衣机 | 6.7 | 2.5 | 6.1 | 5.1 | 12.9 | 7.6 |\n| 同比 | -13.2% | -19.4% | 3.0% | 3.7% | -6.0% | -5.2% |",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "table_screenshot",
+    "primary_representation": "structured_table",
+    "run_caption": false,
+    "run_ocr": true,
+    "ocr_policy": "assistive",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对"
+  },
+  "generated_at": "2026-08-30T11:39:42.518541+00:00",
+  "caption": {
+    "status": "skipped",
+    "text": "",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对",
+    "model": "qwen3-vl-plus"
+  }
+}

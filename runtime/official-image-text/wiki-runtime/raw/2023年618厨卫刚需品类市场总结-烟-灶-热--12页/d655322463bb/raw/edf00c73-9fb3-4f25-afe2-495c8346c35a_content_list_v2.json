@@ -1,0 +1,2068 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "似大浪淘沙，长久见真金"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                267,
+                274,
+                729,
+                355
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2023年618厨卫刚需品类市场总结（烟、灶、热）"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                226,
+                409,
+                757,
+                462
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "奥维云网(AVC)厨卫事业部"
+                    }
+                ]
+            },
+            "bbox": [
+                401,
+                546,
+                597,
+                581
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2022年6月"
+                    }
+                ]
+            },
+            "bbox": [
+                459,
+                600,
+                537,
+                631
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/14b4a72b2f3e2f41bfa9e55b7ac238e6ac8ab641f18211e79027d719fdf13a06.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                653,
+                638,
+                993,
+                974
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维 D  ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                54,
+                879,
+                309,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "规模：刚需韧性凸显，合计增速超同期，多数品类回暖"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                44,
+                632,
+                96
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2019-2023年618厨卫刚需品类线上市场零售额走势"
+                    }
+                ]
+            },
+            "bbox": [
+                10,
+                194,
+                431,
+                235
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/66a5b99f132ac53ade2db5b8a20e2f7b7a07d2a1b9b1e5f95150e38590372039.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                35,
+                251,
+                408,
+                853
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/3bdbef6d5e479623ce345c8220e011aedbbac48202510e95c1eed6a50a774588.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "油烟机"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                435,
+                251,
+                689,
+                524
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/78b57c70ed4a433261caa45ea0801d39a95cc182d8257326c67e3dc481a9c883.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "电热"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                436,
+                601,
+                690,
+                875
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/53665e73d7824260b95611badecc2a2cc2ab0ecf221d90b2018e0bbd5925ce62.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "燃气灶"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                708,
+                251,
+                969,
+                524
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/4893c2f5c97a2bf5029035e2e14b2d2167d812a8e225247c56b1c34c0620ec8e.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "燃热"
+                    }
+                ],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                710,
+                601,
+                968,
+                875
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维    ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                159,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-2-"
+                    }
+                ]
+            },
+            "bbox": [
+                953,
+                933,
+                971,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "节奏：本次618对于上半年的累积释放较为有效，首周拉力尤其显著"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                44,
+                770,
+                96
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2019-2023年厨卫刚需品类线上618各周销额占上半年比例变化"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                212,
+                738,
+                253
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "618合计额占上半年"
+                    }
+                ]
+            },
+            "bbox": [
+                578,
+                327,
+                689,
+                357
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/fd75e031a4a2ff3ed0f7c0908fd74b5fcbca7eeeaeb4ca57fd4dc97a19fb3d85.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                32,
+                322,
+                966,
+                812
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                159,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-3-"
+                    }
+                ]
+            },
+            "bbox": [
+                953,
+                933,
+                971,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "结构：产业以爆发之势升级，中高价位占比提升是规模增长的关键助力"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                23,
+                44,
+                973,
+                96
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2019-2023年618厨卫刚需品类线上分价格段零售额结构变化"
+                    }
+                ]
+            },
+            "bbox": [
+                250,
+                138,
+                748,
+                181
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/b28ec79c107b1594467bb3fa2d6b941e402b60f9ea2a35951aff2caaecabc3b5.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                50,
+                209,
+                509,
+                550
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/07d74e1a1ae98a0b2b374c46c7b33baf86089b2cba205c513bb6a00a26653658.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                530,
+                209,
+                987,
+                548
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/34ba13bf7248c34554a38b8fbf4bcd91cc3f184dbef0c13b899abb5c797852e7.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                48,
+                570,
+                509,
+                896
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d9d2e9eb6c2292a3688c4ae61e70323e7d7c85a7e4e478bc1422959d5d4c22fa.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                530,
+                577,
+                988,
+                896
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                158,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-4-"
+                    }
+                ]
+            },
+            "bbox": [
+                953,
+                933,
+                973,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2021-2023年618厨卫刚需品类线上品牌TOP10销额占比 2021-2023年厨卫刚需品类线上TOP10品牌均价变化（元）"
+                    }
+                ]
+            },
+            "bbox": [
+                29,
+                201,
+                956,
+                244
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/0f8888753eb11cb0db3d683eacf47c5e0bced2307f274c2fab6ea4754af6b674.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                45,
+                359,
+                438,
+                864
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/f22fa46e42dc078261344c1bdf6aeb4a19f67f046903957f7d649c7673ab669b.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                495,
+                305,
+                950,
+                900
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "品牌：大浪淘沙，头部品牌更加集中，亦不靠“降价”取胜"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                44,
+                682,
+                98
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                723,
+                931,
+                930,
+                957
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                159,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-5-"
+                    }
+                ]
+            },
+            "bbox": [
+                953,
+                933,
+                972,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "形态升级：刚需品类更依赖形态升级的拉动，“超薄”是大势所趋"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                44,
+                758,
+                96
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2023年618厨卫刚需品类线上趋势形态销额增速"
+                    }
+                ]
+            },
+            "bbox": [
+                47,
+                225,
+                440,
+                268
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/83c6aa60bc58dbc9871571f5a6b3859de1f0a760fce07b0b8768655f9bbdb220.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "2023年618厨卫刚需品类线上趋势形态均价对比品类均价"
+                    }
+                ]
+            },
+            "bbox": [
+                53,
+                290,
+                435,
+                903
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/68b3efca954a6c094e08244f426d7daf4a089faf2a5c78d10ed4cfb0630919e0.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                482,
+                303,
+                968,
+                827
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "油烟机 -超薄低吸"
+                    }
+                ]
+            },
+            "bbox": [
+                488,
+                759,
+                550,
+                822
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                159,
+                962
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                723,
+                931,
+                930,
+                957
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-6-"
+                    }
+                ]
+            },
+            "bbox": [
+                953,
+                933,
+                972,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "参数升级：形成有效的支撑力，行业逐步走出“高配低价”泥沼"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                44,
+                732,
+                96
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2023年618厨卫刚需品类分参数段均价走势（对比品类均价）"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                245,
+                144,
+                741,
+                185
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/cf4bbc4fd1b41b91eb4328bae90bf30ac42832ceb245ad69d585a8a6700db0eb.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "油烟机-风量段"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                86,
+                235,
+                429,
+                535
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/add6545c5afd1ccd685cf12fbf717470e4139883d1ccbb4c255df2ab11998288.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                573,
+                211,
+                918,
+                538
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/cd9d4b6bab9fef4ea8803bd4ab03d195bced8d9daa6a3fb53015dada8abb4141.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "电热-容积段"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                79,
+                612,
+                435,
+                894
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6d9ed31bc500c1a10c48ec79cc788f4f3dd52fde210a0728fa4599a7d44d0910.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "燃热-升数段"
+                    }
+                ],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                564,
+                611,
+                921,
+                896
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维    ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                26,
+                935,
+                158,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-7-"
+                    }
+                ]
+            },
+            "bbox": [
+                953,
+                933,
+                972,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "感性消费力驱动：烟灶白色款销额快速提升，高颜值厨电装点理想厨房 ALL VIEW CLOUD"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                44,
+                973,
+                94
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2022-2023年线上油烟机白色款部分机型销额占比变化"
+                    }
+                ]
+            },
+            "bbox": [
+                273,
+                138,
+                723,
+                179
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d66103d69c23fc8893db171ed2a7e4a75ba491812ba7ea55fa47fb3bf9756d1d.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "合计销额占比"
+                    }
+                ],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "老板CXW-260-22A3S"
+                    }
+                ]
+            },
+            "bbox": [
+                61,
+                229,
+                330,
+                481
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b9faba51e0a5a98f86acbd8aff553f3f63b536e108482d9e4288c02b88eaf7df.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": [
+                    {
+                        "type": "text",
+                        "content": "方太CXW-258-01-F1-W"
+                    }
+                ]
+            },
+            "bbox": [
+                350,
+                229,
+                558,
+                487
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/94d07050adaeae07e1f51237cbe7f63b79dbab11e6c8c0cdd7fc4bbc21e4731b.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                578,
+                231,
+                756,
+                485
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/e1274a109ddc98cc1398a94257d6e9a8734bafbda66a484c9dc2db30e67b43c3.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "华帝CXW-200-I11226"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                776,
+                231,
+                935,
+                488
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2022-2023年线上燃气灶白色款部分机型销额占比变化"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                275,
+                531,
+                723,
+                572
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/dc52dea6bc896f359da61213d4b3efa43a74c722248c75eb9f178e22c8eae99f.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "老板JZT/Y-32B8A"
+                    }
+                ]
+            },
+            "bbox": [
+                62,
+                629,
+                330,
+                885
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/96993c6d80254c8f8350a0a340a519d0ccaa97611ba19bb2bd1eae283c7a740a.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": [
+                    {
+                        "type": "text",
+                        "content": "方太JZT/Y-01-THF1-W"
+                    }
+                ]
+            },
+            "bbox": [
+                347,
+                631,
+                530,
+                885
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/92edddbe7713b4086551a6e35203f214ac04d852613d8a9bd59bc79aeb7da53b.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                550,
+                631,
+                737,
+                883
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/53026cfea72c2067be41b9b1034892883c1775c24d0f7cd03cc953cc81e38c26.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "华帝JZT-I10091B"
+                    }
+                ],
+                "image_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                752,
+                631,
+                941,
+                885
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                159,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-8-"
+                    }
+                ]
+            },
+            "bbox": [
+                954,
+                933,
+                970,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "理性消费力驱动：环保理念渐成共识，推动产业升级需长久见真金"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                23,
+                44,
+                758,
+                96
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/fdd57e927d24fe9b6e76f0612e55ba576ee87a41a349b3a98490914c88e31c67.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2019-2023年燃热线上冷凝销额占比变化"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                45,
+                187,
+                951,
+                503
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/75210443a2949c127285b20f6cec90a67777dc9c4b295b2ab243356587beca82.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2019-2023年燃气灶线上高热效率（＞63%）销额占比变化"
+                    }
+                ],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                45,
+                596,
+                950,
+                896
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                159,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-9-"
+                    }
+                ]
+            },
+            "bbox": [
+                953,
+                933,
+                970,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/106906adecc3da91fcbf3a15fb9bb3b609b82d67f769a02f479b0e4e0edc446d.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "2022-2023年618热水器细分品类线上规模增速及均价对比"
+                    }
+                ]
+            },
+            "bbox": [
+                525,
+                212,
+                967,
+                485
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "品类扩张驱动：电即热、小厨宝销额均有增长，新品呈现精致迷你外观"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                44,
+                973,
+                96
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "图例：销额规模（亿元），销额增速，均价（元），均价增幅"
+                    }
+                ]
+            },
+            "bbox": [
+                106,
+                203,
+                450,
+                235
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/5e1c5bd94b646ea9e7335f32180902084168d657fa09c9c7ce59f960821f6f8e.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "2023年618线上各品类TOP5品牌销额占比"
+                    }
+                ]
+            },
+            "bbox": [
+                38,
+                272,
+                501,
+                701
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/df5621f2339cdd6779903ddacd6980077b9cb1ef7077398a2e29b216849fcd80.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                536,
+                555,
+                656,
+                901
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/1411ebfbeec45e0f294c05346f0aab490510ef7709bceee474d39a62b1e00fc6.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                675,
+                553,
+                813,
+                903
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/03efd655359fcc3236a2f2b6bfb706f3f8ffa870d9a2d4fffa6a601c53fd684d.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                831,
+                555,
+                950,
+                903
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                159,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-10-"
+                    }
+                ]
+            },
+            "bbox": [
+                950,
+                933,
+                971,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "套购场景驱动：烟灶正向烟灶热小幅转换，刚需之间相互激发高端化"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                25,
+                44,
+                783,
+                96
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2022-2023年618线上烟灶套餐分类型销额占比"
+                    }
+                ]
+            },
+            "bbox": [
+                56,
+                161,
+                400,
+                200
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/cbae3eac5ca6d354a89e56494b7cdf639ca0ae7224944f9f5747be9a05fbac0a.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                73,
+                212,
+                385,
+                605
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/db50c0d44cffa41e3f67c5955eb878fc2a76428e76ae26da26e4e3ce7da1e92c.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2020-2023年618线上烟灶套餐分类型均价走势"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                75,
+                664,
+                385,
+                916
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/3f7c6bcb5b2be01b8cfebade1a77baf6efcc7df68a2f6e05d92a5b5c0ca97efe.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023年618线上烟灶套餐TOP10品牌销额占比"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                456,
+                205,
+                941,
+                500
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/5866c4625baf8b2a7e075a2873cf4498463e52059417481c09ab8a22e9425ffa.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "2023年618线上烟灶热套餐TOP10品牌销额占比"
+                    }
+                ],
+                "chart_footnote": [
+                    {
+                        "type": "text",
+                        "content": "数据来源：奥维云网（AVC）线上监测数据"
+                    }
+                ]
+            },
+            "bbox": [
+                455,
+                624,
+                939,
+                914
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维云   ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                42,
+                972,
+                88
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "www.avc-mr.com"
+                    }
+                ]
+            },
+            "bbox": [
+                25,
+                935,
+                159,
+                962
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "-11-"
+                    }
+                ]
+            },
+            "bbox": [
+                948,
+                933,
+                975,
+                957
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "欢迎试用奥维微信小程序6.0"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                33,
+                168,
+                625,
+                446
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/e906d9c24b8dcfad8e6abf82ef9c8ccb5c0b6c93ae38a8e04d46dba0e24bddce.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                687,
+                101,
+                942,
+                564
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/9340f0763b6156225692bd1035637a039805ecef9aaa11cc4b80f3bb37a25097.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": [
+                    {
+                        "type": "text",
+                        "content": "权威数据、报告尽在AVC微信"
+                    }
+                ]
+            },
+            "bbox": [
+                86,
+                550,
+                125,
+                638
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "奥维云网（证券代码：831101），是专注于垂直领域的大数据应用技术和解决方案服务商。公司以开放式大数据平台为核心资源，整合全产业链数据体系，具备从数据采集处理、存储计算、挖掘分析、可视化和应用等核心环节的大数据技术能力，现阶段主要面向零售交易大数据、家庭互联网用户大数据、企业大数据、金融大数据、酒店及旅游大数据等领域，凭借自身数据、技术、服务和产业资源优势，为企业提供“数据＋技术＋服务”的全方位大数据解决方案。"
+                    }
+                ]
+            },
+            "bbox": [
+                140,
+                548,
+                636,
+                635
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/2113b16d384476245398fba6da09561c004862975e820cc410b7ca3ad14dc8e1.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                654,
+                635,
+                969,
+                972
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "AVC奥维 U  ALL VIEW CLOUD"
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                879,
+                347,
+                955
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "解锁你的私人报告库，用数据解读行业微信订阅：51报告库"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                84,
+                162,
+                594,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "直接获取报告合集细分领域每日更新"
+                    }
+                ]
+            },
+            "bbox": [
+                101,
+                442,
+                517,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1、每日免费领取1份最新精选研究报告/数据分析/上市路演/营销资料"
+                    }
+                ]
+            },
+            "bbox": [
+                81,
+                557,
+                652,
+                598
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2、加入社群获取100+行业细分领域年度报告合集"
+                    }
+                ]
+            },
+            "bbox": [
+                81,
+                618,
+                491,
+                657
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3、加入社群获取每周700+最新行业报告"
+                    }
+                ]
+            },
+            "bbox": [
+                81,
+                677,
+                417,
+                718
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4、加入后赠送PDF编辑转换软件"
+                    }
+                ]
+            },
+            "bbox": [
+                81,
+                738,
+                353,
+                777
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "涵盖国内外各大机构100+细分行业全网最全"
+                    }
+                ]
+            },
+            "bbox": [
+                83,
+                814,
+                453,
+                853
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/4b9791979759201972a55f3c1193c7930b821e42ca797cda76392a357c5bb9e5.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                746,
+                118,
+                925,
+                435
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "识别二维码立即关注"
+                    }
+                ]
+            },
+            "bbox": [
+                738,
+                474,
+                926,
+                516
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b0322e75fe65f2b879e7d56d8347b9b3ecd3f95ed3087fbd47900b660fd8ad8c.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                714,
+                666,
+                958,
+                977
+            ]
+        }
+    ]
+]

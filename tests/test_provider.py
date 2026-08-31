@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import http.client
+import json
 import unittest
+from unittest.mock import patch
 
 from mmwiki.provider import (
     OpenAICompatibleProvider,
@@ -12,6 +15,45 @@ from mmwiki.provider import (
     validate_wiki_analysis,
     validate_wiki_compilation,
 )
+
+
+class ProviderTransportTests(unittest.TestCase):
+    def test_chat_json_retries_remote_disconnect(self) -> None:
+        provider = object.__new__(OpenAICompatibleProvider)
+        provider.url = "https://example.invalid/chat/completions"
+        provider.key = "test-key"
+        provider.model = "test-model"
+        provider.timeout = 1
+        provider.retries = 3
+        provider.max_tokens = 100
+
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+            def read(self):
+                return json.dumps(
+                    {
+                        "choices": [{"message": {"content": "{}"}}],
+                        "usage": {"total_tokens": 1},
+                    }
+                ).encode("utf-8")
+
+        with (
+            patch(
+                "mmwiki.provider.urllib.request.urlopen",
+                side_effect=[http.client.RemoteDisconnected("closed"), Response()],
+            ) as post,
+            patch("mmwiki.provider.time.sleep") as sleep,
+        ):
+            value = provider.chat_json("system", "user")
+
+        self.assertEqual(value["_usage"]["total_tokens"], 1)
+        self.assertEqual(post.call_count, 2)
+        sleep.assert_called_once_with(1)
 
 
 class AnswerRequirementTests(unittest.TestCase):
@@ -305,6 +347,120 @@ class WikiValidationTests(unittest.TestCase):
                 preserved_evidence_ids={"source@v1#text-1"},
                 stage="multimodal",
             )
+
+    def test_compile_repairs_invalid_refs_without_repeating_source_evidence(self) -> None:
+        provider = object.__new__(OpenAICompatibleProvider)
+        responses = iter(
+            [
+                {
+                    "summary": "摘要",
+                    "pages": [
+                        {
+                            "title": "页面",
+                            "kind": "concept",
+                            "summary": "摘要",
+                            "content": "正文",
+                            "evidence_refs": ["source@v1#unknown"],
+                        }
+                    ],
+                },
+                {
+                    "summary": "摘要",
+                    "pages": [
+                        {
+                            "title": "页面",
+                            "kind": "concept",
+                            "summary": "摘要",
+                            "content": "正文",
+                            "evidence_refs": ["source@v1#image-1"],
+                        }
+                    ],
+                },
+            ]
+        )
+        captured = []
+
+        def fake_chat_json(system, user):
+            captured.append(user)
+            return next(responses)
+
+        provider.chat_json = fake_chat_json
+        value = provider.compile_wiki(
+            "来源",
+            {"page_actions": [{"title": "页面", "kind": "concept"}]},
+            [{"id": "source@v1#image-1", "text": "大量原始证据"}],
+            [],
+            "schema",
+        )
+
+        self.assertEqual(value["pages"][0]["evidence_refs"], ["source@v1#image-1"])
+        self.assertEqual(len(captured), 2)
+        self.assertNotIn("大量原始证据", captured[1])
+
+    def test_compile_filters_foreign_refs_from_existing_shared_page(self) -> None:
+        provider = object.__new__(OpenAICompatibleProvider)
+        calls = []
+
+        def fake_chat_json(system, user):
+            calls.append(user)
+            return {
+                "summary": "摘要",
+                "pages": [
+                    {
+                        "title": "共享页面",
+                        "kind": "concept",
+                        "summary": "摘要",
+                        "content": "合并后的正文",
+                        "evidence_refs": [
+                            "source@v1#image-1",
+                            "other@v2#image-9",
+                        ],
+                    }
+                ],
+            }
+
+        provider.chat_json = fake_chat_json
+        value = provider.compile_wiki(
+            "来源",
+            {"page_actions": [{"title": "共享页面", "kind": "concept"}]},
+            [{"id": "source@v1#image-1"}],
+            [{"title": "共享页面", "evidence_ids": ["other@v2#image-9"]}],
+            "schema",
+        )
+
+        self.assertEqual(value["pages"][0]["evidence_refs"], ["source@v1#image-1"])
+        self.assertEqual(len(calls), 1)
+
+    def test_compile_preserves_existing_page_when_no_current_ref_is_valid(self) -> None:
+        provider = object.__new__(OpenAICompatibleProvider)
+        calls = []
+
+        def fake_chat_json(system, user):
+            calls.append(user)
+            return {
+                "summary": "摘要",
+                "pages": [
+                    {
+                        "title": "共享页面",
+                        "kind": "concept",
+                        "summary": "摘要",
+                        "content": "不应覆盖原页面",
+                        "evidence_refs": ["other@v2#image-9"],
+                    }
+                ],
+            }
+
+        provider.chat_json = fake_chat_json
+        value = provider.compile_wiki(
+            "来源",
+            {"page_actions": [{"title": "共享页面", "kind": "concept"}]},
+            [{"id": "source@v1#image-1"}],
+            [{"title": "共享页面", "evidence_ids": ["other@v2#image-9"]}],
+            "schema",
+        )
+
+        self.assertEqual(value["pages"], [])
+        self.assertEqual(len(calls), 1)
 
     def test_visual_wiki_analysis_receives_actual_image_with_evidence_identity(self) -> None:
         provider = object.__new__(OpenAICompatibleProvider)

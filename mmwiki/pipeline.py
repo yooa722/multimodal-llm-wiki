@@ -30,6 +30,7 @@ from .provider import (
     QUERY_REWRITE_PROMPT_VERSION,
     VISION_PROMPT_VERSION,
     WIKI_PROMPT_VERSION,
+    read_dotenv,
     validate_wiki_analysis,
     validate_wiki_compilation,
 )
@@ -234,10 +235,25 @@ class WikiPipeline:
         self,
         project_root: str | Path,
         feature_config: FeatureConfig | None = None,
+        runtime_root: str | Path | None = None,
     ):
         self._state_lock = threading.RLock()
         self.root = Path(project_root).expanduser().resolve()
-        self.runtime = self.root / "runtime"
+        configured_runtime = ""
+        if runtime_root is None:
+            dotenv = read_dotenv(self.root / ".env")
+            configured_runtime = os.environ.get(
+                "MMWIKI_RUNTIME_ROOT",
+                dotenv.get("MMWIKI_RUNTIME_ROOT", ""),
+            ).strip()
+        runtime_value = runtime_root if runtime_root is not None else configured_runtime
+        if runtime_value:
+            runtime_path = Path(runtime_value).expanduser()
+            if not runtime_path.is_absolute():
+                runtime_path = self.root / runtime_path
+            self.runtime = runtime_path.resolve()
+        else:
+            self.runtime = self.root / "runtime"
         self.vault = self.runtime / "vault"
         self.state_path = self.runtime / "state.json"
         self.page_index_path = self.runtime / "page-index.json"
@@ -698,7 +714,9 @@ class WikiPipeline:
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
-    def _visual_build_contract(self) -> tuple[dict[str, Any], str]:
+    def _visual_build_contract(
+        self, visual_item_ids: set[str] | None = None
+    ) -> tuple[dict[str, Any], str]:
         """Describe the persistent visual-Evidence build without storing secrets."""
 
         ocr = QwenOCRProvider(self.root)
@@ -716,6 +734,10 @@ class WikiPipeline:
             "caption": {
                 "configured": bool(vision.configured),
                 "model": str(vision.model),
+            },
+            "scope": {
+                "mode": "selected_items" if visual_item_ids is not None else "all",
+                "item_ids": sorted(visual_item_ids or []),
             },
         }
         serialized = json.dumps(
@@ -2048,6 +2070,7 @@ class WikiPipeline:
         force: bool = False,
         full_scale: bool = False,
         stage: str = "all",
+        visual_item_ids: set[str] | None = None,
     ) -> dict[str, Any]:
         if provider not in {"baseline", "api"}:
             raise PipelineError("provider 必须是 baseline 或 api")
@@ -2060,6 +2083,8 @@ class WikiPipeline:
             full_scale = False
         if full_scale and (provider != "api" or stage == "text"):
             raise PipelineError("full_scale 只支持 api provider 的多模态阶段")
+        if visual_item_ids is not None and stage == "text":
+            raise PipelineError("视觉处理范围只适用于 multimodal 阶段")
 
         if stage == "all":
             started = time.perf_counter()
@@ -2076,6 +2101,7 @@ class WikiPipeline:
                 force=force,
                 full_scale=full_scale,
                 stage="multimodal",
+                visual_item_ids=visual_item_ids,
             )
             stage_results = {
                 "text": text_result,
@@ -2142,6 +2168,18 @@ class WikiPipeline:
         multimodal_item_ids = {
             item.item_id for item in package.items if _is_multimodal_item(item)
         }
+        visual_processing_item_ids = set(multimodal_item_ids)
+        if visual_item_ids is not None:
+            requested_item_ids = {
+                str(value).strip() for value in visual_item_ids if str(value).strip()
+            }
+            known_item_ids = {item.item_id for item in package.items}
+            unknown_item_ids = sorted(requested_item_ids - known_item_ids)
+            if unknown_item_ids:
+                raise PipelineError(
+                    "指定的 Evidence item 不存在：" + "、".join(unknown_item_ids)
+                )
+            visual_processing_item_ids.intersection_update(requested_item_ids)
         visual_build_contract: dict[str, Any] = {}
         visual_build_signature = ""
         if (
@@ -2151,7 +2189,7 @@ class WikiPipeline:
             and multimodal_item_ids
         ):
             visual_build_contract, visual_build_signature = (
-                self._visual_build_contract()
+                self._visual_build_contract(visual_item_ids)
             )
         previous_stage = stages.get(stage, {})
         if not force and previous_stage:
@@ -2326,7 +2364,11 @@ class WikiPipeline:
             vision_llm = OpenAICompatibleProvider(self.root, "vision")
             evidence = self._builder_evidence(
                 package,
-                stage_item_ids,
+                (
+                    visual_processing_item_ids
+                    if stage == "multimodal" and visual_item_ids is not None
+                    else stage_item_ids
+                ),
                 text_only=stage == "text",
             )
             if not evidence:
@@ -2349,7 +2391,7 @@ class WikiPipeline:
                 )
                 if stage == "multimodal" and self.features.enable_vlm:
                     (
-                        visual_evidence,
+                        new_visual_evidence,
                         persistent_visual_analysis,
                         visual_result,
                         visual_api_calls,
@@ -2361,6 +2403,13 @@ class WikiPipeline:
                         schema,
                         vision_llm,
                         precomputed_analysis=analysis,
+                    )
+                    visual_evidence = list(
+                        {
+                            str(record.get("id") or ""): record
+                            for record in [*visual_evidence, *new_visual_evidence]
+                            if str(record.get("id") or "")
+                        }.values()
                     )
                     api_calls += visual_api_calls
                 visual_analysis = {
@@ -2378,7 +2427,7 @@ class WikiPipeline:
             else:
                 if stage == "multimodal" and self.features.enable_vlm:
                     (
-                        visual_evidence,
+                        new_visual_evidence,
                         persistent_visual_analysis,
                         visual_result,
                         visual_api_calls,
@@ -2389,6 +2438,13 @@ class WikiPipeline:
                         state,
                         schema,
                         vision_llm,
+                    )
+                    visual_evidence = list(
+                        {
+                            str(record.get("id") or ""): record
+                            for record in [*visual_evidence, *new_visual_evidence]
+                            if str(record.get("id") or "")
+                        }.values()
                     )
                     api_calls += visual_api_calls
                 if persistent_visual_analysis is not None:
@@ -2521,6 +2577,21 @@ class WikiPipeline:
                 ),
             },
             "multimodal_items_added": (
+                len(multimodal_item_ids) if stage == "multimodal" else 0
+            ),
+            "evidence_scope": {
+                "mode": (
+                    "selected_items"
+                    if stage == "multimodal" and visual_item_ids is not None
+                    else "all"
+                ),
+                "item_ids": (
+                    sorted(visual_processing_item_ids)
+                    if stage == "multimodal"
+                    else []
+                ),
+            },
+            "represented_multimodal_items": (
                 len(multimodal_item_ids) if stage == "multimodal" else 0
             ),
             "visual_evidence": {
@@ -3371,39 +3442,128 @@ class WikiPipeline:
         self,
         hits: list[dict[str, Any]],
         state: dict[str, Any],
+        question: str = "",
     ) -> tuple[list[dict[str, Any]], dict[str, Any], list[str]]:
         """Resolve retrieved chunks to bounded, immutable Source Package items."""
 
         lookup = self._item_lookup(state)
         locator_lookup = evidence_locator_lookup(build_evidence_page_index(state))
         selected: list[dict[str, Any]] = []
+        selected_ids: set[str] = set()
+        source_items: dict[str, list[dict[str, Any]]] = {
+            str(source_id): sorted(
+                [item for item in source.get("items", []) if isinstance(item, dict)],
+                key=lambda item: int(item.get("sequence") or 0),
+            )
+            for source_id, source in state.get("sources", {}).items()
+        }
+        source_positions = {
+            source_id: {
+                str(item.get("item_id") or ""): index
+                for index, item in enumerate(items)
+                if item.get("item_id")
+            }
+            for source_id, items in source_items.items()
+        }
+
+        def append_item(source_id: str, item: dict[str, Any]) -> bool:
+            item_id = str(item.get("item_id") or "")
+            if not item_id:
+                return False
+            source = state["sources"].get(source_id, {})
+            evidence_id = f"{source_id}@{source.get('source_version', '')}#{item_id}"
+            value = lookup.get(evidence_id)
+            if value is None or evidence_id in selected_ids:
+                return False
+            selected_ids.add(evidence_id)
+            selected.append(
+                {
+                    "evidence_id": evidence_id,
+                    "package_id": value[0],
+                    "item": value[1],
+                    "locator": locator_lookup.get(evidence_id, {}),
+                }
+            )
+            return True
+
+        context_items_added = 0
+        page_context_items_added = 0
+        aggregation_anchors: list[tuple[str, dict[str, Any]]] = []
+        aggregation_intent = bool(
+            re.search(
+                r"哪些|有哪|重点数据|主要|分别|各自|列举|汇总|包括|完整|"
+                r"\b(?:list|summari[sz]e|key\s+data|main|respectively)\b",
+                question,
+                re.IGNORECASE,
+            )
+        )
         for hit in hits:
             for item_id in hit["item_ids"]:
-                evidence_id = (
-                    f"{hit['source_id']}@"
-                    f"{state['sources'].get(hit['source_id'], {}).get('source_version', '')}"
-                    f"#{item_id}"
-                )
-                value = lookup.get(evidence_id)
-                if value is None:
+                source_id = str(hit["source_id"])
+                items = source_items.get(source_id, [])
+                position = source_positions.get(source_id, {}).get(str(item_id))
+                if position is None:
                     continue
-                if not any(record["evidence_id"] == evidence_id for record in selected):
-                    selected.append(
-                        {
-                            "evidence_id": evidence_id,
-                            "package_id": value[0],
-                            "item": value[1],
-                            "locator": locator_lookup.get(evidence_id, {}),
-                        }
+                item = items[position]
+                append_item(source_id, item)
+                aggregation_anchors.append((source_id, item))
+
+                # MinerU often emits a number and its label as two adjacent
+                # blocks.  When the hit itself is short, add only immediate
+                # same-page/same-section neighbours.  This is layout-aware
+                # context recovery, not a document- or question-specific rule.
+                compact_text = str(
+                    item.get("raw_text")
+                    or item.get("caption")
+                    or item.get("search_text")
+                    or ""
+                ).strip()
+                if len(compact_text) <= 80:
+                    for neighbour_position in (position - 1, position + 1):
+                        if not 0 <= neighbour_position < len(items):
+                            continue
+                        neighbour = items[neighbour_position]
+                        if (
+                            neighbour.get("page_start") != item.get("page_start")
+                            or str(neighbour.get("breadcrumb") or "")
+                            != str(item.get("breadcrumb") or "")
+                        ):
+                            continue
+                        context_items_added += int(
+                            append_item(source_id, neighbour)
+                        )
+
+        # 先保留所有直接命中的 Evidence，再为汇总、列举和多子项问题
+        # 补齐同页同章节的 MinerU 数据块，避免补充上下文挤掉后续命中。
+        if aggregation_intent:
+            for source_id, item in aggregation_anchors:
+                for sibling in source_items.get(source_id, []):
+                    if (
+                        sibling.get("page_start") != item.get("page_start")
+                        or str(sibling.get("breadcrumb") or "")
+                        != str(item.get("breadcrumb") or "")
+                    ):
+                        continue
+                    page_context_items_added += int(
+                        append_item(source_id, sibling)
                     )
         candidate_count = len(selected)
-        evidence_limit = _bounded_env_int("MMWIKI_MAX_EVIDENCE_ITEMS", 8, 1, 20)
+        evidence_limit = (
+            _bounded_env_int(
+                "MMWIKI_MAX_AGGREGATION_EVIDENCE_ITEMS", 12, 1, 20
+            )
+            if aggregation_intent
+            else _bounded_env_int("MMWIKI_MAX_EVIDENCE_ITEMS", 8, 1, 20)
+        )
         selected = selected[:evidence_limit]
         selection = {
             "candidate_items": candidate_count,
             "selected_items": len(selected),
             "max_items": evidence_limit,
             "truncated": candidate_count > len(selected),
+            "adjacent_context_items": context_items_added,
+            "same_page_context_items": page_context_items_added,
+            "aggregation_intent": aggregation_intent,
         }
         matched_visual_assets = list(
             dict.fromkeys(
@@ -3525,7 +3685,7 @@ class WikiPipeline:
             retrieval_trace["query_rewrite_applied"] = True
         state = self._load_state()
         selected, selection_trace, matched_visual_assets = self._select_query_evidence(
-            hits, state
+            hits, state, question
         )
         retrieval_trace["evidence_selection"] = selection_trace
         retrieval_trace["matched_visual_assets"] = matched_visual_assets
@@ -3595,7 +3755,7 @@ class WikiPipeline:
                         selected,
                         selection_trace,
                         matched_visual_assets,
-                    ) = self._select_query_evidence(hits, state)
+                    ) = self._select_query_evidence(hits, state, question)
                     retrieval_trace = upgraded_trace
                     retrieval_trace.update(
                         {
@@ -3643,7 +3803,16 @@ class WikiPipeline:
             usage = value.get("_usage", {})
         else:
             answer = "离线模式只展示召回证据，未调用视觉模型。\n\n" + "\n".join(
-                f"- {hit['title']}：{hit['snippet']}" for hit in hits
+                "- "
+                + str(value["item"].get("breadcrumb") or value["item"]["item_id"])
+                + "："
+                + str(
+                    value["item"].get("raw_text")
+                    or value["item"].get("caption")
+                    or value["item"].get("search_text")
+                    or ""
+                )
+                for value in selected
             )
             cited = [value["evidence_id"] for value in selected]
             model = "deterministic-baseline"
@@ -3653,24 +3822,60 @@ class WikiPipeline:
         if set(cited) - valid:
             raise PipelineError("问答模型返回了检索候选之外的引用")
         citations = []
-        for hit in hits:
-            hit_refs = [
-                ref
-                for ref in cited
-                if ref.startswith(f"{hit['source_id']}@")
-                and any(ref.endswith(f"#{item_id}") for item_id in hit["item_ids"])
-            ]
-            if not hit_refs:
+        selected_by_id = {value["evidence_id"]: value for value in selected}
+        for ref in cited:
+            selected_value = selected_by_id.get(ref)
+            if selected_value is None:
                 continue
+            item = selected_value["item"]
+            source_id = str(selected_value["package_id"])
+            item_id = str(item.get("item_id") or "")
+            matching_hit = next(
+                (
+                    hit
+                    for hit in hits
+                    if str(hit.get("source_id") or "") == source_id
+                    and item_id in set(map(str, hit.get("item_ids", [])))
+                ),
+                None,
+            )
+            if matching_hit is None:
+                source = state.get("sources", {}).get(source_id, {})
+                asset_paths = [
+                    str(source.get("assets", {}).get(asset_id, {}).get("vault_path") or "")
+                    for asset_id in item.get("asset_ids", [])
+                ]
+                matching_hit = {
+                    "source_id": source_id,
+                    "chunk_id": f"adjacent-context-{item_id}",
+                    "title": str(item.get("breadcrumb") or item_id),
+                    "score": 0.0,
+                    "snippet": str(
+                        item.get("raw_text")
+                        or item.get("caption")
+                        or item.get("search_text")
+                        or ""
+                    ),
+                    "item_ids": [item_id],
+                    "modalities": [str(item.get("item_type") or "text")],
+                    "asset_paths": [path for path in asset_paths if path],
+                    "pages": [item["page_start"]]
+                    if item.get("page_start") is not None
+                    else [],
+                    "path": str(source.get("wiki_path") or ""),
+                    "wiki_paths": [str(source.get("evidence_map_path") or "")]
+                    if source.get("evidence_map_path")
+                    else [],
+                    "retrieval_channels": ["adjacent_context"],
+                    "score_breakdown": {"adjacent_context": 1.0},
+                    "matched_asset_id": "",
+                    "matched_asset_path": "",
+                }
             citations.append(
                 {
-                    **hit,
-                    "evidence_ids": hit_refs,
-                    "evidence_locations": [
-                        value.get("locator", {})
-                        for value in selected
-                        if value["evidence_id"] in hit_refs
-                    ],
+                    **matching_hit,
+                    "evidence_ids": [ref],
+                    "evidence_locations": [selected_value.get("locator", {})],
                 }
             )
         evidence_locations = [

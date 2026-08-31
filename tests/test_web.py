@@ -17,7 +17,7 @@ from mmwiki.api import PRESENTATION_VERSION
 
 class WikiWebTests(unittest.TestCase):
     def test_api_advertises_current_presentation_version(self) -> None:
-        self.assertEqual(PRESENTATION_VERSION, "split-query-v2")
+        self.assertEqual(PRESENTATION_VERSION, "split-query-v3")
 
     def test_urls_are_http_and_quote_unicode_paths(self) -> None:
         wiki = wiki_view_url("wiki/analyses/智慧交通项目评审分析.md")

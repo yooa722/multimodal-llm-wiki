@@ -1,0 +1,251 @@
+{
+  "sha256": "97ae5406d9c7ac8ec647142d1246a00b9a319ffca97c1aec037b20157849b526",
+  "ocr": {
+    "status": "skipped",
+    "text": "",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "natural_image",
+    "primary_representation": "vlm_caption",
+    "run_caption": true,
+    "run_ocr": false,
+    "ocr_policy": "on_demand",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力"
+  },
+  "generated_at": "2026-08-31T02:16:34.316792+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "一张手机屏幕截图，显示小红书App内一个短视频，画面为一位女性站在绿色背景前，视频顶部有‘SALOMON’品牌标识与‘看“萨”野’文字，下方有评论区与播放控制条。",
+    "model": "qwen3-vl-plus"
+  },
+  "analysis": {
+    "summary": "新来源《【服饰潮流行业】闭环全攻略》提供了2024年618期间小红书服饰行业的多模态证据，包括品类与风格趋势的搜索增长数据（如溯溪鞋+170%、编织包+173%）、热门风格标签（如‘夏日少女感’搜索量160w+、‘户外山系风’搜索同比+78%）、具体产品视觉示例（Salomon徒步鞋短视频、高腰裤文字标签、运动长裤穿搭图），以及支撑闭环营销的关键平台功能表格（广告主素材不可见、单笔记多商品、直播快投、一键起量）。这些证据可直接用于更新‘小红书’、‘KFS营销模型’、‘618电商大促’、‘服饰潮流行业闭环营销’等现有页面。",
+    "claims": [
+      {
+        "statement": "2024年618期间，小红书服饰行业‘溯溪鞋’搜索量同比增长170%。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2024年618期间，小红书服饰行业‘编织包’搜索量同比增长173%。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2024年618期间，小红书‘夏日少女感’风格话题搜索量超过160万。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2024年618期间，小红书‘户外山系风’风格话题搜索量同比增长78%。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "2024年618期间，小红书‘海岛度假风’话题浏览量达1.7亿。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "‘高腰’是2025年Q1运动户外品类的关键趋势词之一。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0029-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "小红书平台提供‘单笔记多商品’功能，支持在单个推广笔记中关联多个商品链接。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0045-b0002"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "小红书平台提供‘直播快投’功能，可在直播时段同时投放商品和直播间，非开播时段仅投放商品。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0045-b0002"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "小红书平台提供‘一键起量’功能，可通过增加起量预算加速计划拿量与人群破圈。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0045-b0002"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "‘德训鞋’在夏季需求度高，厚底/红色/做旧款受欢迎。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0029-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "‘速干/透气/凉感/轻薄’是运动服夏季的主要需求特征。",
+        "evidence_refs": [
+          "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0029-b0001"
+        ],
+        "provenance": "extracted"
+      }
+    ],
+    "entities": [
+      {
+        "name": "小红书"
+      },
+      {
+        "name": "Salomon"
+      },
+      {
+        "name": "德训鞋"
+      },
+      {
+        "name": "溯溪鞋"
+      },
+      {
+        "name": "编织包"
+      },
+      {
+        "name": "高腰"
+      },
+      {
+        "name": "运动长裤"
+      }
+    ],
+    "concepts": [
+      {
+        "name": "服饰潮流行业闭环营销"
+      },
+      {
+        "name": "618电商大促"
+      },
+      {
+        "name": "KFS营销模型"
+      },
+      {
+        "name": "夏日少女感"
+      },
+      {
+        "name": "户外山系风"
+      },
+      {
+        "name": "海岛度假风"
+      },
+      {
+        "name": "单笔记多商品"
+      },
+      {
+        "name": "直播快投"
+      },
+      {
+        "name": "一键起量"
+      },
+      {
+        "name": "广告主素材不可见"
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "小红书",
+        "kind": "entity",
+        "action": "update",
+        "reason": "新增2024年618服饰行业流量与订单量增长数据（+23%、+219%）、热门风格与品类搜索趋势（如溯溪鞋+170%、夏日少女感160w+）、及平台闭环功能（单笔记多商品、直播快投等），需补充至现有实体页。"
+      },
+      {
+        "title": "618电商大促",
+        "kind": "concept",
+        "action": "update",
+        "reason": "补充2024年小红书服饰行业618分阶段运营节奏与KFS配比外的具体趋势数据（搜索量、话题浏览量）及平台工具支持，强化‘分阶段运营’与‘工具赋能’维度。"
+      },
+      {
+        "title": "KFS营销模型",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新证据虽未直接给出KFS数值配比，但通过‘夏日少女感’‘户外山系风’等风格标签与‘海岛度假风’1.7亿浏览量，可反推内容（K）与搜索（S）在618前期种草阶段的强关联，需更新模型应用场景说明。"
+      },
+      {
+        "title": "服饰潮流行业闭环营销",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新增‘重点产品功能使用’表格证据，明确闭环四环节（选品、内容、直播、投流）中平台工具的具体实现方式（如单笔记多商品支撑‘内容→转化’、直播快投支撑‘直播→转化’），是核心增量。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-392859bb46027464f6f0",
+        "evidence_id": "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0004",
+        "caption": "一张信息图，左侧为挂脖连衣裙（+78%）、正肩T恤（+15%）、儿童防晒衣（+12%）、编织包（+173%）、瑜伽裤（+41%）；右侧为溯溪鞋（+170%）、手串（+46%）、凉感内衣（+141%）、徒步鞋（+108%），每项均带放大镜图标与橙色增长百分比。"
+      },
+      {
+        "asset_id": "asset-24b1bc358456dc775a4a",
+        "evidence_id": "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0006",
+        "caption": "一张风格趋势信息图：顶部‘夏日少女感’标签含气球图标与‘搜索量160w+’；中部‘户外山系风’标签含山形图标与‘搜索同比+78%’；底部‘#度假风 话题浏览 1.7亿’含相机图标；图中人物分别标注荷叶边短袖、蛋糕裙、德训鞋、吊带、防晒衣、瑜伽裤、徒步鞋、编织包、墨镜、吊带连衣裙。"
+      },
+      {
+        "asset_id": "asset-9e1c20e34a5848f92872",
+        "evidence_id": "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0007",
+        "caption": "一张手机屏幕截图，显示小红书App内一个短视频，画面为一双米色Salomon徒步鞋置于木盒上，视频标题含‘SALOMON萨洛蒙’字样，下方有用户评论与互动按钮。"
+      },
+      {
+        "asset_id": "asset-97ae5406d9c7ac8ec647",
+        "evidence_id": "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0008",
+        "caption": "一张手机屏幕截图，显示小红书App内一个短视频，画面为一位女性站在绿色背景前，视频顶部有‘SALOMON’品牌标识与‘看“萨”野’文字，下方有评论区与播放控制条。"
+      },
+      {
+        "asset_id": "asset-ba2853e78e385df6c52f",
+        "evidence_id": "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0029-b0001",
+        "caption": "一个浅绿色背景上的深绿色汉字‘高腰’，字体粗壮，无其他可见元素。"
+      },
+      {
+        "asset_id": "asset-b216774b6b263acf691c",
+        "evidence_id": "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0029-b0004",
+        "caption": "一个黄色盾形徽章，中央有白色数字‘1’，背景为浅绿色。"
+      },
+      {
+        "asset_id": "asset-50152edff98b45ffd230",
+        "evidence_id": "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0029-b0005",
+        "caption": "一位女性侧身弯腰自拍，身穿浅蓝色宽松运动长裤、白色上衣与蓝色棒球帽，背黑色双肩包，背景为斑驳水泥墙。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 10271,
+      "total_tokens": 12879,
+      "completion_tokens": 2608,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "image_tokens": 1292,
+        "text_tokens": 8979
+      },
+      "completion_tokens_details": {
+        "text_tokens": 2608
+      }
+    }
+  },
+  "batch_shas": [
+    "392859bb46027464f6f09326e8b3a95342a2d54912ac1862b24350b684678d17",
+    "24b1bc358456dc775a4a85239447a45956ad43d4705e24bfb51377182d695354",
+    "9e1c20e34a5848f92872c6484ad7e0eea7b75a0d078a61d4b9db40dbdebbce44",
+    "97ae5406d9c7ac8ec647142d1246a00b9a319ffca97c1aec037b20157849b526",
+    "ba2853e78e385df6c52f1b597b72e8b9cdd83c1bbee2b238da967e006bffdc5d",
+    "b216774b6b263acf691c4d92092861e7972f4d2e3ad9202cac78ea6dcf1b6da4",
+    "50152edff98b45ffd2303f4a45fde054f8a089160ff8e727ebb40d43a61f1b1c"
+  ]
+}

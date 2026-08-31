@@ -1,0 +1,28 @@
+{
+  "sha256": "6c93e5dce9e3bc53bddc4942fd19aff4cd49c4d89557e373789ba1ff258a4e32",
+  "ocr": {
+    "status": "ready",
+    "text": "| 确认时间 | 确认人 | 备注 |\n| --- | --- | --- |\n| 2015年3月 |  |  |\n| 2015年3月 |  |  |\n| 2015年3月 |  |  |\n| 2015年3月 |  |  |\n| 2015年3月 |  |  |\n|  |  |  |\n|  |  |  |",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "table_screenshot",
+    "primary_representation": "structured_table",
+    "run_caption": false,
+    "run_ocr": true,
+    "ocr_policy": "assistive",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对"
+  },
+  "generated_at": "2026-08-30T14:07:14.353394+00:00",
+  "caption": {
+    "status": "skipped",
+    "text": "",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对",
+    "model": "qwen3-vl-plus"
+  }
+}

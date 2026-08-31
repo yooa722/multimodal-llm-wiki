@@ -1,0 +1,961 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "厚叶卷瓣兰, 中国兰科一新记录种"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                90,
+                146,
+                643,
+                178
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "李建东 <sup>1</sup>, 王芳 <sup>1</sup>, 李剑武 <sup>2*</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                200,
+                410,
+                223
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(1. 西双版纳国家级自然保护区勐仑管护所，云南 勐仑 666303；2. 中国科学院西双版纳热带植物园标本与种质保存中心，云南 勐仑 666303)"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                227,
+                882,
+                242
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "摘要：报道了中国兰科(Orchidaceae)石豆兰属(Bulbophyllum)一新记录种：厚叶卷瓣兰(B. sacrophylloides Garay, Hamer &Siegerist)，并提供特征描述及彩色图片，凭证标本存放于中国科学院西双版纳热带植物园标本馆(HITBC)。厚叶卷瓣兰为附生或石生草本，生长于云南西双版纳勐仑镇的石灰岩地区林下岩石上和林中树干上。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                265,
+                907,
+                320
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "关键词：厚叶卷瓣兰；石豆兰属；兰科；新记录；中国 doi: 10.11926/jtsb.3914"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                322,
+                460,
+                357
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Bulbophyllum sarcophylloides, A New Record of Orchidaceae from China"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                87,
+                379,
+                878,
+                400
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "LI Jian-dong<sup>1</sup>, WANG Fan<sup>1</sup>, LI Jian-wu<sup>2*</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                416,
+                431,
+                435
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(1. Menglun Station of Xishuangbanna National Nature Reserve, Menglun 666303, Yunnan, China; 2. Specimens and Germplasm Conservation Center, Center of Integrative Conservation, Xishuangbanna Tropical Botanical Garden, Chinese Academy of Sciences, Menglun 666303, Yunnan, China)"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                438,
+                907,
+                472
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract: Bulbophyllum sarcophylloides Garay, Hamer & Siegerist, a newly recorded species of Orchidaceae from China is reported. Charactristic description and color photos are provided. The voucher specimens are deposited in Herbarium of Xishuangbanna Tropical Botanical Garden, Chinese Academy of Sciences (HITBC). This species is epiphytic on tree trunk or lithophytic under limestone forest, distributed in Menglun town, Xishuangbanna Dai Autonomous Prefecture, Yunnan Province."
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                495,
+                907,
+                587
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Key words: Bulbophyllum sarcophylloides; Bulbophyllum; Orchidaceae; New record; China"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                591,
+                752,
+                608
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "兰 科 (Orchidaceae)是 包含 了 约 800 属超 过25 000余种的大科，兰科植物为世界广布，除了南极洲之外几乎都有分布，以热带和亚热带较为集中。中国分布约有 1 600 种，传统分类把其分为 5个亚科，即拟兰亚科(Apostasioideae)、杓兰亚科(Cypripedioideae)、兰亚科(Orchidoideae)、香荚兰亚科(Vanilloideae)和树兰亚科(Epidendroideae) <sup>[1]</sup>。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                629,
+                484,
+                761
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "石豆兰属(Bulbophyllum)是兰科最大的属之一<sup>[2]</sup>,近期研究把栖林兰属 (Drymoda)、短瓣兰属(Monomeria)、三角兰属(Trias)和大苞兰属(Sunipia)等归并入石豆兰属<sup>[3]</sup>，使其种类数量超过 2 200 余种<sup>[4]</sup>，中国分布大约 150 种<sup>[5–7]</sup>，其中 40 种被列为濒危物种<sup>[8]</sup>。石豆兰属广泛分布于热带及亚热带非洲、马达加斯加群岛、亚洲、澳大利亚、新西兰和西南部的大西洋群岛至南部及中部的美洲，多为附生草本，通常具有假鳞茎(少数种类假鳞茎极度退化)而着生于匍匐生长的根状茎上，叶 1~2枚顶生，花序侧生于假鳞茎基部或根状茎的节上，具肉质唇瓣附着于明显的蕊柱足上而得以区别于其他属<sup>[9]</sup>。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                763,
+                485,
+                858
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                510,
+                627,
+                909,
+                760
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "在对西双版纳自然保护区勐仑子保护区石灰山片区进行巡护的过程中，我们在勐腊县勐仑镇勐醒村附近的石灰岩地区发现一种假鳞茎不甚明显的匍匐生长的附生于树干上和附着于岩石表面的兰科植物，具有卵圆形的叶片，1~2 朵花的花序。"
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                763,
+                909,
+                858
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "热带亚热带植物学报 2018, 26(5): 538 ~ 540 Journal of Tropical and Subtropical Botany"
+                    }
+                ]
+            },
+            "bbox": [
+                89,
+                67,
+                386,
+                94
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "收稿日期: 2018-03-27"
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                881,
+                218,
+                894
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "接受日期: 2018-05-17"
+                    }
+                ]
+            },
+            "bbox": [
+                260,
+                881,
+                389,
+                894
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "基金项目：全国重点保护野生植物第二次普查项目(Y4HX021B01), 中国科学院一三五项目(2017XTBG-T03)资助 基金项目：全国重点保护野生植物第二次普查项目(Y4HX021B01)，中国科学院 五项日(2017X1BG -103)资印"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                893,
+                712,
+                907
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "This work was supported by the Projects for the Second Census of Key Protected Wild Plants of China (Grant No. Y4HX021B01), and the 135 Program of Chinese Academy of Sciences (Grant No. 2017XTBG-T03)."
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                901,
+                910,
+                928
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "作者简介：李建东，男，工程师，主要从事保护区巡护管理及资源监测工作。E-mail: 237283713@qq.com"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                927,
+                675,
+                939
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup></sup> 通信作者 Corresponding author. E-mail: ljw@xtbg.org.cn"
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                938,
+                410,
+                953
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "后经查证为中国石豆兰属一新记录种: Bulbophyllumsarcophylloides Garay, Hamer & Siegerist<sup>[10–11]</sup>，拟名为厚叶卷瓣兰，并予以报道。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                109,
+                484,
+                164
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "厚叶卷瓣兰(新拟) 图 1"
+                    }
+                ]
+            },
+            "bbox": [
+                124,
+                184,
+                326,
+                201
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Bulbophyllum sarcophylloides Garay, Hamer &"
+                    }
+                ]
+            },
+            "bbox": [
+                124,
+                204,
+                484,
+                221
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Siegerist in Nordic J. Bot. 14(6): 624. 1994."
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                109,
+                830,
+                124
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Cirrhopetalum sarcophyllum var. minor King & Pantl., Ann. Roy. Bot. Gard. (Calcutta) 8: 91. 1898. Type: India: Sikkim Himalaya. Independent Bootan, Sibchu. May 1894. Pantling, R. 95 (Holotype: K)."
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                129,
+                909,
+                221
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/1a1f69215c56a206973e007e99f6b8e4a6eb98d12b70e1d48c4f73ae999e90c7.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "图 1 厚叶卷瓣兰。A: 生境; B: 花侧面观，示蕊柱齿; C: 花背面观，示花苞片; D: 花正面观。"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Fig. 1 Bulbophyllum sarcophylloides. A: Habitat; B: Lateral view of flower, showing stelidia; C. Dorsal view of flower, showing floral bracts; D: Frontal view of flower."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                163,
+                242,
+                831,
+                642
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "附生或岩生草本，根状茎匍匐，具节，节间长约 1 cm，分枝少。根数条从假鳞茎基部或根状茎的节上发出。假鳞茎彼此相距1~5 cm, 近球形，小, 长2~3 mm，顶生 1 枚叶。叶片卵圆形，长 1.5~3.0 cm,宽 1.1~2.0 cm，先端钝且微凹，基部骤然收狭成长2~3 cm的柄，中脉在上面微凹，在下面不甚明显。花葶从假鳞茎基部侧面发出，长 6mm, 基部被2~3枚鞘所包，鞘膜质，筒状，长约 2.5 mm，宽约3 mm,先端尖，花序轴短，长约 1 mm，近伞状着生 1~3朵花。花萼片淡黄绿色具紫色斑点，外面密被短腺毛，花瓣淡黄色具紫色先端，唇瓣淡紫色具深紫色斑点；花苞片披针形，长2.5~3.5 mm，宽约1 mm，先端尖；花梗同子房长约 4 mm；中萼片卵形，长约 5.2 mm，宽约3.5 mm，先端尖，并具短尖头, 边缘稍呈啮蚀状，具 5脉；侧萼片卵状披针形，长约7 mm，宽 2.5 mm，先端渐尖，具 3脉，两侧萼片下侧边缘彼此粘合，上部边缘在中部以上稍扭转而彼此靠合而形成 1 个兜状的合萼片；花瓣镰状披针形，长约 3.5 mm，宽约 1.8 mm，先端尖，并具短尖头，具 1 脉；唇瓣肉质，舌状，长约 3.2 mm，宽约 1.2 mm，先端钝，具1 脉，中部以上向外下弯, 基部以不动关节与蕊柱足末端连接；蕊柱长约 2mm,蕊柱足长约 2mm，蕊柱翅半卵形，高约 0.6mm, 蕊柱齿三角形，先端长尾状，长约1.6 mm，蕊帽半圆形，花粉块 4，2对。"
+                    }
+                ]
+            },
+            "bbox": [
+                87,
+                723,
+                485,
+                934
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                510,
+                724,
+                910,
+                934
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "第 5 期"
+                    }
+                ]
+            },
+            "bbox": [
+                90,
+                69,
+                141,
+                82
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "李建东等: 厚叶卷瓣兰, 中国兰科一新记录种"
+                    }
+                ]
+            },
+            "bbox": [
+                373,
+                67,
+                658,
+                82
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "539"
+                    }
+                ]
+            },
+            "bbox": [
+                878,
+                70,
+                905,
+                81
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                89,
+                109,
+                484,
+                163
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "分布：中国(新记录)；印度及不丹。"
+                    }
+                ]
+            },
+            "bbox": [
+                124,
+                167,
+                400,
+                181
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "引证标本：云南省西双版纳州勐腊县勐仑镇勐醒村，生长在石灰岩地区林中树上或林下岩石上, 海拔 900 m，2017 年 3 月 4 日，李剑武 4591，HITBC！。"
+                    }
+                ]
+            },
+            "bbox": [
+                89,
+                186,
+                482,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "致谢 感谢香港大学的胡爱群博士及云南省普洱市林业局的叶德平高级工程师给予物种鉴定，中国科学院西双版纳热带植物园艾崇蕊老师提供参考文献。"
+                    }
+                ]
+            },
+            "bbox": [
+                89,
+                282,
+                484,
+                336
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "参考文献"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                90,
+                358,
+                168,
+                374
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[1] CHEN S C，VERMEULEN J J. Bulbophyllum Thou. [M]// WU Z Y, RAVEN P H, HONG D Y. Flora of China, Vol. 25. Beijing: Science Press & St. Louis: Missouri Botanical Garden Press, 2009: 404–440."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                380,
+                482,
+                431
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[2] LI J W, YIN J T, JIN X H. Bulbophyllum menglaense (Orchidaceae), a new species from Yunnan, China [J]. Phytotaxa, 2017, 311(1): 97–100. doi: 10.11646/phytotaxa.311.1.10"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                437,
+                482,
+                488
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[3] VERMEULEN J J, SCHUITEMAN A, de VOGEL E F. Nomenclatura changes in Bulbophyllum (Orchidaceae; Epidendroideae) [J]. Phytotaxa, 2014, 166(2): 101–113. doi: 10.11646/phytotaxa.166.2.1"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                495,
+                482,
+                546
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[4] LIU Q, ZHOU S S, LI R, ZHANG M X, et al. Bulbophyllum putaoensis (Orchidaceae; Epidendroideae; Malaxideae), a new species from Kachin State, Myanmar [J]. Phytotaxa, 2017, 305(1): 57–60. doi:"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                553,
+                482,
+                603
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "10.11646/phytotaxa.305.1.9"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                539,
+                111,
+                685,
+                123
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[5] WANG J Y, LIU Z J, WU X Y, et al. Bulbophyllum lipingtaoi, a new orchid species from China: Evidence from morphological and DNA analyses [J]. Phytotaxa, 2017, 295(3): 218–226. doi: 10.11646/phyto taxa.295.3.2"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                515,
+                130,
+                905,
+                200
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[6] ZHAI J W, CHEN X P, CHEN Y Q, et al. Bulbophyllum yingjiangense, a new species from Yunnan, China: Morphological and molecular evidence (Orchidaceae; Epidendroideae) [J]. Phytotaxa, 2017, 298(1): 77–82. doi: 10.11646/phytotaxa.298.1.8"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                515,
+                207,
+                905,
+                276
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[7] LI M H, YUAN X Y, LIU D K, et al. Bulbophyllum yunxiaoense sp. nov. (Orchidaceae: Epidendroideae: Malaxideae) from Fujian, China: Morphological and molecular analyses [J]. Phytotaxa, 2017, 332(1): 59–66. doi:10.11646/phytotaxa.332.1.6"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                284,
+                905,
+                353
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[8] MA C C, YE D P, YANG G P, et al. Bulbophyllum pinicola (Orchidaceae), a newly recorded species in China [J]. Guihaia, 2018, 38(3): 408–410. doi: 10.11931/guihaia.gxzw201702019"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                515,
+                361,
+                905,
+                410
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[9] HU A Q, YE D P, GALE S W, et al. Bulbophyllum jingdongense (Orchidaceae), a new species in the Cirrhopetalum alliance from south China and Laos [J]. Phytotaxa, 2017, 307(3): 199–204. doi: 10.11646/ phytotaxa.307.3.4"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                515,
+                419,
+                905,
+                488
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[10] GARAY L A, HAMER F, SIEGERIST E S. The genus Cirrhopetalum and the gernera of the Bulbophyllum alliance [J]. Nord J Bot, 1994, 14 (6): 609–646."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                515,
+                495,
+                905,
+                545
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[11] KUMAR P, GALE S W, PEDERSEN H A, et al. Additions to the orchid flora of Laos and taxonomic notes on orchids of the Indo-Burma region [J]. Taiwania, 2018, 63(1): 61–83. doi: 10.6165/tai.2018.63.61"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                515,
+                553,
+                905,
+                603
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "540"
+                    }
+                ]
+            },
+            "bbox": [
+                92,
+                71,
+                119,
+                81
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "热带亚热带植物学报"
+                    }
+                ]
+            },
+            "bbox": [
+                435,
+                69,
+                568,
+                82
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "第 26 卷"
+                    }
+                ]
+            },
+            "bbox": [
+                850,
+                69,
+                905,
+                81
+            ]
+        }
+    ]
+]

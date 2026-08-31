@@ -78,14 +78,16 @@ mmwiki/retrieval.py          # 页面导航和 Evidence 检索
 mmwiki/ocr.py                # Qwen3.5-OCR 图片文字提取
 mmwiki/visual_evidence.py    # OCR/Caption 子 Evidence 与父级原图映射
 mmwiki/contracts.py          # mmwiki-0.1 输入校验
-runtime/vault/               # Wiki 页面、索引和运行状态
-runtime/raw/                 # 不可变来源副本
-runtime/page-index.json      # 用户数据的页码、段落/区域和 bbox 派生索引
+<runtime-root>/vault/        # Wiki 页面、索引和运行状态
+<runtime-root>/raw/          # 不可变来源副本
+<runtime-root>/page-index.json # 用户数据的页码、段落/区域和 bbox 派生索引
 ```
+
+仓库当前可迁移快照的 `<runtime-root>` 是 `runtime/official-image-text/wiki-runtime/`，只包含已验收的 10 个来源；用户后续导入自己的数据时，仍沿用相同目录协议，不依赖这些演示来源。
 
 ## 4. 一次查询如何执行
 
-以 `/wiki-ask 请解释 Figure 4 的数据流` 为例：
+以 `/wiki-ask 请观察厚叶卷瓣兰第 2 页原图，说明四个分图及花色特征` 为例：
 
 1. `/wiki-ask` 的命令正文只有用户输入，因此对话气泡只展示自然语言问题，不展示工具名、模式或 Provider。
 2. 专用 `wiki-query-presenter` 在系统指令中固定调用 `wiki_query`，并以结构化参数传入完整问题、`mode=auto` 和 `provider=api`；不把问题拼成 Bash 命令。
@@ -121,18 +123,19 @@ sequenceDiagram
 
 ## 5. Wiki 构建工作流
 
-Skill 规定新 Source Package 按两个阶段构建，便于复用文本结果并计算多模态增量成本：
+用户文档先通过 MinerU 云入口转换为 Source Package；Skill 再规定 Source Package 按两个阶段构建，便于复用文本结果并计算多模态增量成本：
 
 ```mermaid
 %%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":38},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 flowchart LR
-    A["mmwiki-0.1 Source Package<br/>Item · Chunk · Asset · provenance"] --> B["01  校验与不可变归档<br/>Schema · 引用 · Path · SHA-256<br/>runtime/raw"]
+    M["用户文档<br/>PDF · Office · 图片"] -->|"MinerU 云解析"| A["mmwiki-0.1 Source Package<br/>Item · Chunk · Asset · provenance"]
+    A --> B["01  校验与不可变归档<br/>Schema · 引用 · Path · SHA-256<br/>runtime/raw"]
     B -->|"阶段一"| C["02  文本 Wiki 主干<br/>来源页 · 知识页 · WikiLink<br/>Page Index · 段落/区域"]
     C -->|"阶段二"| D["03  多模态增量<br/>完整表格 · 公式 · 原图<br/>Qwen3.5-OCR · Image Caption"]
     D --> E[("04  局部更新<br/>受影响页面 · 父级原图映射<br/>文本 / 视觉索引")]
     E --> F["Lint · Status · Maintenance"]
 
-    class A,B,F neutral
+    class M,A,B,F neutral
     class C core
     class D multimodal
     class E storage
@@ -156,6 +159,8 @@ flowchart LR
 - Source Package 和 `runtime/raw/` 中的来源副本不可修改。
 
 当前类型化工具主要覆盖演示、状态、已有 Wiki 导入和查询。新 Source Package 的完整两阶段构建仍按 [SKILL.md](SKILL.md) 中的 CLI 流程执行。
+
+MinerU 云入口是 `tools/mineru_cloud_parse.py`。它负责上传、轮询、下载、安全解压并生成 `mmwiki-0.1`，不改变 Wiki 核心与文档解析组之间的 Source Package 边界。
 
 ## 6. 命令与工具映射
 

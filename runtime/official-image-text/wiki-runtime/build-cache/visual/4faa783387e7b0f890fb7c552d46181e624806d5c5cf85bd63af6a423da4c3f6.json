@@ -1,0 +1,156 @@
+{
+  "sha256": "4faa783387e7b0f890fb7c552d46181e624806d5c5cf85bd63af6a423da4c3f6",
+  "ocr": {
+    "status": "skipped",
+    "text": "",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "natural_image",
+    "primary_representation": "vlm_caption",
+    "run_caption": true,
+    "run_ocr": false,
+    "ocr_policy": "on_demand",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力"
+  },
+  "generated_at": "2026-08-30T18:46:15.730219+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "四联图：A为植株附生于苔藓覆盖的石灰岩表面，叶片小而密集；B为花侧面观，可见绿色萼片带紫斑、紫色唇瓣及突出的三角形长尾蕊柱齿；C为花背面观，显示披针形花苞片包裹花梗基部；D为花正面观，唇瓣舌状、中央浅黄、边缘深紫斑点明显。",
+    "model": "qwen3-vl-plus"
+  },
+  "analysis": {
+    "summary": "新来源为《厚叶卷瓣兰, 中国兰科一新记录种》的图1，包含四幅高清照片（A-D），分别展示该物种的生境、花侧面观（示蕊柱齿）、花背面观（示花苞片）与花正面观；图像清晰呈现植株附生于石灰岩表面的生态特征及花朵紫斑黄绿相间的形态细节，与文本描述高度一致。",
+    "claims": [
+      {
+        "statement": "厚叶卷瓣兰为附生或岩生草本，生长于石灰岩表面，叶片小而卵圆形，密集贴生于根状茎节上。",
+        "evidence_refs": [
+          "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "厚叶卷瓣兰花萼片淡黄绿色具紫色斑点，花瓣淡黄色具紫色先端，唇瓣淡紫色具深紫色斑点，蕊柱齿三角形、先端长尾状。",
+        "evidence_refs": [
+          "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "图B中可见明显的蕊柱齿结构，呈三角形且具长尾状延伸，位于蕊柱顶端两侧。",
+        "evidence_refs": [
+          "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "图C中可见花苞片披针形，着生于花梗基部，包裹花序轴。",
+        "evidence_refs": [
+          "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "图D显示花正面观中唇瓣舌状、肉质，中央具浅黄色突起（疑似蕊柱顶端），边缘具深紫色斑点。",
+        "evidence_refs": [
+          "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "图A中植株根状茎匍匐于石灰岩表面，节间短，假鳞茎近球形、小，顶生单叶，符合‘附生或岩生’描述。",
+        "evidence_refs": [
+          "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+        ],
+        "provenance": "inferred"
+      }
+    ],
+    "entities": [
+      {
+        "name": "厚叶卷瓣兰"
+      },
+      {
+        "name": "石豆兰属"
+      },
+      {
+        "name": "Bulbophyllum sarcophylloides"
+      },
+      {
+        "name": "Cirrhopetalum sarcophyllum var. minor"
+      }
+    ],
+    "concepts": [
+      {
+        "name": "附生草本"
+      },
+      {
+        "name": "岩生草本"
+      },
+      {
+        "name": "假鳞茎"
+      },
+      {
+        "name": "蕊柱齿"
+      },
+      {
+        "name": "花苞片"
+      },
+      {
+        "name": "唇瓣"
+      },
+      {
+        "name": "生境"
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "厚叶卷瓣兰",
+        "kind": "entity",
+        "action": "update",
+        "reason": "新增图像证据（图1 A-D）直接支持并细化原页面中关于生境、花部形态与解剖结构的描述，属于同一实体的多模态补充，符合 update_eligible=true 条件。"
+      },
+      {
+        "title": "石豆兰属",
+        "kind": "concept",
+        "action": "update",
+        "reason": "图1中花部结构（如蕊柱齿、唇瓣形态）为石豆兰属典型鉴别特征，可强化该概念页中‘具有假鳞茎和肉质唇瓣’等描述的视觉依据；虽原页仅含文本证据，但新图像属同一来源且支持核心概念，应更新。"
+      },
+      {
+        "title": "兰科新记录种报道分析",
+        "kind": "analysis",
+        "action": "update",
+        "reason": "图1是该分析所依据的核心实证材料，其四视图构成鉴定依据的关键部分；原分析页未包含图像证据，现需补充以完善‘鉴定依据’子项。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-4faa783387e7b0f890fb",
+        "evidence_id": "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006",
+        "caption": "四联图：A为植株附生于苔藓覆盖的石灰岩表面，叶片小而密集；B为花侧面观，可见绿色萼片带紫斑、紫色唇瓣及突出的三角形长尾蕊柱齿；C为花背面观，显示披针形花苞片包裹花梗基部；D为花正面观，唇瓣舌状、中央浅黄、边缘深紫斑点明显。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 7845,
+      "total_tokens": 9116,
+      "completion_tokens": 1271,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "image_tokens": 1017,
+        "text_tokens": 6828
+      },
+      "completion_tokens_details": {
+        "text_tokens": 1271
+      }
+    }
+  },
+  "batch_shas": [
+    "4faa783387e7b0f890fb7c552d46181e624806d5c5cf85bd63af6a423da4c3f6"
+  ]
+}

@@ -27,6 +27,11 @@ def add_feature_flags(command: argparse.ArgumentParser) -> None:
 
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description="Multimodal Wiki Demo")
+    result.add_argument(
+        "--runtime-root",
+        type=Path,
+        help="使用独立 Runtime；必须放在子命令之前，例如 --runtime-root runtime/official ingest ...",
+    )
     commands = result.add_subparsers(dest="command", required=True)
 
     validate = commands.add_parser("validate", help="校验解析组 mmwiki-0.1 package")
@@ -46,6 +51,12 @@ def parser() -> argparse.ArgumentParser:
         "--full-scale",
         action="store_true",
         help="按页分析全部视觉资源后统一编译 Wiki（仅 api）",
+    )
+    ingest.add_argument(
+        "--visual-item-id",
+        action="append",
+        default=[],
+        help="multimodal 阶段只对指定 item 调用 OCR/VLM；全部多模态内容仍进入 Wiki",
     )
     add_feature_flags(ingest)
 
@@ -140,7 +151,7 @@ def output(value: object) -> None:
 def main() -> int:
     args = parser().parse_args()
     try:
-        pipeline = WikiPipeline(ROOT)
+        pipeline = WikiPipeline(ROOT, runtime_root=args.runtime_root)
         pipeline.configure_features(
             vlm=getattr(args, "vlm", None),
             vector_retrieval=getattr(args, "vector_retrieval", None),
@@ -155,6 +166,7 @@ def main() -> int:
                     args.force,
                     args.full_scale,
                     args.stage,
+                    set(args.visual_item_id) if args.visual_item_id else None,
                 )
             )
         elif args.command == "ingest-wiki":
@@ -210,7 +222,7 @@ def main() -> int:
         elif args.command == "migrate-index":
             output(pipeline.migrate_retrieval_index())
         elif args.command == "api":
-            serve(ROOT, args.host, args.port)
+            serve(ROOT, args.host, args.port, args.runtime_root)
         return 0
     except (ContractError, PipelineError, ProviderError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)

@@ -1,0 +1,1860 @@
+{
+  "nodes": [
+    {
+      "path": "wiki/sources/104页-ERP财务供应链解决方案.md",
+      "title": "104页-ERP财务供应链解决方案",
+      "kind": "source",
+      "inbound_links": 5
+    },
+    {
+      "path": "wiki/evidence/104页-ERP财务供应链解决方案-multimodal.md",
+      "title": "104页-ERP财务供应链解决方案 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/110页-供应链解决方案.md",
+      "title": "110页-供应链解决方案",
+      "kind": "source",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/evidence/110页-供应链解决方案-multimodal.md",
+      "title": "110页-供应链解决方案 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/20230507-小红书-服饰潮流行业-好产品赢战618.md",
+      "title": "20230507-小红书-服饰潮流行业：好产品赢战618",
+      "kind": "source",
+      "inbound_links": 5
+    },
+    {
+      "path": "wiki/evidence/20230507-小红书-服饰潮流行业-好产品赢战618-multimodal.md",
+      "title": "20230507-小红书-服饰潮流行业：好产品赢战618 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/2023年618厨卫刚需品类市场总结-烟-灶-热--12页.md",
+      "title": "2023年618厨卫刚需品类市场总结（烟、灶、热）-12页",
+      "kind": "source",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/evidence/2023年618厨卫刚需品类市场总结-烟-灶-热--12页-multimodal.md",
+      "title": "2023年618厨卫刚需品类市场总结（烟、灶、热）-12页 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/23年开年冰洗小结及五一-618预测-8页.md",
+      "title": "23年开年冰洗小结及五一、618预测-8页",
+      "kind": "source",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/evidence/23年开年冰洗小结及五一-618预测-8页-multimodal.md",
+      "title": "23年开年冰洗小结及五一、618预测-8页 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/3-类典型株型草本植物对沙面风蚀抑制作用的研究.md",
+      "title": "3 类典型株型草本植物对沙面风蚀抑制作用的研究",
+      "kind": "source",
+      "inbound_links": 5
+    },
+    {
+      "path": "wiki/evidence/3-类典型株型草本植物对沙面风蚀抑制作用的研究-multimodal.md",
+      "title": "3 类典型株型草本植物对沙面风蚀抑制作用的研究 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/618新生活购物趋势洞察报告-37页.md",
+      "title": "618新生活购物趋势洞察报告-37页",
+      "kind": "source",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/evidence/618新生活购物趋势洞察报告-37页-multimodal.md",
+      "title": "618新生活购物趋势洞察报告-37页 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/厚叶卷瓣兰_中国兰科一新记录种.md",
+      "title": "厚叶卷瓣兰_中国兰科一新记录种",
+      "kind": "source",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/evidence/厚叶卷瓣兰_中国兰科一新记录种-multimodal.md",
+      "title": "厚叶卷瓣兰_中国兰科一新记录种 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/服饰潮流行业-闭环全攻略.md",
+      "title": "【服饰潮流行业】闭环全攻略",
+      "kind": "source",
+      "inbound_links": 5
+    },
+    {
+      "path": "wiki/evidence/服饰潮流行业-闭环全攻略-multimodal.md",
+      "title": "【服饰潮流行业】闭环全攻略 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/sources/果集数据-抖音618好物节电商报告-62页.md",
+      "title": "果集数据-抖音618好物节电商报告-62页",
+      "kind": "source",
+      "inbound_links": 5
+    },
+    {
+      "path": "wiki/evidence/果集数据-抖音618好物节电商报告-62页-multimodal.md",
+      "title": "果集数据-抖音618好物节电商报告-62页 · 多模态证据地图",
+      "kind": "evidence-map",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/entities/厚叶卷瓣兰.md",
+      "title": "厚叶卷瓣兰",
+      "kind": "entity",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/concepts/石豆兰属.md",
+      "title": "石豆兰属",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/analyses/兰科新记录种报道分析.md",
+      "title": "兰科新记录种报道分析",
+      "kind": "analysis",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/entities/奥维云网.md",
+      "title": "奥维云网",
+      "kind": "entity",
+      "inbound_links": 3
+    },
+    {
+      "path": "wiki/concepts/冰洗市场.md",
+      "title": "冰洗市场",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/analyses/2023年冰洗市场趋势分析.md",
+      "title": "2023年冰洗市场趋势分析",
+      "kind": "analysis",
+      "inbound_links": 1
+    },
+    {
+      "path": "wiki/analyses/ERP财务供应链解决方案.md",
+      "title": "ERP财务供应链解决方案",
+      "kind": "analysis",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/concepts/信息分类编码原则.md",
+      "title": "信息分类编码原则",
+      "kind": "concept",
+      "inbound_links": 1
+    },
+    {
+      "path": "wiki/entities/磁材公司.md",
+      "title": "磁材公司",
+      "kind": "entity",
+      "inbound_links": 1
+    },
+    {
+      "path": "wiki/entities/进出口公司.md",
+      "title": "进出口公司",
+      "kind": "entity",
+      "inbound_links": 1
+    },
+    {
+      "path": "wiki/concepts/供应链数字化仓储平台.md",
+      "title": "供应链数字化仓储平台",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/concepts/电商与物流快递协同.md",
+      "title": "电商与物流快递协同",
+      "kind": "concept",
+      "inbound_links": 1
+    },
+    {
+      "path": "wiki/concepts/供应链解决方案安全体系.md",
+      "title": "供应链解决方案安全体系",
+      "kind": "concept",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/entities/小红书.md",
+      "title": "小红书",
+      "kind": "entity",
+      "inbound_links": 5
+    },
+    {
+      "path": "wiki/concepts/KFS营销模型.md",
+      "title": "KFS营销模型",
+      "kind": "concept",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/concepts/618电商大促.md",
+      "title": "618电商大促",
+      "kind": "concept",
+      "inbound_links": 9
+    },
+    {
+      "path": "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md",
+      "title": "2023年小红书服饰潮流行业618营销策略分析",
+      "kind": "analysis",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/concepts/植物株型.md",
+      "title": "植物株型",
+      "kind": "concept",
+      "inbound_links": 3
+    },
+    {
+      "path": "wiki/concepts/风蚀抑制效率.md",
+      "title": "风蚀抑制效率",
+      "kind": "concept",
+      "inbound_links": 3
+    },
+    {
+      "path": "wiki/concepts/空气动力学粗糙度.md",
+      "title": "空气动力学粗糙度",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md",
+      "title": "3类典型株型草本植物对沙面风蚀抑制作用的研究",
+      "kind": "analysis",
+      "inbound_links": 3
+    },
+    {
+      "path": "wiki/concepts/情绪经济.md",
+      "title": "情绪经济",
+      "kind": "concept",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/concepts/人感优先标准.md",
+      "title": "人感优先标准",
+      "kind": "concept",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/concepts/公园20分钟效应.md",
+      "title": "公园20分钟效应",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/concepts/职场淡人.md",
+      "title": "职场淡人",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/concepts/服饰潮流行业闭环营销.md",
+      "title": "服饰潮流行业闭环营销",
+      "kind": "concept",
+      "inbound_links": 4
+    },
+    {
+      "path": "wiki/analyses/小红书服饰品类趋势.md",
+      "title": "小红书服饰品类趋势",
+      "kind": "analysis",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md",
+      "title": "2023年厨卫刚需品类市场趋势分析",
+      "kind": "analysis",
+      "inbound_links": 3
+    },
+    {
+      "path": "wiki/concepts/形态升级.md",
+      "title": "形态升级",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/concepts/参数升级.md",
+      "title": "参数升级",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/analyses/2023年抖音618电商市场分析.md",
+      "title": "2023年抖音618电商市场分析",
+      "kind": "analysis",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/concepts/消费分级.md",
+      "title": "消费分级",
+      "kind": "concept",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/entities/抖音电商.md",
+      "title": "抖音电商",
+      "kind": "entity",
+      "inbound_links": 1
+    },
+    {
+      "path": "wiki/entities/海尔.md",
+      "title": "海尔",
+      "kind": "entity",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/entities/雅萌.md",
+      "title": "雅萌",
+      "kind": "entity",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/entities/蕉下.md",
+      "title": "蕉下",
+      "kind": "entity",
+      "inbound_links": 2
+    },
+    {
+      "path": "wiki/entities/麦富迪.md",
+      "title": "麦富迪",
+      "kind": "entity",
+      "inbound_links": 0
+    },
+    {
+      "path": "wiki/concepts/仪式感.md",
+      "title": "仪式感",
+      "kind": "concept",
+      "inbound_links": 2
+    }
+  ],
+  "edges": [
+    {
+      "source": "wiki/analyses/2023年冰洗市场趋势分析.md",
+      "target": "wiki/concepts/冰洗市场.md"
+    },
+    {
+      "source": "wiki/analyses/2023年冰洗市场趋势分析.md",
+      "target": "wiki/entities/奥维云网.md"
+    },
+    {
+      "source": "wiki/analyses/2023年冰洗市场趋势分析.md",
+      "target": "wiki/sources/23年开年冰洗小结及五一-618预测-8页.md"
+    },
+    {
+      "source": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md",
+      "target": "wiki/concepts/参数升级.md"
+    },
+    {
+      "source": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md",
+      "target": "wiki/concepts/形态升级.md"
+    },
+    {
+      "source": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md",
+      "target": "wiki/entities/奥维云网.md"
+    },
+    {
+      "source": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md",
+      "target": "wiki/sources/2023年618厨卫刚需品类市场总结-烟-灶-热--12页.md"
+    },
+    {
+      "source": "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md",
+      "target": "wiki/concepts/KFS营销模型.md"
+    },
+    {
+      "source": "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md",
+      "target": "wiki/entities/小红书.md"
+    },
+    {
+      "source": "wiki/analyses/2023年抖音618电商市场分析.md",
+      "target": "wiki/concepts/消费分级.md"
+    },
+    {
+      "source": "wiki/analyses/2023年抖音618电商市场分析.md",
+      "target": "wiki/entities/抖音电商.md"
+    },
+    {
+      "source": "wiki/analyses/2023年抖音618电商市场分析.md",
+      "target": "wiki/entities/海尔.md"
+    },
+    {
+      "source": "wiki/analyses/2023年抖音618电商市场分析.md",
+      "target": "wiki/entities/蕉下.md"
+    },
+    {
+      "source": "wiki/analyses/2023年抖音618电商市场分析.md",
+      "target": "wiki/entities/雅萌.md"
+    },
+    {
+      "source": "wiki/analyses/2023年抖音618电商市场分析.md",
+      "target": "wiki/sources/果集数据-抖音618好物节电商报告-62页.md"
+    },
+    {
+      "source": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md",
+      "target": "wiki/concepts/植物株型.md"
+    },
+    {
+      "source": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md",
+      "target": "wiki/concepts/空气动力学粗糙度.md"
+    },
+    {
+      "source": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md",
+      "target": "wiki/concepts/风蚀抑制效率.md"
+    },
+    {
+      "source": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md",
+      "target": "wiki/sources/3-类典型株型草本植物对沙面风蚀抑制作用的研究.md"
+    },
+    {
+      "source": "wiki/analyses/ERP财务供应链解决方案.md",
+      "target": "wiki/concepts/信息分类编码原则.md"
+    },
+    {
+      "source": "wiki/analyses/ERP财务供应链解决方案.md",
+      "target": "wiki/entities/磁材公司.md"
+    },
+    {
+      "source": "wiki/analyses/ERP财务供应链解决方案.md",
+      "target": "wiki/entities/进出口公司.md"
+    },
+    {
+      "source": "wiki/analyses/ERP财务供应链解决方案.md",
+      "target": "wiki/sources/104页-ERP财务供应链解决方案.md"
+    },
+    {
+      "source": "wiki/analyses/兰科新记录种报道分析.md",
+      "target": "wiki/concepts/石豆兰属.md"
+    },
+    {
+      "source": "wiki/analyses/兰科新记录种报道分析.md",
+      "target": "wiki/entities/厚叶卷瓣兰.md"
+    },
+    {
+      "source": "wiki/analyses/兰科新记录种报道分析.md",
+      "target": "wiki/sources/厚叶卷瓣兰_中国兰科一新记录种.md"
+    },
+    {
+      "source": "wiki/analyses/小红书服饰品类趋势.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/analyses/小红书服饰品类趋势.md",
+      "target": "wiki/concepts/服饰潮流行业闭环营销.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/concepts/KFS营销模型.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/concepts/人感优先标准.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/concepts/公园20分钟效应.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/concepts/情绪经济.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/concepts/服饰潮流行业闭环营销.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/concepts/职场淡人.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/entities/小红书.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/sources/20230507-小红书-服饰潮流行业-好产品赢战618.md"
+    },
+    {
+      "source": "wiki/concepts/618电商大促.md",
+      "target": "wiki/sources/服饰潮流行业-闭环全攻略.md"
+    },
+    {
+      "source": "wiki/concepts/KFS营销模型.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/concepts/KFS营销模型.md",
+      "target": "wiki/concepts/服饰潮流行业闭环营销.md"
+    },
+    {
+      "source": "wiki/concepts/KFS营销模型.md",
+      "target": "wiki/entities/小红书.md"
+    },
+    {
+      "source": "wiki/concepts/KFS营销模型.md",
+      "target": "wiki/sources/20230507-小红书-服饰潮流行业-好产品赢战618.md"
+    },
+    {
+      "source": "wiki/concepts/KFS营销模型.md",
+      "target": "wiki/sources/服饰潮流行业-闭环全攻略.md"
+    },
+    {
+      "source": "wiki/concepts/人感优先标准.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/concepts/人感优先标准.md",
+      "target": "wiki/concepts/仪式感.md"
+    },
+    {
+      "source": "wiki/concepts/人感优先标准.md",
+      "target": "wiki/concepts/情绪经济.md"
+    },
+    {
+      "source": "wiki/concepts/人感优先标准.md",
+      "target": "wiki/entities/小红书.md"
+    },
+    {
+      "source": "wiki/concepts/人感优先标准.md",
+      "target": "wiki/sources/618新生活购物趋势洞察报告-37页.md"
+    },
+    {
+      "source": "wiki/concepts/仪式感.md",
+      "target": "wiki/concepts/人感优先标准.md"
+    },
+    {
+      "source": "wiki/concepts/仪式感.md",
+      "target": "wiki/concepts/情绪经济.md"
+    },
+    {
+      "source": "wiki/concepts/仪式感.md",
+      "target": "wiki/sources/618新生活购物趋势洞察报告-37页.md"
+    },
+    {
+      "source": "wiki/concepts/供应链数字化仓储平台.md",
+      "target": "wiki/concepts/电商与物流快递协同.md"
+    },
+    {
+      "source": "wiki/concepts/供应链数字化仓储平台.md",
+      "target": "wiki/sources/110页-供应链解决方案.md"
+    },
+    {
+      "source": "wiki/concepts/供应链解决方案安全体系.md",
+      "target": "wiki/concepts/供应链数字化仓储平台.md"
+    },
+    {
+      "source": "wiki/concepts/供应链解决方案安全体系.md",
+      "target": "wiki/sources/110页-供应链解决方案.md"
+    },
+    {
+      "source": "wiki/concepts/信息分类编码原则.md",
+      "target": "wiki/sources/104页-ERP财务供应链解决方案.md"
+    },
+    {
+      "source": "wiki/concepts/公园20分钟效应.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/concepts/公园20分钟效应.md",
+      "target": "wiki/concepts/情绪经济.md"
+    },
+    {
+      "source": "wiki/concepts/冰洗市场.md",
+      "target": "wiki/analyses/2023年冰洗市场趋势分析.md"
+    },
+    {
+      "source": "wiki/concepts/冰洗市场.md",
+      "target": "wiki/entities/奥维云网.md"
+    },
+    {
+      "source": "wiki/concepts/冰洗市场.md",
+      "target": "wiki/sources/23年开年冰洗小结及五一-618预测-8页.md"
+    },
+    {
+      "source": "wiki/concepts/参数升级.md",
+      "target": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md"
+    },
+    {
+      "source": "wiki/concepts/参数升级.md",
+      "target": "wiki/concepts/形态升级.md"
+    },
+    {
+      "source": "wiki/concepts/参数升级.md",
+      "target": "wiki/sources/2023年618厨卫刚需品类市场总结-烟-灶-热--12页.md"
+    },
+    {
+      "source": "wiki/concepts/形态升级.md",
+      "target": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md"
+    },
+    {
+      "source": "wiki/concepts/形态升级.md",
+      "target": "wiki/concepts/参数升级.md"
+    },
+    {
+      "source": "wiki/concepts/形态升级.md",
+      "target": "wiki/sources/2023年618厨卫刚需品类市场总结-烟-灶-热--12页.md"
+    },
+    {
+      "source": "wiki/concepts/情绪经济.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/concepts/情绪经济.md",
+      "target": "wiki/concepts/人感优先标准.md"
+    },
+    {
+      "source": "wiki/concepts/情绪经济.md",
+      "target": "wiki/concepts/仪式感.md"
+    },
+    {
+      "source": "wiki/concepts/情绪经济.md",
+      "target": "wiki/sources/618新生活购物趋势洞察报告-37页.md"
+    },
+    {
+      "source": "wiki/concepts/服饰潮流行业闭环营销.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/concepts/服饰潮流行业闭环营销.md",
+      "target": "wiki/concepts/KFS营销模型.md"
+    },
+    {
+      "source": "wiki/concepts/服饰潮流行业闭环营销.md",
+      "target": "wiki/entities/小红书.md"
+    },
+    {
+      "source": "wiki/concepts/服饰潮流行业闭环营销.md",
+      "target": "wiki/sources/20230507-小红书-服饰潮流行业-好产品赢战618.md"
+    },
+    {
+      "source": "wiki/concepts/服饰潮流行业闭环营销.md",
+      "target": "wiki/sources/服饰潮流行业-闭环全攻略.md"
+    },
+    {
+      "source": "wiki/concepts/植物株型.md",
+      "target": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md"
+    },
+    {
+      "source": "wiki/concepts/植物株型.md",
+      "target": "wiki/concepts/空气动力学粗糙度.md"
+    },
+    {
+      "source": "wiki/concepts/植物株型.md",
+      "target": "wiki/concepts/风蚀抑制效率.md"
+    },
+    {
+      "source": "wiki/concepts/植物株型.md",
+      "target": "wiki/sources/3-类典型株型草本植物对沙面风蚀抑制作用的研究.md"
+    },
+    {
+      "source": "wiki/concepts/消费分级.md",
+      "target": "wiki/entities/海尔.md"
+    },
+    {
+      "source": "wiki/concepts/消费分级.md",
+      "target": "wiki/entities/蕉下.md"
+    },
+    {
+      "source": "wiki/concepts/消费分级.md",
+      "target": "wiki/entities/雅萌.md"
+    },
+    {
+      "source": "wiki/concepts/电商与物流快递协同.md",
+      "target": "wiki/concepts/供应链数字化仓储平台.md"
+    },
+    {
+      "source": "wiki/concepts/电商与物流快递协同.md",
+      "target": "wiki/sources/110页-供应链解决方案.md"
+    },
+    {
+      "source": "wiki/concepts/石豆兰属.md",
+      "target": "wiki/entities/厚叶卷瓣兰.md"
+    },
+    {
+      "source": "wiki/concepts/石豆兰属.md",
+      "target": "wiki/sources/厚叶卷瓣兰_中国兰科一新记录种.md"
+    },
+    {
+      "source": "wiki/concepts/空气动力学粗糙度.md",
+      "target": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md"
+    },
+    {
+      "source": "wiki/concepts/空气动力学粗糙度.md",
+      "target": "wiki/concepts/植物株型.md"
+    },
+    {
+      "source": "wiki/concepts/空气动力学粗糙度.md",
+      "target": "wiki/concepts/风蚀抑制效率.md"
+    },
+    {
+      "source": "wiki/concepts/空气动力学粗糙度.md",
+      "target": "wiki/sources/3-类典型株型草本植物对沙面风蚀抑制作用的研究.md"
+    },
+    {
+      "source": "wiki/concepts/职场淡人.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/concepts/风蚀抑制效率.md",
+      "target": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md"
+    },
+    {
+      "source": "wiki/concepts/风蚀抑制效率.md",
+      "target": "wiki/concepts/植物株型.md"
+    },
+    {
+      "source": "wiki/concepts/风蚀抑制效率.md",
+      "target": "wiki/sources/3-类典型株型草本植物对沙面风蚀抑制作用的研究.md"
+    },
+    {
+      "source": "wiki/entities/厚叶卷瓣兰.md",
+      "target": "wiki/concepts/石豆兰属.md"
+    },
+    {
+      "source": "wiki/entities/厚叶卷瓣兰.md",
+      "target": "wiki/sources/厚叶卷瓣兰_中国兰科一新记录种.md"
+    },
+    {
+      "source": "wiki/entities/奥维云网.md",
+      "target": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md"
+    },
+    {
+      "source": "wiki/entities/奥维云网.md",
+      "target": "wiki/concepts/冰洗市场.md"
+    },
+    {
+      "source": "wiki/entities/奥维云网.md",
+      "target": "wiki/sources/23年开年冰洗小结及五一-618预测-8页.md"
+    },
+    {
+      "source": "wiki/entities/小红书.md",
+      "target": "wiki/concepts/618电商大促.md"
+    },
+    {
+      "source": "wiki/entities/小红书.md",
+      "target": "wiki/concepts/KFS营销模型.md"
+    },
+    {
+      "source": "wiki/entities/小红书.md",
+      "target": "wiki/concepts/人感优先标准.md"
+    },
+    {
+      "source": "wiki/entities/小红书.md",
+      "target": "wiki/concepts/公园20分钟效应.md"
+    },
+    {
+      "source": "wiki/entities/小红书.md",
+      "target": "wiki/concepts/服饰潮流行业闭环营销.md"
+    },
+    {
+      "source": "wiki/entities/小红书.md",
+      "target": "wiki/concepts/职场淡人.md"
+    },
+    {
+      "source": "wiki/entities/小红书.md",
+      "target": "wiki/sources/20230507-小红书-服饰潮流行业-好产品赢战618.md"
+    },
+    {
+      "source": "wiki/entities/小红书.md",
+      "target": "wiki/sources/服饰潮流行业-闭环全攻略.md"
+    },
+    {
+      "source": "wiki/entities/抖音电商.md",
+      "target": "wiki/concepts/消费分级.md"
+    },
+    {
+      "source": "wiki/entities/海尔.md",
+      "target": "wiki/sources/果集数据-抖音618好物节电商报告-62页.md"
+    },
+    {
+      "source": "wiki/entities/磁材公司.md",
+      "target": "wiki/sources/104页-ERP财务供应链解决方案.md"
+    },
+    {
+      "source": "wiki/entities/蕉下.md",
+      "target": "wiki/sources/果集数据-抖音618好物节电商报告-62页.md"
+    },
+    {
+      "source": "wiki/entities/进出口公司.md",
+      "target": "wiki/sources/104页-ERP财务供应链解决方案.md"
+    },
+    {
+      "source": "wiki/entities/雅萌.md",
+      "target": "wiki/sources/果集数据-抖音618好物节电商报告-62页.md"
+    },
+    {
+      "source": "wiki/evidence/104页-ERP财务供应链解决方案-multimodal.md",
+      "target": "wiki/sources/104页-ERP财务供应链解决方案.md"
+    },
+    {
+      "source": "wiki/evidence/110页-供应链解决方案-multimodal.md",
+      "target": "wiki/sources/110页-供应链解决方案.md"
+    },
+    {
+      "source": "wiki/evidence/20230507-小红书-服饰潮流行业-好产品赢战618-multimodal.md",
+      "target": "wiki/sources/20230507-小红书-服饰潮流行业-好产品赢战618.md"
+    },
+    {
+      "source": "wiki/evidence/2023年618厨卫刚需品类市场总结-烟-灶-热--12页-multimodal.md",
+      "target": "wiki/sources/2023年618厨卫刚需品类市场总结-烟-灶-热--12页.md"
+    },
+    {
+      "source": "wiki/evidence/23年开年冰洗小结及五一-618预测-8页-multimodal.md",
+      "target": "wiki/sources/23年开年冰洗小结及五一-618预测-8页.md"
+    },
+    {
+      "source": "wiki/evidence/3-类典型株型草本植物对沙面风蚀抑制作用的研究-multimodal.md",
+      "target": "wiki/sources/3-类典型株型草本植物对沙面风蚀抑制作用的研究.md"
+    },
+    {
+      "source": "wiki/evidence/618新生活购物趋势洞察报告-37页-multimodal.md",
+      "target": "wiki/sources/618新生活购物趋势洞察报告-37页.md"
+    },
+    {
+      "source": "wiki/evidence/厚叶卷瓣兰_中国兰科一新记录种-multimodal.md",
+      "target": "wiki/sources/厚叶卷瓣兰_中国兰科一新记录种.md"
+    },
+    {
+      "source": "wiki/evidence/服饰潮流行业-闭环全攻略-multimodal.md",
+      "target": "wiki/sources/服饰潮流行业-闭环全攻略.md"
+    },
+    {
+      "source": "wiki/evidence/果集数据-抖音618好物节电商报告-62页-multimodal.md",
+      "target": "wiki/sources/果集数据-抖音618好物节电商报告-62页.md"
+    }
+  ],
+  "stats": {
+    "nodes": 58,
+    "edges": 124,
+    "stable_pages": 38,
+    "orphan_stable_pages": 7,
+    "wanted_pages": 38,
+    "provenance_edges": 45
+  },
+  "provenance_edges": [
+    {
+      "page": "wiki/entities/厚叶卷瓣兰.md",
+      "source_id": "厚叶卷瓣兰_中国兰科一新记录种",
+      "evidence_ids": [
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0001-b0004",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0001",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0007",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0003-b0002",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0003-b0003",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0003-b0004",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+      ]
+    },
+    {
+      "page": "wiki/concepts/石豆兰属.md",
+      "source_id": "厚叶卷瓣兰_中国兰科一新记录种",
+      "evidence_ids": [
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0001-b0012",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0001-b0004",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+      ]
+    },
+    {
+      "page": "wiki/analyses/兰科新记录种报道分析.md",
+      "source_id": "厚叶卷瓣兰_中国兰科一新记录种",
+      "evidence_ids": [
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0001-b0011",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0001-b0014",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0001",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0003-b0002",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0003-b0004",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0001-b0004",
+        "厚叶卷瓣兰_中国兰科一新记录种@f375999282d8#item-p0002-b0006"
+      ]
+    },
+    {
+      "page": "wiki/entities/奥维云网.md",
+      "source_id": "23年开年冰洗小结及五一-618预测-8页",
+      "evidence_ids": [
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0001-b0003",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0008-b0003",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0008-b0002",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0008-b0004",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0008-b0005"
+      ]
+    },
+    {
+      "page": "wiki/entities/奥维云网.md",
+      "source_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页",
+      "evidence_ids": [
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0001-b0003",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0012-b0004"
+      ]
+    },
+    {
+      "page": "wiki/concepts/冰洗市场.md",
+      "source_id": "23年开年冰洗小结及五一-618预测-8页",
+      "evidence_ids": [
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0001-b0002",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0001-b0005",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0005-b0002",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0003-b0002",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0002",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0003",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0004"
+      ]
+    },
+    {
+      "page": "wiki/analyses/2023年冰洗市场趋势分析.md",
+      "source_id": "23年开年冰洗小结及五一-618预测-8页",
+      "evidence_ids": [
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0001-b0001",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0001-b0002",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0001",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0004",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0005",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0007",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0008",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0003-b0001",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0001",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0005-b0001",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0006-b0001",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0007-b0001",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0003",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0002-b0006",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0003-b0002",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0003-b0003",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0003-b0004",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0002",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0003",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0004-b0004",
+        "23年开年冰洗小结及五一-618预测-8页@4df2a4272bb5#item-p0005-b0002"
+      ]
+    },
+    {
+      "page": "wiki/analyses/ERP财务供应链解决方案.md",
+      "source_id": "104页-ERP财务供应链解决方案",
+      "evidence_ids": [
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0006-b0005",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0007-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0008-b0006",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0009-b0007",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0010-b0005",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0011-b0015",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0015-b0005",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0023-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0030-b0010",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0038-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0012-b0013",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0052-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0064-b0005",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0074-b0001",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0010-b0010",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0022-b0004",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0054-b0002",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0057-b0002",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0056-b0001",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0002-b0002",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0002-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0002-b0004"
+      ]
+    },
+    {
+      "page": "wiki/concepts/信息分类编码原则.md",
+      "source_id": "104页-ERP财务供应链解决方案",
+      "evidence_ids": [
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0008-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0008-b0006",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0008-b0007",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0008-b0008",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0008-b0009",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0008-b0010",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0008-b0011",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0009-b0001",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0010-b0010",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0056-b0001"
+      ]
+    },
+    {
+      "page": "wiki/entities/磁材公司.md",
+      "source_id": "104页-ERP财务供应链解决方案",
+      "evidence_ids": [
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0007-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0020-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0035-b0009"
+      ]
+    },
+    {
+      "page": "wiki/entities/进出口公司.md",
+      "source_id": "104页-ERP财务供应链解决方案",
+      "evidence_ids": [
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0007-b0003",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0022-b0004",
+        "104页-ERP财务供应链解决方案@386617a95792#item-p0023-b0003"
+      ]
+    },
+    {
+      "page": "wiki/concepts/供应链数字化仓储平台.md",
+      "source_id": "110页-供应链解决方案",
+      "evidence_ids": [
+        "110页-供应链解决方案@2131a4bf9628#item-p0006-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0010-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0011-b0002",
+        "110页-供应链解决方案@2131a4bf9628#item-p0011-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0011-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0012-b0001",
+        "110页-供应链解决方案@2131a4bf9628#item-p0012-b0002",
+        "110页-供应链解决方案@2131a4bf9628#item-p0012-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0012-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0014-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0014-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0015-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0039-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0040-b0010",
+        "110页-供应链解决方案@2131a4bf9628#item-p0041-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0042-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0006-b0010",
+        "110页-供应链解决方案@2131a4bf9628#item-p0007-b0002",
+        "110页-供应链解决方案@2131a4bf9628#item-p0007-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0008-b0002",
+        "110页-供应链解决方案@2131a4bf9628#item-p0008-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0009-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0009-b0008",
+        "110页-供应链解决方案@2131a4bf9628#item-p0010-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+      ]
+    },
+    {
+      "page": "wiki/concepts/电商与物流快递协同.md",
+      "source_id": "110页-供应链解决方案",
+      "evidence_ids": [
+        "110页-供应链解决方案@2131a4bf9628#item-p0010-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0014-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0014-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0015-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0015-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0043-b0007",
+        "110页-供应链解决方案@2131a4bf9628#item-p0044-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0046-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+      ]
+    },
+    {
+      "page": "wiki/concepts/供应链解决方案安全体系.md",
+      "source_id": "110页-供应链解决方案",
+      "evidence_ids": [
+        "110页-供应链解决方案@2131a4bf9628#item-p0054-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0054-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0054-b0007",
+        "110页-供应链解决方案@2131a4bf9628#item-p0056-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0056-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0056-b0006",
+        "110页-供应链解决方案@2131a4bf9628#item-p0056-b0007",
+        "110页-供应链解决方案@2131a4bf9628#item-p0057-b0002",
+        "110页-供应链解决方案@2131a4bf9628#item-p0057-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0057-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0057-b0007",
+        "110页-供应链解决方案@2131a4bf9628#item-p0061-b0002",
+        "110页-供应链解决方案@2131a4bf9628#item-p0061-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0061-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0061-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0061-b0008",
+        "110页-供应链解决方案@2131a4bf9628#item-p0061-b0009",
+        "110页-供应链解决方案@2131a4bf9628#item-p0062-b0001",
+        "110页-供应链解决方案@2131a4bf9628#item-p0062-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0062-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0063-b0007",
+        "110页-供应链解决方案@2131a4bf9628#item-p0064-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0065-b0008",
+        "110页-供应链解决方案@2131a4bf9628#item-p0066-b0003",
+        "110页-供应链解决方案@2131a4bf9628#item-p0066-b0005",
+        "110页-供应链解决方案@2131a4bf9628#item-p0067-b0001",
+        "110页-供应链解决方案@2131a4bf9628#item-p0067-b0004",
+        "110页-供应链解决方案@2131a4bf9628#item-p0067-b0007",
+        "110页-供应链解决方案@2131a4bf9628#item-p0068-b0002",
+        "110页-供应链解决方案@2131a4bf9628#item-p0068-b0008",
+        "110页-供应链解决方案@2131a4bf9628#item-p0011-b0003"
+      ]
+    },
+    {
+      "page": "wiki/entities/小红书.md",
+      "source_id": "20230507-小红书-服饰潮流行业-好产品赢战618",
+      "evidence_ids": [
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0003-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0003-b0002",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0003-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0004-b0002",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0004-b0015",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0004-b0016",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0005-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0005-b0007",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0008-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0020-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0038-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0006-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0005-b0006"
+      ]
+    },
+    {
+      "page": "wiki/entities/小红书.md",
+      "source_id": "618新生活购物趋势洞察报告-37页",
+      "evidence_ids": [
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0002-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0036-b0002",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0036-b0004"
+      ]
+    },
+    {
+      "page": "wiki/entities/小红书.md",
+      "source_id": "服饰潮流行业-闭环全攻略",
+      "evidence_ids": [
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0001-b0002",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0001-b0003",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0003",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0005",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0009-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0010-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0011-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0047-b0009",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0047-b0012",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0026",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0028",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0032",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0034",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0035",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0004",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0006",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0045-b0002"
+      ]
+    },
+    {
+      "page": "wiki/concepts/KFS营销模型.md",
+      "source_id": "20230507-小红书-服饰潮流行业-好产品赢战618",
+      "evidence_ids": [
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0020-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0020-b0004",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0021-b0002",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0021-b0004",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0021-b0008",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0021-b0013",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0024-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0024-b0009",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0006-b0001"
+      ]
+    },
+    {
+      "page": "wiki/concepts/KFS营销模型.md",
+      "source_id": "服饰潮流行业-闭环全攻略",
+      "evidence_ids": [
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0012",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0020",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0023",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0035",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0019",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0006"
+      ]
+    },
+    {
+      "page": "wiki/concepts/618电商大促.md",
+      "source_id": "20230507-小红书-服饰潮流行业-好产品赢战618",
+      "evidence_ids": [
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0007-b0002",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0008-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0012-b0004",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0013-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0015-b0005",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0030-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0030-b0015",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0030-b0020",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0030-b0025",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0038-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0038-b0007",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0038-b0010",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0007"
+      ]
+    },
+    {
+      "page": "wiki/concepts/618电商大促.md",
+      "source_id": "618新生活购物趋势洞察报告-37页",
+      "evidence_ids": [
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0002-b0005",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0008",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0009",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0010",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0011",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0012",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0013",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0014",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0015",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0016",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0017",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0018",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0019",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0004-b0020",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0036",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0036-b0004"
+      ]
+    },
+    {
+      "page": "wiki/concepts/618电商大促.md",
+      "source_id": "服饰潮流行业-闭环全攻略",
+      "evidence_ids": [
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0003",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0005",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0009",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0011",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0012",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0016",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0018",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0019",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0020",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0022",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0023",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0032",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0034",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0035",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0004",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0004-b0006",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0045-b0002"
+      ]
+    },
+    {
+      "page": "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md",
+      "source_id": "20230507-小红书-服饰潮流行业-好产品赢战618",
+      "evidence_ids": [
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0003-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0004-b0002",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0005-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0005-b0007",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0020-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0030-b0001",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0012-b0004",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0011-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0026-b0003",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0038-b0003"
+      ]
+    },
+    {
+      "page": "wiki/concepts/植物株型.md",
+      "source_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究",
+      "evidence_ids": [
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0001-b0004",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0001-b0005",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0002-b0005",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0005-b0004",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0005-b0007",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0019",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0006",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0007"
+      ]
+    },
+    {
+      "page": "wiki/concepts/风蚀抑制效率.md",
+      "source_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究",
+      "evidence_ids": [
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0010",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0011",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0012",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0001-b0004",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0005",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0008",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0006",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0007"
+      ]
+    },
+    {
+      "page": "wiki/concepts/空气动力学粗糙度.md",
+      "source_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究",
+      "evidence_ids": [
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0004",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0005",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0016",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0001-b0004"
+      ]
+    },
+    {
+      "page": "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md",
+      "source_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究",
+      "evidence_ids": [
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0001-b0002",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0001-b0004",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0002-b0004",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0002-b0005",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0002-b0008",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0016",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0005",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0008",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0005-b0002",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0005-b0007",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0005-b0009",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0005",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0011",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0019",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0020",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0002",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0006",
+        "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0007"
+      ]
+    },
+    {
+      "page": "wiki/concepts/情绪经济.md",
+      "source_id": "618新生活购物趋势洞察报告-37页",
+      "evidence_ids": [
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0002-b0005",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0017",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0020",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0021",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0022",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0023",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0024",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0025",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0026",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0027",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0028",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0029",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+      ]
+    },
+    {
+      "page": "wiki/concepts/人感优先标准.md",
+      "source_id": "618新生活购物趋势洞察报告-37页",
+      "evidence_ids": [
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0006-b0036",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0004",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0005",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0006",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0008",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0011",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0014",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0015",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0007-b0016",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+      ]
+    },
+    {
+      "page": "wiki/concepts/公园20分钟效应.md",
+      "source_id": "618新生活购物趋势洞察报告-37页",
+      "evidence_ids": [
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0018-b0002",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0018-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0018-b0004",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0018-b0007",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0018-b0011",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0018-b0012",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0018-b0014",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0019-b0005",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0019-b0006",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0019-b0010",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0019-b0013",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0019-b0018",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0019-b0022",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0019-b0024"
+      ]
+    },
+    {
+      "page": "wiki/concepts/职场淡人.md",
+      "source_id": "618新生活购物趋势洞察报告-37页",
+      "evidence_ids": [
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0020-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0020-b0004",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0020-b0006",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0020-b0007",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0020-b0008",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0020-b0012",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0004",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0005",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0006",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0007",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0008",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0014",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0019",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0021-b0022"
+      ]
+    },
+    {
+      "page": "wiki/concepts/服饰潮流行业闭环营销.md",
+      "source_id": "服饰潮流行业-闭环全攻略",
+      "evidence_ids": [
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0033-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0033-b0002",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0033-b0003",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0033-b0004",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0034-b0002",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0035-b0002",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0035-b0003",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0036-b0002",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0036-b0003",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0037-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0037-b0008",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0037-b0009",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0037-b0012",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0038-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0038-b0008",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0038-b0010",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0038-b0012",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0008-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0008-b0009",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0009-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0009-b0007",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0010-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0010-b0007",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0010-b0008",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0011-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0011-b0010",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0011-b0030",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0040-b0025",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0041-b0004",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0041-b0010",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0041-b0013",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0042-b0004",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0042-b0010",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0042-b0015",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0012",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0007-b0020",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0044-b0008",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0044-b0009",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0044-b0011",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0044-b0012",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0044-b0013",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0045-b0002"
+      ]
+    },
+    {
+      "page": "wiki/concepts/服饰潮流行业闭环营销.md",
+      "source_id": "20230507-小红书-服饰潮流行业-好产品赢战618",
+      "evidence_ids": [
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0004",
+        "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0007"
+      ]
+    },
+    {
+      "page": "wiki/analyses/小红书服饰品类趋势.md",
+      "source_id": "服饰潮流行业-闭环全攻略",
+      "evidence_ids": [
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0016-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0017-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0019-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0021-b0003",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0021-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0021-b0006",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0023-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0025-b0002",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0025-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0027-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0027-b0014",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0029-b0002",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0031-b0001",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0044",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0049",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0054",
+        "服饰潮流行业-闭环全攻略@e471f79c739e#item-p0048-b0058"
+      ]
+    },
+    {
+      "page": "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md",
+      "source_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页",
+      "evidence_ids": [
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0002-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0003-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0004-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0005-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0006-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0007-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0010-b0002",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0011-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0006",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0011",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0002",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0003"
+      ]
+    },
+    {
+      "page": "wiki/concepts/形态升级.md",
+      "source_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页",
+      "evidence_ids": [
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0006-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0006-b0005",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0006",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0008-b0011",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0010-b0002"
+      ]
+    },
+    {
+      "page": "wiki/concepts/参数升级.md",
+      "source_id": "2023年618厨卫刚需品类市场总结-烟-灶-热--12页",
+      "evidence_ids": [
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0007-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0001",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0002",
+        "2023年618厨卫刚需品类市场总结-烟-灶-热--12页@d655322463bb#item-p0009-b0003"
+      ]
+    },
+    {
+      "page": "wiki/analyses/2023年抖音618电商市场分析.md",
+      "source_id": "果集数据-抖音618好物节电商报告-62页",
+      "evidence_ids": [
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0006-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0006-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0006-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0006-b0007",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0006-b0010",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0009-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0009-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0009-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0009-b0005",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0010-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0011-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0008-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0014-b0006",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0013-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0034-b0008",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0040-b0002",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0046-b0002",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0046-b0005"
+      ]
+    },
+    {
+      "page": "wiki/concepts/消费分级.md",
+      "source_id": "果集数据-抖音618好物节电商报告-62页",
+      "evidence_ids": [
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0001-b0002",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0008-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0014-b0006",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0017-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0026-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0033-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0038-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0043-b0003"
+      ]
+    },
+    {
+      "page": "wiki/entities/抖音电商.md",
+      "source_id": "果集数据-抖音618好物节电商报告-62页",
+      "evidence_ids": [
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0001-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0006-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0009-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0009-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0009-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0009-b0005",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0046-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0047-b0001"
+      ]
+    },
+    {
+      "page": "wiki/entities/海尔.md",
+      "source_id": "果集数据-抖音618好物节电商报告-62页",
+      "evidence_ids": [
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0033-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0034-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0034-b0006",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0034-b0007",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0034-b0005",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0035-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0035-b0002",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0036-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0037-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0037-b0010",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0037-b0012",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0037-b0005",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0037-b0018",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0034-b0008"
+      ]
+    },
+    {
+      "page": "wiki/entities/雅萌.md",
+      "source_id": "果集数据-抖音618好物节电商报告-62页",
+      "evidence_ids": [
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0038-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0039-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0039-b0009",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0039-b0008",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0040-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0040-b0002",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0041-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0041-b0006",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0041-b0009",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0018-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0041-b0002",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0041-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0041-b0007",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0039-b0014"
+      ]
+    },
+    {
+      "page": "wiki/entities/蕉下.md",
+      "source_id": "果集数据-抖音618好物节电商报告-62页",
+      "evidence_ids": [
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0043-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0044-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0044-b0006",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0044-b0007",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0044-b0005",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0046-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0047-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0045-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0027-b0005",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0046-b0002",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0046-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0046-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0046-b0005"
+      ]
+    },
+    {
+      "page": "wiki/entities/麦富迪.md",
+      "source_id": "果集数据-抖音618好物节电商报告-62页",
+      "evidence_ids": [
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0053-b0003",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0054-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0054-b0004",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0054-b0006",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0054-b0007",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0054-b0005",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0055-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0056-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0057-b0001",
+        "果集数据-抖音618好物节电商报告-62页@7204bf81d8da#item-p0030-b0002"
+      ]
+    },
+    {
+      "page": "wiki/concepts/仪式感.md",
+      "source_id": "618新生活购物趋势洞察报告-37页",
+      "evidence_ids": [
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+        "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+      ]
+    }
+  ],
+  "authority": {
+    "wiki/analyses/2023年冰洗市场趋势分析.md": 1,
+    "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md": 3,
+    "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md": 0,
+    "wiki/analyses/2023年抖音618电商市场分析.md": 0,
+    "wiki/analyses/3类典型株型草本植物对沙面风蚀抑制作用的研究.md": 3,
+    "wiki/analyses/ERP财务供应链解决方案.md": 0,
+    "wiki/analyses/兰科新记录种报道分析.md": 0,
+    "wiki/analyses/小红书服饰品类趋势.md": 0,
+    "wiki/concepts/618电商大促.md": 9,
+    "wiki/concepts/KFS营销模型.md": 4,
+    "wiki/concepts/人感优先标准.md": 4,
+    "wiki/concepts/仪式感.md": 2,
+    "wiki/concepts/供应链数字化仓储平台.md": 2,
+    "wiki/concepts/供应链解决方案安全体系.md": 0,
+    "wiki/concepts/信息分类编码原则.md": 1,
+    "wiki/concepts/公园20分钟效应.md": 2,
+    "wiki/concepts/冰洗市场.md": 2,
+    "wiki/concepts/参数升级.md": 2,
+    "wiki/concepts/形态升级.md": 2,
+    "wiki/concepts/情绪经济.md": 4,
+    "wiki/concepts/服饰潮流行业闭环营销.md": 4,
+    "wiki/concepts/植物株型.md": 3,
+    "wiki/concepts/消费分级.md": 2,
+    "wiki/concepts/电商与物流快递协同.md": 1,
+    "wiki/concepts/石豆兰属.md": 2,
+    "wiki/concepts/空气动力学粗糙度.md": 2,
+    "wiki/concepts/职场淡人.md": 2,
+    "wiki/concepts/风蚀抑制效率.md": 3,
+    "wiki/entities/厚叶卷瓣兰.md": 2,
+    "wiki/entities/奥维云网.md": 3,
+    "wiki/entities/小红书.md": 5,
+    "wiki/entities/抖音电商.md": 1,
+    "wiki/entities/海尔.md": 2,
+    "wiki/entities/磁材公司.md": 1,
+    "wiki/entities/蕉下.md": 2,
+    "wiki/entities/进出口公司.md": 1,
+    "wiki/entities/雅萌.md": 2,
+    "wiki/entities/麦富迪.md": 0,
+    "wiki/evidence/104页-ERP财务供应链解决方案-multimodal.md": 0,
+    "wiki/evidence/110页-供应链解决方案-multimodal.md": 0,
+    "wiki/evidence/20230507-小红书-服饰潮流行业-好产品赢战618-multimodal.md": 0,
+    "wiki/evidence/2023年618厨卫刚需品类市场总结-烟-灶-热--12页-multimodal.md": 0,
+    "wiki/evidence/23年开年冰洗小结及五一-618预测-8页-multimodal.md": 0,
+    "wiki/evidence/3-类典型株型草本植物对沙面风蚀抑制作用的研究-multimodal.md": 0,
+    "wiki/evidence/618新生活购物趋势洞察报告-37页-multimodal.md": 0,
+    "wiki/evidence/厚叶卷瓣兰_中国兰科一新记录种-multimodal.md": 0,
+    "wiki/evidence/服饰潮流行业-闭环全攻略-multimodal.md": 0,
+    "wiki/evidence/果集数据-抖音618好物节电商报告-62页-multimodal.md": 0,
+    "wiki/sources/104页-ERP财务供应链解决方案.md": 5,
+    "wiki/sources/110页-供应链解决方案.md": 4,
+    "wiki/sources/20230507-小红书-服饰潮流行业-好产品赢战618.md": 5,
+    "wiki/sources/2023年618厨卫刚需品类市场总结-烟-灶-热--12页.md": 4,
+    "wiki/sources/23年开年冰洗小结及五一-618预测-8页.md": 4,
+    "wiki/sources/3-类典型株型草本植物对沙面风蚀抑制作用的研究.md": 5,
+    "wiki/sources/618新生活购物趋势洞察报告-37页.md": 4,
+    "wiki/sources/厚叶卷瓣兰_中国兰科一新记录种.md": 4,
+    "wiki/sources/服饰潮流行业-闭环全攻略.md": 5,
+    "wiki/sources/果集数据-抖音618好物节电商报告-62页.md": 5
+  },
+  "orphans": [
+    "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md",
+    "wiki/analyses/2023年抖音618电商市场分析.md",
+    "wiki/analyses/ERP财务供应链解决方案.md",
+    "wiki/analyses/兰科新记录种报道分析.md",
+    "wiki/analyses/小红书服饰品类趋势.md",
+    "wiki/concepts/供应链解决方案安全体系.md",
+    "wiki/entities/麦富迪.md"
+  ],
+  "wanted_pages": {
+    "KOL带货合作": [
+      "wiki/entities/抖音电商.md",
+      "wiki/entities/雅萌.md"
+    ],
+    "KOL直播带货": [
+      "wiki/analyses/2023年抖音618电商市场分析.md"
+    ],
+    "信息与业务整合": [
+      "wiki/concepts/供应链数字化仓储平台.md"
+    ],
+    "克劳锐": [
+      "wiki/entities/小红书.md"
+    ],
+    "兰科": [
+      "wiki/analyses/兰科新记录种报道分析.md",
+      "wiki/concepts/石豆兰属.md",
+      "wiki/entities/厚叶卷瓣兰.md"
+    ],
+    "冷凝式燃气热水器": [
+      "wiki/concepts/参数升级.md"
+    ],
+    "华帝CXW-200-I11226": [
+      "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md",
+      "wiki/concepts/形态升级.md"
+    ],
+    "华帝JZT-I10091B": [
+      "wiki/analyses/2023年厨卫刚需品类市场趋势分析.md",
+      "wiki/concepts/形态升级.md"
+    ],
+    "可扩展性原则": [
+      "wiki/concepts/信息分类编码原则.md"
+    ],
+    "品牌自播矩阵": [
+      "wiki/analyses/2023年抖音618电商市场分析.md"
+    ],
+    "唯一性原则": [
+      "wiki/concepts/信息分类编码原则.md"
+    ],
+    "大容量产品": [
+      "wiki/analyses/2023年冰洗市场趋势分析.md",
+      "wiki/concepts/冰洗市场.md"
+    ],
+    "天猫": [
+      "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md",
+      "wiki/entities/小红书.md"
+    ],
+    "完整性原则": [
+      "wiki/concepts/信息分类编码原则.md"
+    ],
+    "平台接口标准": [
+      "wiki/concepts/供应链数字化仓储平台.md"
+    ],
+    "店播大事件": [
+      "wiki/concepts/服饰潮流行业闭环营销.md"
+    ],
+    "抖音": [
+      "wiki/entities/抖音电商.md"
+    ],
+    "搜索词预埋": [
+      "wiki/analyses/2023年抖音618电商市场分析.md"
+    ],
+    "易于统计分析管理原则": [
+      "wiki/concepts/信息分类编码原则.md"
+    ],
+    "易记性原则": [
+      "wiki/concepts/信息分类编码原则.md"
+    ],
+    "果集数据": [
+      "wiki/analyses/2023年抖音618电商市场分析.md"
+    ],
+    "沉浸式护肤": [
+      "wiki/concepts/仪式感.md"
+    ],
+    "环磁分厂": [
+      "wiki/entities/磁材公司.md"
+    ],
+    "白色家电产品": [
+      "wiki/analyses/2023年冰洗市场趋势分析.md",
+      "wiki/concepts/冰洗市场.md"
+    ],
+    "直运销售": [
+      "wiki/analyses/ERP财务供应链解决方案.md",
+      "wiki/entities/进出口公司.md"
+    ],
+    "社媒营销种草": [
+      "wiki/entities/麦富迪.md"
+    ],
+    "简单性原则": [
+      "wiki/concepts/信息分类编码原则.md"
+    ],
+    "纵深安全防御体系": [
+      "wiki/concepts/供应链解决方案安全体系.md"
+    ],
+    "统一服务提供": [
+      "wiki/concepts/供应链数字化仓储平台.md"
+    ],
+    "统一资源管理服务": [
+      "wiki/concepts/供应链数字化仓储平台.md",
+      "wiki/concepts/电商与物流快递协同.md"
+    ],
+    "自播阵地经营": [
+      "wiki/entities/抖音电商.md",
+      "wiki/entities/海尔.md"
+    ],
+    "蒲公英": [
+      "wiki/analyses/2023年小红书服饰潮流行业618营销策略分析.md",
+      "wiki/concepts/KFS营销模型.md"
+    ],
+    "薄嵌产品": [
+      "wiki/analyses/2023年冰洗市场趋势分析.md",
+      "wiki/concepts/冰洗市场.md"
+    ],
+    "调拨订单": [
+      "wiki/entities/磁材公司.md"
+    ],
+    "货架场域经营": [
+      "wiki/analyses/2023年抖音618电商市场分析.md",
+      "wiki/entities/蕉下.md"
+    ],
+    "超级单品": [
+      "wiki/concepts/服饰潮流行业闭环营销.md"
+    ],
+    "适应电脑管理原则": [
+      "wiki/concepts/信息分类编码原则.md"
+    ],
+    "高热效率燃气灶": [
+      "wiki/concepts/参数升级.md"
+    ]
+  },
+  "duplicate_titles": {}
+}

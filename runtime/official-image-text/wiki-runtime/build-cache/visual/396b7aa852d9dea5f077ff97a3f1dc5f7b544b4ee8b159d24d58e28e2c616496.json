@@ -1,0 +1,177 @@
+{
+  "sha256": "396b7aa852d9dea5f077ff97a3f1dc5f7b544b4ee8b159d24d58e28e2c616496",
+  "ocr": {
+    "status": "skipped",
+    "text": "",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "natural_image",
+    "primary_representation": "vlm_caption",
+    "run_caption": true,
+    "run_ocr": false,
+    "ocr_policy": "on_demand",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力"
+  },
+  "generated_at": "2026-08-31T02:14:52.516214+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "纯白背景上两个黑色四角星形闪光符号，一大一小，呈左上至右下排列；无其他文字或装饰元素。",
+    "model": "qwen3-vl-plus"
+  },
+  "batch_shas": [
+    "0d7f41d136614cddc11618315a1dbf84ca26981ee7a9db8d91d3825eb8b4e80a",
+    "fddc1de303fa27523baaa56dbb1e4769b2d9386bfc1ac19feb5d1ae3f844804d",
+    "396b7aa852d9dea5f077ff97a3f1dc5f7b544b4ee8b159d24d58e28e2c616496"
+  ],
+  "analysis": {
+    "summary": "新来源为《618新生活购物趋势洞察报告》第34页内容，聚焦‘新消费人感评选标准’下的空气循环扇场景，通过三张图像证据呈现情绪价值导向的消费语境：图1展示年轻女性日常穿搭与生活状态（含Nike球衣、头巾等视觉元素）；图2为花艺陈列场景，配文‘Romantic’及多组鲜花组合；图3为两个黑色星形闪光符号。文字线索强调‘Rua Rua自己，给情绪做套SPA’及多个高阅读量话题标签（如#沉浸式护肤 20亿+、#生活需要仪式感 17亿+、#仪式感不能少 4亿+），共同支撑‘人感优先’与‘情绪经济’概念在具体商品场景中的落地表现。",
+    "claims": [
+      {
+        "statement": "图像 evidence_id=618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001 展示了一位佩戴白色蕾丝头巾、身穿蓝色短款Nike足球衫与浅粉色裙装的年轻女性，倚靠玻璃门框，背景可见室内家居陈设。",
+        "evidence_refs": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "图像 evidence_id=618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003 展示了以橙色、粉色、黄色为主色调的多组鲜花陈列于台面与玻璃架上，背景墙面有手写体英文 'Romantic' 字样，左侧可见两瓶护肤品。",
+        "evidence_refs": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "图像 evidence_id=618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004 仅包含两个大小不一的黑色四角星形闪光符号，无其他文字或背景元素。",
+        "evidence_refs": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "三张图像共同服务于‘新消费人感评选标准 > 空气循环扇’这一章节，通过视觉叙事将‘情绪SPA’‘仪式感’等抽象概念具象化为生活方式场景。",
+        "evidence_refs": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+        ],
+        "provenance": "inferred"
+      },
+      {
+        "statement": "话题标签 #沉浸式护肤 20亿+阅读量、#生活需要仪式感 17亿+阅读量、#仪式感不能少 4亿+ 出现在图像 evidence_id=618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003 与 #item-p0034-b0004 的文本叠加层中，构成量化佐证。",
+        "evidence_refs": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+        ],
+        "provenance": "extracted"
+      }
+    ],
+    "entities": [
+      {
+        "name": "空气循环扇",
+        "type": "product",
+        "mentions": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+        ]
+      },
+      {
+        "name": "Nike",
+        "type": "brand",
+        "mentions": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001"
+        ]
+      }
+    ],
+    "concepts": [
+      {
+        "name": "人感优先标准",
+        "mentions": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+        ]
+      },
+      {
+        "name": "情绪经济",
+        "mentions": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+        ]
+      },
+      {
+        "name": "仪式感",
+        "mentions": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+        ]
+      },
+      {
+        "name": "沉浸式护肤",
+        "mentions": [
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+          "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004"
+        ]
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "人感优先标准",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新证据通过三张图像及其叠加文本（如‘Rua Rua自己，给情绪做套SPA’、高阅读量话题标签）强化了该概念在具体消费场景中的视觉化表达与实证支撑，符合 update_eligible=true 条件。"
+      },
+      {
+        "title": "情绪经济",
+        "kind": "concept",
+        "action": "update",
+        "reason": "图像证据将抽象‘情绪价值’转化为可感知的生活方式（穿搭、花艺、符号），补充了原页面仅依赖段落描述的局限，增强多模态可验证性，且该页 update_eligible=true。"
+      },
+      {
+        "title": "仪式感",
+        "kind": "concept",
+        "action": "create",
+        "reason": "虽在‘人感优先标准’和‘情绪经济’中被提及，但‘仪式感’作为独立高频标签（#生活需要仪式感 17亿+、#仪式感不能少 4亿+）及视觉主题（花艺陈列、Romantic字样），具备独立概念粒度；现有 Wiki 无专属页面，且证据明确指向其作为新消费核心要素的地位。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-0d7f41d136614cddc116",
+        "evidence_id": "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0001",
+        "caption": "一位年轻女性佩戴白色蕾丝头巾，身穿蓝色短款Nike足球衫（胸前有公鸡图案与Nike标志）和浅粉色裙装，倚靠玻璃门框站立；背景为室内环境，可见窗帘与家具轮廓。"
+      },
+      {
+        "asset_id": "asset-fddc1de303fa27523baa",
+        "evidence_id": "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0003",
+        "caption": "台面与玻璃架上陈列多组鲜花，包括橙色大丽花、粉色与黄色玫瑰簇；背景墙面有手写体英文 'Romantic'；左侧放置两瓶透明瓶身护肤品；整体为柔和灯光下的静物摄影。"
+      },
+      {
+        "asset_id": "asset-396b7aa852d9dea5f077",
+        "evidence_id": "618新生活购物趋势洞察报告-37页@e92cbcfca65e#item-p0034-b0004",
+        "caption": "纯白背景上两个黑色四角星形闪光符号，一大一小，呈左上至右下排列；无其他文字或装饰元素。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 6817,
+      "total_tokens": 9149,
+      "completion_tokens": 2332,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "image_tokens": 390,
+        "text_tokens": 6427
+      },
+      "completion_tokens_details": {
+        "text_tokens": 2332
+      }
+    }
+  }
+}

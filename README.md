@@ -2,13 +2,13 @@
 
 本仓库实现一套可构建、可检索、可追溯的多模态 LLM Wiki。系统以持久 Wiki 页面组织知识，以原始文字、完整表格、公式和图片作为事实证据，并通过 OpenCode 项目级 Skill 提供统一的构建检查和图文问答入口。
 
-项目不直接解析 PDF。上游文档解析模块需要先输出符合 `mmwiki-0.1` 的 Source Package；本仓库从该数据包开始完成 Wiki 构建、多模态增量表示、分级检索和带引用回答。
+Wiki 核心从符合 `mmwiki-0.1` 的 Source Package 开始工作，不修改上游解析事实。对于用户直接提供的 PDF、Office 文档或图片，仓库同时提供 MinerU 官方云解析入口：先取得版面、页码、段落、表格和图片结果，再转换为 Source Package，之后进入同一套 Wiki 构建、多模态增量、分级检索和带引用回答链路。
 
 ## 项目概览
 
 | 项目 | 当前实现 |
 |---|---|
-| 输入 | `mmwiki-0.1` Source Package：Item、Chunk、Asset 与 provenance |
+| 输入 | 用户文档经 MinerU 云解析，或直接提供 `mmwiki-0.1` Source Package |
 | 构建 | 先生成文本 Wiki 主干，再增量加入表格、公式、原图、OCR 和 Image Caption |
 | 存储 | Markdown Wiki 页面、不可变 Raw、副本资源、运行状态、文本/视觉索引 |
 | 查询 | 先定位 Wiki 页面，再回读 Chunk、Item、Asset 原始 Evidence |
@@ -39,15 +39,18 @@ python3 app.py lint
 /wiki-demo
 ```
 
-仓库内置了 5 份可复现 Source Package。首次从数据包构建 Wiki 的命令见[从 Source Package 构建 Wiki](#从-source-package-构建-wiki)。
+当前演示统一使用 `runtime/official-image-text/wiki-runtime/` 中的 10 个新数据来源，包含 38 个稳定知识页、4,473 条文本 Evidence 索引和 73 条视觉 Evidence 索引。活动 Runtime 由 `.env` 中的 `MMWIKI_RUNTIME_ROOT` 指定；OpenCode、CLI 和本地 HTTP 服务读取同一配置，不再默认回到原来的 5 来源样例库。新电脑操作见[新电脑 OpenCode 使用指南](OPENCODE_NEW_COMPUTER_GUIDE.md)。
 OpenCode 的类型化工具会按需自动启动本地展示服务；只有独立调用 HTTP API 时才需要手动运行 `python3 app.py api`。
+
+GitHub 当前直接发布经过清理的 10 来源 Runtime：包含对应的不可变 Source Package、Wiki 页面、原图、Page Index、OCR/VLM 构建缓存和检索索引；不包含原有 5 来源 Runtime、其他已解析来源、查询历史、批处理日志、原始 PDF、云解析下载目录或任何凭据。克隆仓库后只需配置个人 `.env` 与 OpenCode Provider，无需重新构建这 10 个来源。
 
 ## 总体技术路线
 
 ```mermaid
 %%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":28,"rankSpacing":42},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 flowchart LR
-    SRC["mmwiki-0.1<br/>Source Package"] -->|"构建"| BASE["文本 Wiki 主干<br/>页面 · WikiLink"]
+    DOC["用户文档<br/>PDF · Office · 图片"] -->|"MinerU 云解析"| SRC["mmwiki-0.1<br/>Source Package"]
+    SRC -->|"构建"| BASE["文本 Wiki 主干<br/>页面 · WikiLink"]
     BASE -->|"增量"| MM["多模态 Evidence<br/>表格 · 公式 · 原图 · OCR · Caption"]
     MM --> STORE[("Wiki 存储<br/>Markdown · Evidence · Page Index")]
     STORE --> PAGE
@@ -57,7 +60,7 @@ flowchart LR
     USER(["用户问题"]) --> OC["OpenCode<br/>Command · Skill · Tool"]
     OC --> PAGE
 
-    class SRC,USER neutral
+    class DOC,SRC,USER neutral
     class BASE,OC,PAGE core
     class MM,EVIDENCE multimodal
     class STORE storage
@@ -80,12 +83,13 @@ flowchart LR
 ```mermaid
 %%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":38},"themeVariables":{"fontFamily":"Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"}}}%%
 flowchart LR
-    A["Source Package<br/>Item · Chunk · Asset · provenance"] --> B["01  校验与归档<br/>Schema · 引用 · Path · SHA-256<br/>runtime/raw"]
+    M["MinerU 云解析入口<br/>文档 → 结构化解析结果"] --> A["Source Package<br/>Item · Chunk · Asset · provenance"]
+    A --> B["01  校验与归档<br/>Schema · 引用 · Path · SHA-256<br/>runtime/raw"]
     B -->|"阶段一"| C["02  文本 Wiki 主干<br/>来源页 · 知识页 · WikiLink<br/>页码 · 段落/区域 · bbox"]
     C -->|"阶段二"| D["03  多模态增量<br/>完整表格 · 公式 · 原图<br/>Qwen3.5-OCR · Image Caption"]
     D --> E[("04  局部发布<br/>更新受影响页面与索引<br/>复用未变化向量")]
 
-    class A,B neutral
+    class M,A,B neutral
     class C core
     class D multimodal
     class E storage
@@ -102,13 +106,15 @@ flowchart LR
 
 | 产物 | 位置 | 用途 |
 |---|---|---|
-| 不可变来源副本 | `runtime/raw/<source>/<version>/` | 保留可复现输入，不允许构建阶段修改 |
-| Wiki 页面 | `runtime/vault/wiki/` | 保存来源页、知识页、证据地图和 WikiLink |
-| 原始资源 | `runtime/vault/assets/` | 保存查询时回读的图片和视觉 Evidence |
-| 来源与派生 Evidence 状态 | `runtime/state.json` | 保存版本、Item/Chunk/Asset 和 `visual_evidence` |
-| Evidence Page Index | `runtime/page-index.json` | 由 Item 自动生成页码、段落/区域、bbox 和 MinerU 原始位置映射 |
-| OCR/VLM 构建缓存 | `runtime/build-cache/visual/` | 相同图片、模型和提示词版本不重复调用 |
-| 检索索引 | `runtime/retrieval-index.json` | 保存页面、文本 Evidence 和视觉 Evidence 向量 |
+| 不可变来源副本 | `<runtime-root>/raw/<source>/<version>/` | 保留可复现输入，不允许构建阶段修改 |
+| Wiki 页面 | `<runtime-root>/vault/wiki/` | 保存来源页、知识页、证据地图和 WikiLink |
+| 原始资源 | `<runtime-root>/vault/assets/` | 保存查询时回读的图片和视觉 Evidence |
+| 来源与派生 Evidence 状态 | `<runtime-root>/state.json` | 保存版本、Item/Chunk/Asset 和 `visual_evidence` |
+| Evidence Page Index | `<runtime-root>/page-index.json` | 由 Item 自动生成页码、段落/区域、bbox 和 MinerU 原始位置映射 |
+| OCR/VLM 构建缓存 | `<runtime-root>/build-cache/visual/` | 相同图片、模型和提示词版本不重复调用 |
+| 检索索引 | `<runtime-root>/retrieval-index.json` | 保存页面、文本 Evidence 和视觉 Evidence 向量 |
+
+当前 `<runtime-root>` 为 `runtime/official-image-text/wiki-runtime/`。查询历史、整理日志、编辑器工作区和凭据不属于可迁移知识内容。
 
 ## Wiki 查询流程
 
@@ -186,9 +192,10 @@ flowchart LR
 │   ├── agents/wiki-query-presenter.md # /wiki-ask 专用，用户气泡只保留问题
 │   ├── agents/wiki-presenter.md   # 其余演示命令的低温度工具 Agent
 │   ├── plugins/wiki-result-passthrough.ts # 最终 Markdown 确定性透传
-│   └── tools/wiki.ts              # 类型化 OpenCode 工具
+│   ├── tools/wiki.ts              # 类型化 OpenCode 工具
+│   └── package.json               # OpenCode 启动时自动安装的工具依赖
 ├── evaluation/                    # 检索与问答评测集
-├── data/source_packages/          # 可复现当前 Wiki 的 5 份 mmwiki-0.1 数据包
+├── runtime/official-image-text/   # 新数据解析结果、Source Package 与活动 Wiki Runtime
 ├── tools/                         # 演示、评测、迁移与增量基准工具
 ├── tests/                         # 核心回归测试
 ├── OPENCODE_START_HERE.md         # OpenCode 桌面版快速使用说明
@@ -197,7 +204,7 @@ flowchart LR
 └── .env.example                   # Wiki 管线模型配置模板
 ```
 
-`runtime/`、`reports/`、`docs/`、原始 PDF 和本机凭据不属于可提交的核心代码，默认不会进入 Git。仓库只保留经过标准化和安全审计的 Source Package，用于复现构建结果。
+原始 PDF、MinerU Token、API Key、查询日志和本机编辑器状态不进入 Git。发布可迁移版本时，仅纳入经过审计的 Source Package 与活动 Wiki Runtime，不携带凭据和中间下载缓存。
 
 ## 环境要求
 
@@ -229,14 +236,19 @@ MMWIKI_API_KEY=your-api-key
 
 MMWIKI_BUILD_MODEL=qwen3.7-plus
 MMWIKI_VISION_MODEL=qwen3-vl-plus
-MMWIKI_TEXT_EMBEDDING_MODEL=qwen3.7-text-embedding
+MMWIKI_TEXT_EMBEDDING_MODEL=text-embedding-v4
 MMWIKI_TEXT_RERANK_MODEL=qwen3-rerank
 MMWIKI_VL_EMBEDDING_MODEL=qwen3-vl-embedding
 MMWIKI_VL_RERANK_MODEL=qwen3-vl-rerank
+MMWIKI_EMBEDDING_DIMENSION=512
+MMWIKI_RETRIEVAL_API_RETRIES=5
+MMWIKI_TEXT_EMBEDDING_BATCH_SIZE=5
+MMWIKI_TEXT_EMBEDDING_WORKERS=3
 
-# 轻量增量多模态 Wiki 默认值：Caption-first，VLM/向量按需开启
-MMWIKI_ENABLE_VLM=false
-MMWIKI_ENABLE_VECTOR_RETRIEVAL=false
+# 当前新数据演示库已完成文本与视觉索引
+MMWIKI_ENABLE_VLM=true
+MMWIKI_ENABLE_VECTOR_RETRIEVAL=true
+MMWIKI_RUNTIME_ROOT=runtime/official-image-text/wiki-runtime
 
 # 图片证据派生信息（仅在 multimodal + --vlm on 时使用）
 MMWIKI_OCR_MODEL=qwen3.5-ocr
@@ -254,10 +266,12 @@ MMWIKI_VISION_BATCH_SIZE=8
 | OpenCode Agent | `qwen3-coder-plus` | 理解 Skill、选择工具并组织交互 |
 | 文本 Wiki 分析与编译 | `qwen3.7-plus` | 生成知识页、摘要和 WikiLink |
 | 多模态分析与问答 | `qwen3-vl-plus` | 读取图片、表格和关联文字 |
-| 页面/Evidence 文本向量 | `qwen3.7-text-embedding` | 语义定位 Wiki 页面和文本 Evidence |
+| 页面文本向量 | `text-embedding-v4`（512 维） | 语义定位 Wiki 页面；轻量模式不构建 Chunk 全量向量 |
 | 文本重排 | `qwen3-rerank` | 重排 Hybrid 候选 |
 | 视觉融合向量 | `qwen3-vl-embedding` | 建立图片与文本的联合表示 |
 | 多模态重排 | `qwen3-vl-rerank` | 重排需要视觉理解的候选 |
+
+默认采用页面级轻量索引：只对稳定 Wiki 页面、来源页和 Evidence 地图生成文本向量，向量写入本地 `runtime/retrieval-index.json`。原始 Chunk、表格和图片继续由本地 BM25、MinerU Caption 与 Evidence ID 定位，不默认生成全量向量。这样不需要部署 Milvus、Qdrant 或 Elasticsearch，也便于 OpenCode 项目随目录迁移。`qwen3-rerank`、`qwen3-vl-embedding` 和 `qwen3-vl-rerank` 保留为按需能力，不会在页面级轻量检索中自动调用。
 
 Qwen3.5-OCR 不替代现有视觉模型：OCR 负责提取图片中的文字和数字，视觉模型负责生成图片语义 Caption。两者只在构建阶段产生派生 Evidence，不会在查询时临时调用 OCR。
 
@@ -265,7 +279,7 @@ Qwen3.5-OCR 不替代现有视觉模型：OCR 负责提取图片中的文字和�
 
 ## 输入协议
 
-项目不直接解析 PDF，而是接收文档解析模块生成的 Source Package：
+项目的 Wiki 核心不直接解析 PDF，而是接收文档解析模块生成的 Source Package。推荐的完整入口是 **MinerU → `mmwiki-0.1` → Wiki**：MinerU 负责版面解析和事实提取，`mmwiki-0.1` 负责把不同 MinerU 产物规范成稳定的 Wiki 交接协议。
 
 ```text
 <package>/
@@ -291,6 +305,51 @@ Source Package 中的绝对路径、`../` 路径逃逸、悬空 Item/Asset 引�
 
 构建时会从每个 Item 的 `page_start`、`bbox`、`provenance.raw_ref` 和读取顺序自动生成 `runtime/page-index.json`。正文 Item 显示为“第 N 页 · 第 M 段”，图片、表格和公式显示为对应页面区域；没有页码的用户输入仍可进入 Wiki，但会在 `/wiki-check` 中明确列为不可精确定位，不会猜测页码。
 
+### MinerU 云解析入口
+
+本项目不要求在本机安装 MinerU 模型。用户提供 PDF、Office 文档或图片后，推荐通过 `tools/mineru_cloud_parse.py` 调用 MinerU 官方云服务。先在 `.env` 中配置个人 Token：
+
+```dotenv
+MINERU_API_BASE_URL=https://mineru.net/api/v4
+MINERU_API_TOKEN=<个人 Token>
+```
+
+然后执行：
+
+```bash
+python3 tools/mineru_cloud_parse.py \
+  /absolute/path/to/input.pdf \
+  --output-root /absolute/path/to/mineru-output \
+  --package-root /absolute/path/to/source-packages \
+  --model-version vlm
+```
+
+这一个入口会依次完成文件上传、任务轮询、解析 ZIP 下载、安全解压和 `mmwiki-0.1` Source Package 转换。原始文档会发送至 MinerU 云服务，敏感资料必须先取得外发授权。Token 只能保存在本机 `.env` 或进程环境变量中。
+
+如果已经持有 MinerU 的 `*_content_list_v2.json` 或传统 `*_content_list.json`，无需再次上传，直接转换：
+
+```bash
+python3 tools/mineru_to_package.py \
+  /absolute/path/to/mineru-output \
+  /absolute/path/to/source-packages \
+  --parser-version '<实际 MinerU 版本>'
+```
+
+转换器保留页码、bbox、标题层级、表格、公式、Caption、原始资源路径和 MinerU block 引用。图片、图表与表格会携带同页相邻正文作为检索代理，但最终引用仍指向目标 Item 和原始 Asset。转换完成后先执行 `python3 app.py validate <package>`，再进入下方两阶段构建。
+
+### 导入官方图文问答结果
+
+官方结果表只作为离线评测基线，不进入 Wiki 构建或查询上下文：
+
+```bash
+python3 tools/import_evaluation_results.py \
+  /path/to/图文回答_Results.xlsx \
+  --output evaluation/pending/official_image_text_50.jsonl \
+  --summary-output evaluation/pending/official_image_text_50_baseline.json
+```
+
+完成 MinerU 解析和 Wiki 构建后，再核验并补齐 `source_id`、`page_refs`、`evidence_item_ids` 和 `wiki_page_paths`。标签补齐前，该文件不能用于正式检索指标计算。
+
 ## 接入用户已有 Markdown Wiki
 
 多模态能力以现有文本 Wiki 为基座，不另起一套视觉系统。原始 Wiki 只读，导入后生成派生视图：
@@ -313,13 +372,13 @@ python3 app.py query "图片中的系统架构是什么？" \
 
 开关关闭时不会调用 VLM、Embedding 或 Rerank，也不会删除已有向量索引。
 
-## 仓库内置构建数据
+## 当前数据与历史回归样本
 
-`data/source_packages/` 中的 5 份 Source Package 仅作为框架回归测试数据，共包含 212 个 Item、182 个 Chunk 和 28 个视觉 Asset。实际使用时由用户提供符合 `mmwiki-0.1` 的数据包，构建、Page Index、检索和展示链路不依赖这 5 个来源的名称或内容。
+当前演示只读取 `runtime/official-image-text/wiki-runtime/` 对应的 10 个新来源。`data/source_packages/` 中的旧版小样本仅用于单元测试和历史基准复现，不参与当前 OpenCode 问答、状态统计或演示问题。
 
 ```bash
 python3 app.py validate \
-  data/source_packages/论文_002_cs_LG/1d9dabf3e92b
+  runtime/official-image-text/source-packages/104页-ERP财务供应链解决方案
 ```
 
 完整数据清单、版本和使用边界见 [data/README.md](data/README.md)。合同、简历和财报等已排除来源不随仓库上传。
@@ -352,6 +411,24 @@ python3 app.py build-index --source-id <package-id> \
   --vlm on --vector-retrieval on
 ```
 
+这里的“多模态增量”包含两层，不能混为一谈：
+
+1. **Wiki 覆盖层**：来源中的完整表格、公式、原图及其页码、区域和 Evidence ID 全部进入来源页、Evidence 地图和本地资源目录。
+2. **视觉语义层**：OCR 与 VLM Caption 是额外的派生 Evidence。大文档可以只对与稳定知识页或当前测试问题相关的图片执行，未调用 OCR/VLM 的图片仍然保留在 Wiki 中，不会被删除或降为纯文本。
+
+只对指定图片或图表执行高成本视觉处理时，可重复传入 `--visual-item-id`：
+
+```bash
+python3 app.py ingest /absolute/path/to/package \
+  --provider api \
+  --stage multimodal \
+  --vlm on \
+  --visual-item-id item-p0004-b0007 \
+  --visual-item-id item-p0012-b0003
+```
+
+该参数限制的是 OCR/VLM 与稳定知识页的视觉补强范围，不限制来源页的多模态覆盖范围。省略该参数时，视觉模型按原有逻辑处理该来源的全部多模态 Item。
+
 当 `--vlm on` 时，`multimodal` 阶段先识别资源类型，再按成本策略生成持久表示。普通构建由视觉模型按 `MMWIKI_VISION_BATCH_SIZE` 分批处理；`--full-scale` 直接复用页面级视觉分析中的图片注释，不额外重复调用一次视觉模型。处理计划和结果保存到 `state.sources[package_id].visual_evidence`，并在 Evidence 页的原始 Caption 下展示：
 
 | 资源类型 | 主表示 | 持久处理策略 |
@@ -365,16 +442,18 @@ python3 app.py build-index --source-id <package-id> \
 类型优先读取 Source Package 的 `metadata.visual_type/resource_type/image_type`；未提供时再根据 Item 类型、Caption 和 breadcrumb 做保守判断。每条派生 Evidence 均记录 `processing_policy`，运行统计会给出各类型数量、计划 OCR 数和计划 Caption 数。
 
 ```markdown
-**原始 Caption：** (b) ReToken achieves more than 3x recall...
+**原始 Caption：** 图 1 厚叶卷瓣兰。A：生境；B：花侧面观；C：花背面观；D：花正面观。
 
 **Image Caption：**
-图中展示不同层的 Recall@1 曲线。
+四联图展示厚叶卷瓣兰的生境及花的侧面、背面和正面结构，并可见紫色斑点。
 
 **Image OCR：**
-Layer 14 附近的 Recall@1 约为 6.8%。
+A  B  C  D
 ```
 
-`Image Caption` 和 `Image OCR` 会作为图片的派生子 Evidence 进入 BM25；配置文本向量模型并开启向量检索后，也会进入文本向量索引，但不会重复建立视觉向量。查询 `6.8` 时命中的派生记录仍通过父级 Item、Chunk 和 Asset 返回原图。
+`Image Caption` 和 `Image OCR` 会作为图片的派生子 Evidence 进入 BM25；配置文本向量模型并开启向量检索后，也会进入文本向量索引。视觉向量只为已经生成可检索视觉 Evidence 的原图建立，不会把来源中的装饰图、重复图和未选图片无差别发送到视觉向量 API。查询分图、花色或斑点特征时，命中的派生记录仍通过父级 Item、Chunk 和 Asset 返回原图。
+
+这里区分两种覆盖范围：所有解析出的图片、表格和公式都进入 Wiki 来源页、Evidence 地图与本地资源目录，保证内容完整和可追溯；OCR、VLM Caption 与视觉向量只覆盖成本策略选中的图片。普通事实问题优先用页面、文本、表格和 Caption 检索，明确的颜色、布局、箭头、物体或空间关系问题再进入 Multimodal。这样保留完整多模态 Wiki，同时避免对全部图片重复执行高成本视觉计算。
 
 图片内容按 SHA-256 缓存在 `runtime/build-cache/visual/`。相同图片、模型、任务和提示词版本不重复调用 OCR/VLM；单张图片或单个批次失败会保留失败状态，不阻断其他图片处理。Pipeline 还会保存不含密钥的视觉构建契约与签名；同一来源先以 `--vlm off` 构建、再切换为 `--vlm on` 时会补建派生视觉 Evidence，而不会被错误判定为 `unchanged`。默认关闭向量检索不会删除已有索引。
 
@@ -424,7 +503,7 @@ python3 app.py build-wiki-index --vector-retrieval on
 自由问题示例：
 
 ```text
-/wiki-ask 请结合原图解释 Figure 4 的数据流，并给出 Evidence ID。
+/wiki-ask 请观察厚叶卷瓣兰第 2 页原图，说明 A、B、C、D 四个分图及花朵颜色特征，并给出 Evidence ID。
 ```
 
 正式回答固定包含：
@@ -436,7 +515,7 @@ python3 app.py build-wiki-index --vector-retrieval on
 
 OpenCode 对话是默认的完整问答页面，用户不离开 OpenCode 也能看完结论、证据、表格和图片。用户点击证据卡片时直接进入对应 Wiki 页面或来源页中的 Evidence 锚点，不经过重复展示答案的中间页；双栏核验路由仅为旧链接和内部调试保留。
 
-更详细的桌面版操作说明见 [OPENCODE_START_HERE.md](OPENCODE_START_HERE.md)。
+更详细的桌面版操作说明见 [OPENCODE_START_HERE.md](OPENCODE_START_HERE.md)；在另一台电脑上首次安装时，请直接按 [OPENCODE_NEW_COMPUTER_GUIDE.md](OPENCODE_NEW_COMPUTER_GUIDE.md) 操作。
 
 ## 检索模式
 
@@ -500,6 +579,20 @@ python3 tools/evaluate_retrieval.py \
   --retrieval-mode hybrid
 ```
 
+隔离 Runtime 评测需显式传入相同目录：
+
+```bash
+python3 tools/evaluate_retrieval.py \
+  --suite /path/to/reviewed-suite.jsonl \
+  --runtime-root runtime/official-image-text/wiki-runtime \
+  --retrieval-mode hybrid
+
+python3 tools/evaluate_online.py \
+  --suite /path/to/reviewed-suite.jsonl \
+  --runtime-root runtime/official-image-text/wiki-runtime \
+  --provider api --retrieval-mode hybrid
+```
+
 运行文本 Wiki → 多模态增量的工程基准：
 
 ```bash
@@ -515,7 +608,7 @@ python3 tools/benchmark_staged_pipeline.py --offline
 - 所有稳定知识页必须记录 `source_ids`、`source_versions` 和 `evidence_ids`。
 - Query 只追加日志，不自动把回答写入稳定知识页。
 - 外部模型可能接收候选文字、表格或图片；敏感数据必须先取得外发授权。
-- Git 默认排除 `.env`、`runtime/`、`reports/`、`docs/`、原始文档和本地展示工程。
+- Git 必须排除 `.env`、MinerU Token、API Key、Runtime 查询/整理日志、编辑器本机状态、原始文档和云解析中间缓存；可迁移包只保留经过清理的新数据 Source Package、活动 Wiki Runtime 和必要索引。
 
 ## 协作与提交
 

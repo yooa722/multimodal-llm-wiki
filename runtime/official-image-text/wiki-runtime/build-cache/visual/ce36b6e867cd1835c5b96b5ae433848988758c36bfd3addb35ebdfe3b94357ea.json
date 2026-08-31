@@ -1,0 +1,28 @@
+{
+  "sha256": "ce36b6e867cd1835c5b96b5ae433848988758c36bfd3addb35ebdfe3b94357ea",
+  "ocr": {
+    "status": "ready",
+    "text": "| 所属 | 参数 | 参数名称 | 参数值 | 取值范围 |\n| --- | --- | --- | --- | --- |\n| 模块 | 代码 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  |  |\n| 库存 | 管理 |  |  | | --- | --- | --- | --- |\n| 模块 | 代码 |  |  |  |\n| 库存管理 | IC014 | 最高库存的检查方式 | 提示 | 提示，不通过 |\n| 库存管理 | IC016 | 最低库存的检查方式 | 提示 | 提示, 不通过 |\n| 库存管理 | IC018 | 安全库存的检查方式 | 提示 | 提示, 不通过 |\n| 库存管理 | IC026 | 入库货位参照的优先顺序 | 存量货位 | 存量货位,空货位,上次入库货位 |\n| 库存管理 | IC040 | 货位参照是否使用系统缺省参照 | 是 | 是/否 |\n| 库存管理 | IC049 | 存量管理按库存组织还是按仓库 | 库存组织 | 库存组织,仓库 |\n| 库存管理 | IC050 | 存货参照过滤按照库存组织还是仓库 | 库存组织 | 库存组织,仓库 |\n| 库存管理 | IC090 | 可用量不足检查 | 不检查 | 不检查,提示,检查 |",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "table_screenshot",
+    "primary_representation": "structured_table",
+    "run_caption": false,
+    "run_ocr": true,
+    "ocr_policy": "assistive",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对"
+  },
+  "generated_at": "2026-08-30T14:07:23.047910+00:00",
+  "caption": {
+    "status": "skipped",
+    "text": "",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对",
+    "model": "qwen3-vl-plus"
+  }
+}

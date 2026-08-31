@@ -31,6 +31,8 @@ def main() -> int:
         f"MMWIKI_API_KEY={key}\n"
         "MMWIKI_BUILD_MODEL=qwen3.7-plus\n"
         "MMWIKI_VISION_MODEL=qwen3-vl-plus\n"
+        "MMWIKI_TEXT_EMBEDDING_MODEL=text-embedding-v4\n"
+        "MMWIKI_EMBEDDING_DIMENSION=512\n"
         "MMWIKI_TIMEOUT=180\n"
         "MMWIKI_MAX_IMAGES=4\n"
         "MMWIKI_MAX_OUTPUT_TOKENS=3000\n"

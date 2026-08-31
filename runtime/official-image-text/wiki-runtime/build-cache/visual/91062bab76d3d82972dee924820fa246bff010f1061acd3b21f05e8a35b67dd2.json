@@ -1,0 +1,196 @@
+{
+  "sha256": "91062bab76d3d82972dee924820fa246bff010f1061acd3b21f05e8a35b67dd2",
+  "ocr": {
+    "status": "ready",
+    "text": "( a) 衢衢状\n\n高度/cm\n\n0%\n25%\n30%\n35%\n40%\n45%\n\n10\n2\n4\n6\n8\n10 12\n\n风速/(m·s⁻¹)",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "diagram_chart",
+    "primary_representation": "ocr+vlm_caption",
+    "run_caption": true,
+    "run_ocr": true,
+    "ocr_policy": "always",
+    "reason": "流程图或图表同时保留图中文字和整体视觉语义"
+  },
+  "generated_at": "2026-08-31T02:12:08.151164+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "折线图(a)标注‘匍匐状’，横轴为风速/(m·s⁻¹)（0–10），纵轴为高度/cm（0–60）；图中含六条曲线分别对应0%、25%、30%、35%、40%、45%覆盖度，各曲线在风速≈8 m/s处急剧上升至约50–60 cm；图例使用空心方块、实心圆点等符号区分覆盖度。",
+    "model": "qwen3-vl-plus"
+  },
+  "batch_shas": [
+    "91062bab76d3d82972dee924820fa246bff010f1061acd3b21f05e8a35b67dd2",
+    "22073fe6ade01ea71ff788c569b3a78543038cbc049f9a8323b8538a4fd7275f",
+    "aef60f638734fba447737bddba74376ed5a9a166f5b86c770b194802d54745e9",
+    "bc4d85d7641f45065628fe81272d2d1483ebc324ed7c2655b701564ee95d901b",
+    "1303f16873248b1c38e4b017d64211d986bfc684777e94df2bbdaa66fdafe1d8"
+  ],
+  "analysis": {
+    "summary": "本研究通过风洞实验，系统比较了匍匐状、球状和丛状三类典型草本植物在25%–45%覆盖度下对沙面风蚀的抑制作用。核心发现包括：(1) 风蚀率随覆盖度线性下降（R² > 0.87），同等覆盖度下丛状 > 球状 > 匍匐状；(2) 风蚀抑制效率随覆盖度线性上升（P < 0.003），45%覆盖度时匍匐状最高（71.54%），丛状最低（56.94%）；(3) 变异系数随覆盖度线性减小（R² = 0.9599, P < 0.003），表明株型间差异在低覆盖度时更显著；(4) 空气动力学粗糙度（Z₀）计算采用对数插值公式（Eq.1），风蚀抑制效率K定义为(F₁−F₂)/F₁×100%（Eq.3）。所有结论均基于原始图表与公式证据。",
+    "claims": [
+      {
+        "statement": "风蚀抑制效率K定义为(F₁−F₂)/F₁×100%，其中F₁为空白对照风蚀量，F₂为植被覆盖下的风蚀量。",
+        "evidence_refs": [
+          "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0011"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "空气动力学粗糙度Z₀通过公式Z₀ = exp[(V₁ ln Z₂ − V₂ ln Z₁)/(V₁ − V₂)]计算，其中V₁、V₂为不同高度风速，Z₁、Z₂为对应粗糙度。",
+        "evidence_refs": [
+          "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0005"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "在8 m·s⁻¹指示风速下，三类株型风蚀率均随覆盖度增加呈线性减少（R² > 0.87），且覆盖度越低，三者差异越大；45%覆盖度时，匍匐状风蚀率为0.48 g·m⁻²·min⁻¹，球状为0.62，丛状为0.72。",
+        "evidence_refs": [
+          "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0019",
+          "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0002"
+        ],
+        "provenance": "inferred"
+      },
+      {
+        "statement": "风蚀抑制效率随覆盖度线性增大，在45%覆盖度时，匍匐状（71.54%）> 球状（63.20%）> 丛状（56.94%）；在25%覆盖度时，球状（46.11%）≈ 匍匐状（44.10%）> 丛状（20.48%）。",
+        "evidence_refs": [
+          "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0006"
+        ],
+        "provenance": "inferred"
+      },
+      {
+        "statement": "风蚀抑制效率的变异系数随覆盖度线性减小（y = −0.0129x + 0.689, R² = 0.9599），表明低覆盖度下株型间抗风蚀性能差异更显著。",
+        "evidence_refs": [
+          "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0007"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "三类株型的风蚀抑制效率拟合斜率关系为：丛状 > 匍匐状 > 球状，意味着丛状株型效率随覆盖度增长最快，低覆盖时效率最低，高覆盖时差距缩小。",
+        "evidence_refs": [
+          "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0006"
+        ],
+        "provenance": "inferred"
+      },
+      {
+        "statement": "当覆盖度<35%时，匍匐状风蚀率大于球状；当覆盖度>35%时，球状大于匍匐状；35%时二者风蚀率接近（约0.73 g·m⁻²·min⁻¹）。",
+        "evidence_refs": [
+          "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0019"
+        ],
+        "provenance": "inferred"
+      }
+    ],
+    "entities": [
+      {
+        "name": "匍匐状株型"
+      },
+      {
+        "name": "球状株型"
+      },
+      {
+        "name": "丛状株型"
+      },
+      {
+        "name": "沙盘实验"
+      },
+      {
+        "name": "风洞实验"
+      }
+    ],
+    "concepts": [
+      {
+        "name": "风蚀率"
+      },
+      {
+        "name": "风蚀抑制效率"
+      },
+      {
+        "name": "空气动力学粗糙度"
+      },
+      {
+        "name": "覆盖度"
+      },
+      {
+        "name": "变异系数"
+      },
+      {
+        "name": "株型结构"
+      },
+      {
+        "name": "风蚀抑制机制"
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "植物株型",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新增风蚀抑制效率、变异系数与覆盖度关系的量化证据，补充株型分类在防风固沙中的动态行为特征（如效率斜率差异、临界覆盖度35%的转折点），原页仅静态分类，现可支持机制分析。"
+      },
+      {
+        "title": "风蚀抑制效率",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新增实测数据（25%–45%覆盖度下三类株型具体效率值及线性拟合函数）、变异系数变化规律（图7），强化定义的实证基础与适用边界。"
+      },
+      {
+        "title": "空气动力学粗糙度",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新增Z₀计算公式（Eq.1）及其实验依据（图4中三类株型Z₀随覆盖度变化趋势），将抽象参数与株型结构关联，支撑‘不同株型增加速率存在差异’的原陈述。"
+      },
+      {
+        "title": "3类典型株型草本植物对沙面风蚀抑制作用的研究",
+        "kind": "analysis",
+        "action": "update",
+        "reason": "新增全部5张图表与2个核心公式作为多模态证据，使该分析页从纯文本描述升级为可验证的实证分析页，符合multimodal representation layer要求。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-91062bab76d3d82972de",
+        "evidence_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0019",
+        "caption": "折线图(a)标注‘匍匐状’，横轴为风速/(m·s⁻¹)（0–10），纵轴为高度/cm（0–60）；图中含六条曲线分别对应0%、25%、30%、35%、40%、45%覆盖度，各曲线在风速≈8 m/s处急剧上升至约50–60 cm；图例使用空心方块、实心圆点等符号区分覆盖度。"
+      },
+      {
+        "asset_id": "asset-22073fe6ade01ea71ff7",
+        "evidence_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0003-b0020",
+        "caption": "折线图(b)标注‘球状’，坐标轴与图(a)相同；六条曲线对应0%–45%覆盖度，在风速≈8 m/s处上升至约50–60 cm；低覆盖度（0%–30%）曲线呈明显三角形开口，高覆盖度曲线趋近重合。"
+      },
+      {
+        "asset_id": "asset-aef60f638734fba44773",
+        "evidence_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0002",
+        "caption": "散点拟合图，横轴为覆盖度/%（20–50），纵轴为风蚀率/(g·m⁻²·min⁻¹)（0.2–1.7）；含三组数据：匍匐状（◆）、丛状（*）、球状（△），分别拟合线性方程并标注R²值（0.967, 0.9746, 0.8728）；图例说明线型对应株型。"
+      },
+      {
+        "asset_id": "asset-bc4d85d7641f45065628",
+        "evidence_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0006",
+        "caption": "散点拟合图，横轴为覆盖度/%（20–50），纵轴为风蚀抑制效率/%（0–80）；三组数据：匍匐状（◆）、丛状（*）、球状（△），各自拟合直线并标注方程与R²（0.8728, 0.967, 0.9746）；图例标明线型与株型对应关系。"
+      },
+      {
+        "asset_id": "asset-1303f16873248b1c38e4",
+        "evidence_id": "3-类典型株型草本植物对沙面风蚀抑制作用的研究@f6bdeb42a3b8#item-p0004-b0007",
+        "caption": "散点拟合图，横轴为覆盖度/%（20–50），纵轴为变异系数（0–0.5）；五个空心圆点呈线性下降趋势，拟合直线为y = −0.0129x + 0.689，R² = 0.9599。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 11141,
+      "total_tokens": 13749,
+      "completion_tokens": 2608,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "image_tokens": 936,
+        "text_tokens": 10205
+      },
+      "completion_tokens_details": {
+        "text_tokens": 2608
+      }
+    }
+  }
+}

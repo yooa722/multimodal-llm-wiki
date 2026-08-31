@@ -237,8 +237,13 @@ def main() -> int:
         default=PROJECT_ROOT,
         help="待评测项目根目录；默认使用当前仓库",
     )
+    parser.add_argument(
+        "--runtime-root",
+        type=Path,
+        help="可选：使用隔离 Runtime，避免覆盖默认演示知识库",
+    )
     args = parser.parse_args()
-    pipeline = WikiPipeline(args.root)
+    pipeline = WikiPipeline(args.root, runtime_root=args.runtime_root)
     cases = load_jsonl(args.suite)
     result = evaluate_pipeline(
         pipeline,

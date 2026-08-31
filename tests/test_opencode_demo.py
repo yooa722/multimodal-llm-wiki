@@ -105,11 +105,26 @@ class OpenCodeDemoTests(unittest.TestCase):
         self.assertIn("Full Evidence", skill)
         self.assertIn("belong only in the numbered evidence cards", skill)
         self.assertIn('markdownResult(context, "Wiki 完整回答"', tool_source)
-        self.assertIn('PRESENTATION_VERSION = "split-query-v2"', tool_source)
+        self.assertIn('PRESENTATION_VERSION = "split-query-v3"', tool_source)
+        self.assertIn("/api/v1/ping", tool_source)
+        self.assertIn("request.setTimeout(3000", tool_source)
+        self.assertIn("wiki-server.log", tool_source)
         self.assertIn('"tool.execute.after"', passthrough)
         self.assertIn('"experimental.text.complete"', passthrough)
         self.assertIn("output.text = wikiOutput", passthrough)
         self.assertIn("pendingBySession.delete", passthrough)
+
+    def test_fixed_demo_commands_use_the_active_official_dataset(self) -> None:
+        root = Path(__file__).parents[1]
+        table = (root / ".opencode/commands/wiki-table.md").read_text(encoding="utf-8")
+        image = (root / ".opencode/commands/wiki-image.md").read_text(encoding="utf-8")
+        refusal = (root / ".opencode/commands/wiki-refuse.md").read_text(encoding="utf-8")
+        combined = "\n".join((table, image, refusal))
+        self.assertIn("S001", table)
+        self.assertIn("厚叶卷瓣兰", image)
+        self.assertIn("精确 RGB", refusal)
+        self.assertNotIn("开发测试", combined)
+        self.assertNotIn("Figure 4", combined)
 
     def test_markdown_table_keeps_complete_rows_and_escapes_pipes(self) -> None:
         rendered = markdown_table(

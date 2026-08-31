@@ -1,0 +1,28 @@
+{
+  "sha256": "655b51a4f3f8cfb111509d6a2e022519204b2b2beca5c82ac3e8b2500f1f4caf",
+  "ocr": {
+    "status": "ready",
+    "text": "供应商编码\t供应商名称\n01.01.0001\n01.01.0002\n01.01.0003\n01.01.0004\n01.01.0005\n01.01.0006\n01.01.0007\n01.01.0008",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "table_screenshot",
+    "primary_representation": "structured_table",
+    "run_caption": false,
+    "run_ocr": true,
+    "ocr_policy": "assistive",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对"
+  },
+  "generated_at": "2026-08-30T14:07:19.022731+00:00",
+  "caption": {
+    "status": "skipped",
+    "text": "",
+    "reason": "表格以 rows/cells/html 结构为准，OCR 仅用于辅助核对",
+    "model": "qwen3-vl-plus"
+  }
+}

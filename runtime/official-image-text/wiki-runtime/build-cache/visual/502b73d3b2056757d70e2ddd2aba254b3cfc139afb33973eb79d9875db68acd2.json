@@ -1,0 +1,210 @@
+{
+  "sha256": "502b73d3b2056757d70e2ddd2aba254b3cfc139afb33973eb79d9875db68acd2",
+  "ocr": {
+    "status": "skipped",
+    "text": "",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力",
+    "model": "qwen3.5-ocr",
+    "task": "text_recognition"
+  },
+  "ocr_model": "qwen3.5-ocr",
+  "ocr_task": "text_recognition",
+  "caption_model": "qwen3-vl-plus",
+  "prompt_version": "cost-aware-visual-evidence-v2",
+  "processing_policy": {
+    "resource_type": "natural_image",
+    "primary_representation": "vlm_caption",
+    "run_caption": true,
+    "run_ocr": false,
+    "ocr_policy": "on_demand",
+    "reason": "自然图片优先生成 VLM Caption，OCR 保留为按需能力"
+  },
+  "generated_at": "2026-08-31T02:29:35.555532+00:00",
+  "caption": {
+    "status": "ready",
+    "text": "左侧竖排图标：三条横线代表‘探索型用户路径：浏览’，放大镜波形图代表‘决策型用户路径：搜索’；中间流程图显示‘浏览→产生需求’与‘搜索→深度决策’，各阶段上方标有绿色‘品牌机会’标签；右侧两个对话气泡分别列出用户在浏览阶段（如‘露营这么穿蛮好看的？’）和搜索阶段（如‘这个防晒指数怎么样？’）的典型问题；左下角有‘INSPIRE LIVES’字样，右下角有‘2023Xiao’水印。",
+    "model": "qwen3-vl-plus"
+  },
+  "analysis": {
+    "summary": "新来源为小红书2023年5月7日发布的《服饰潮流行业：好产品赢战618》指南，核心内容包括：(1) 用户消费路径分为探索型（浏览→产生需求）与决策型（搜索→深度决策），并对应不同品牌机会；(2) 618投放节奏上蓄水期重信息流、冲刺期重搜索；(3) 新增「视频流」流量场域；(4) 聚光平台推出「商品销量」功能支持电商转化。该来源可更新小红书、KFS营销模型、618电商大促及服饰潮流行业闭环营销等已有页面。",
+    "claims": [
+      {
+        "statement": "小红书用户消费路径分为探索型（浏览）与决策型（搜索）两类，前者激发对产品的灵感，后者深入对产品的决策。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0006-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "探索型用户路径中，品牌机会在于‘产生需求’阶段；决策型用户路径中，品牌机会在于‘深度决策’阶段。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0006-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "618投放节奏总览为：蓄水期重信息流，冲刺期重搜索。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "小红书全新引入「视频流」作为流量场域。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0007"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "聚光平台提供「商品销量」功能，用于电商营销客户转化。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "从浏览到搜索的流转符合真实消费路径。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0005-b0006"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "用户在浏览阶段会因品牌机会产生需求（如‘露营这么穿蛮好看的？’），在搜索阶段会进行深度决策（如‘这个防晒指数怎么样？’）。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0006-b0001"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "商品详情页底部设有‘购买同款’按钮，价格为¥179，支持7天无理由退货。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0004"
+        ],
+        "provenance": "extracted"
+      },
+      {
+        "statement": "视频流流量路径为：首页信息流 → 商品详情页 → 直播间/店铺页 → 下单页。",
+        "evidence_refs": [
+          "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0007"
+        ],
+        "provenance": "inferred"
+      }
+    ],
+    "entities": [
+      {
+        "name": "小红书"
+      },
+      {
+        "name": "聚光平台"
+      },
+      {
+        "name": "MOLY VIVI"
+      }
+    ],
+    "concepts": [
+      {
+        "name": "探索型用户路径"
+      },
+      {
+        "name": "决策型用户路径"
+      },
+      {
+        "name": "品牌机会"
+      },
+      {
+        "name": "视频流"
+      },
+      {
+        "name": "商品销量功能"
+      },
+      {
+        "name": "618投放节奏"
+      },
+      {
+        "name": "沉浸浏览"
+      },
+      {
+        "name": "深度搜索"
+      },
+      {
+        "name": "流量升级"
+      }
+    ],
+    "contradictions": [],
+    "page_actions": [
+      {
+        "title": "小红书",
+        "kind": "entity",
+        "action": "update",
+        "reason": "新证据补充了小红书平台内用户路径分型（探索型/决策型）、618投放节奏策略及视频流场域等多模态运营细节，属于已有页面的增量补充。"
+      },
+      {
+        "title": "KFS营销模型",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新证据虽未直接提及KFS三要素名称，但‘探索型→产生需求’与‘决策型→深度决策’路径可映射至KFS中的Feel（感知）与Shop（决策），需更新模型解释以匹配实际用户行为。"
+      },
+      {
+        "title": "618电商大促",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新增‘蓄水期重信息流，冲刺期重搜索’的节奏描述及‘视频流’场域引入，是对2023年618策略的细化补充。"
+      },
+      {
+        "title": "服饰潮流行业闭环营销",
+        "kind": "concept",
+        "action": "update",
+        "reason": "新证据明确展示了‘选品→内容→直播→投流’链路中的关键环节（如沉浸浏览、深度搜索、视频流、商品销量功能），应整合进闭环营销框架。"
+      }
+    ],
+    "image_annotations": [
+      {
+        "asset_id": "asset-d3edb34dcd9ab0a2b83e",
+        "evidence_id": "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0005-b0006",
+        "caption": "左侧为小红书App首页双列信息流界面，含7-Eleven夜景、插画、陶瓷餐盘等内容卡片；右侧为搜索框输入‘上海吧考研人’后的搜索结果列表；中间粉色圆形区域标注‘从浏览到搜索的流转 符合真实消费路径’，带双向箭头连接左右手机屏。"
+      },
+      {
+        "asset_id": "asset-502b73d3b2056757d70e",
+        "evidence_id": "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0006-b0001",
+        "caption": "左侧竖排图标：三条横线代表‘探索型用户路径：浏览’，放大镜波形图代表‘决策型用户路径：搜索’；中间流程图显示‘浏览→产生需求’与‘搜索→深度决策’，各阶段上方标有绿色‘品牌机会’标签；右侧两个对话气泡分别列出用户在浏览阶段（如‘露营这么穿蛮好看的？’）和搜索阶段（如‘这个防晒指数怎么样？’）的典型问题；左下角有‘INSPIRE LIVES’字样，右下角有‘2023Xiao’水印。"
+      },
+      {
+        "asset_id": "asset-abaaa3dddcb69022c352",
+        "evidence_id": "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0001",
+        "caption": "红色圆环内嵌灰色放大镜图标，镜片中央有一短横线，整体为简洁图形标识，无文字。"
+      },
+      {
+        "asset_id": "asset-7bc3ecf9930710c39dfd",
+        "evidence_id": "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0004",
+        "caption": "左侧为小红书商品详情页截图：白色连帽防晒衣模特图，标价¥179; 下方有‘MOLY VIVI·盈感长款/短款防晒衣·香草白 短’标题；底部功能栏含‘店铺’‘客服’‘购物车’‘加入购物车’‘立即购买’按钮；绿色箭头指向底部‘购买同款 ¥179’按钮。右侧为短视频截图：展示同款防晒衣细节，字幕‘帽檐也很大 跟遮阳帽差不多’；下方有‘MOLYVIVI 关注’及文案‘夏日标配 | molyvivi原纱型防晒衣…’；左下角有‘INSPIRE LIVES’字样。"
+      },
+      {
+        "asset_id": "asset-20be07e32cd1c6186ade",
+        "evidence_id": "20230507-小红书-服饰潮流行业-好产品赢战618@7943c2dd3155#item-p0031-b0007",
+        "caption": "四屏横向拼接图：第一屏为小红书首页信息流，含多张穿搭图文；第二屏为商品详情页（白色烤箱），下方有‘今天吃啥呀’标题；第三屏为直播间画面，主播穿浅蓝衬衫，背景有‘艾茗 家装’字样及‘你说你想要选择’文字；第四屏为下单页或订单确认页空白界面；三处红色矩形框分别标出信息流入口、商品页转化点、直播间互动区；箭头依次连接四屏表示用户路径。"
+      }
+    ],
+    "_usage": {
+      "prompt_tokens": 11723,
+      "total_tokens": 14182,
+      "completion_tokens": 2459,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "image_tokens": 4459,
+        "text_tokens": 7264
+      },
+      "completion_tokens_details": {
+        "text_tokens": 2459
+      }
+    }
+  },
+  "batch_shas": [
+    "d3edb34dcd9ab0a2b83e2d87a0c54e91fa864c3466db21a6223460bca5284beb",
+    "502b73d3b2056757d70e2ddd2aba254b3cfc139afb33973eb79d9875db68acd2",
+    "abaaa3dddcb69022c352dad1e1beba1e6c2cd121a781d19b3be979abdfec8c75",
+    "7bc3ecf9930710c39dfd110aab0ed864b28373fb4994808948fb7f7f162adc2a",
+    "20be07e32cd1c6186adec73f3fd2c287abba6e6ba546a1db8363a8bee04d1496"
+  ]
+}
